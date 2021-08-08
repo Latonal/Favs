@@ -1,0 +1,59 @@
+TODO :
+Remplacer la barre de scrolling
+Chaque fois qu'on ajoute une nouvelle category, ajouter un unique id
+Pour update une icon, e.preventDefault et lancer autre fonction avec menu
+
+Playground?
+
+// Global functionnality
+- Bouton pour ajouter une category (menu qui s'ouvre)
+- Pour les menu, proposer différentes organisation (comme pour icon-list, permettre d'organiser comme les folders sur téléphone -> créer des folders ?)
+- Ajouter un titre + texte
+- Ajouter une todo-list (bouton pour cocher et décocher, si coché alors on barre le texte)
+- Ajouter pagination OU menu
+- Ajouter horloge + timezones
+- Compteur et décompte
+- Ajouter changement de background (par section + couleur avec transparence)
+- Blank/Void area
+- Pouvoir porter le contenu d'une category vers une autre category (par exemple, un icon-list vers un sub-list) --> appendChild()
+- Music Category with possible 1 autoplay
+
+Bien d'avoir :
+- Une image par défaut au cas où une image ne peut pas être chargée
+- Animation de chargement en css (3 bar vertical de gauche à droite qui diminue et grandissent)
+
+// Setting for new box
+- Add link
+- Add text/ + changer couleur
+- Open in a new window
+- Advanced settings button :
+    - Margin/Padding (autour)
+    - Changer l'espace pris (drag & drop %)
+    - Default setting button
+- Icon-list
+    - Adjust Text (size) / Box Horizontal / Box Vertical
+
+// Aide de dév
+- Pour le drag & drop : Ajouter une div "category" ou un tag unique comme des sections
+- Lors du choix des icônes, mettre des data pour récupérer le nom de l'image
+
+// Download
+- READ.ME pour expliquer ce qu'il fait faire (déziper, mettre en raccourci de navigateur...)
+- Code pour exporter/importer les préférences pour modifications plus tard
+
+// Plus loin
+- Fil d'actu si nouveau contenu sur un site - ajouter un bouton pour supprimer les actus
+- Smart template
+- Sauvegardes de template
+
+// Aide :
+Drag and drop : https://www.javascripttutorial.net/web-apis/javascript-drag-and-drop/
+Pure CSS X : https://stackoverflow.com/questions/10019797/pure-css-close-button
+Drag and drop : https://www.kirupa.com/html5/drag.htm
+Placer after un élément: https://attacomsian.com/blog/javascript-insert-element-after
+Position du curseur dans un élément : https://stackoverflow.com/questions/3234256/find-mouse-position-relative-to-element/42111623#42111623
+Scrollbar : https://medium.com/frontend-development-with-js/how-to-hide-scrollbar-and-visible-only-scrolling-79cc3472e503
+
+// Explications : 
+Pour chaque category ajoutée, mettre une empty-box (avec custom margin) à la suite.
+Le site a par défaut une empty-box au tout début.
