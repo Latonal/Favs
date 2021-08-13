@@ -1,7 +1,7 @@
 isDraggable = false;
-// idCount = GetCategory().length; // Ou Unique ID // Ou Incrément
+// idCount = GetCategories().length; // Ou Unique ID // Ou Incrément
 
-function GetCategory() {
+function GetCategories() {
     // Get every categories
     var categories = document.getElementById('homepage').getElementsByClassName('category');
     return categories;
@@ -13,20 +13,20 @@ function GetEmptyBoxes() {
 }
 
 function DraggableCatgegories(val) {
-    var categories = GetCategory();
-    for (let i = 0; i < categories.length; i++) {
-        categories[i].setAttribute('draggable', val);
-        categories[i].classList.toggle("is-draggable");
+    var categories = GetCategories();
+    Array.from(categories).forEach(cat => {
+        cat.setAttribute('draggable', val);
+        cat.classList.toggle("is-draggable");
         // dragstart
         if (val) {
-            categories[i].addEventListener('dragstart', DragStart);
-            SetDragListenerToEmptyBoxes(); //
+            cat.addEventListener('dragstart', DragStart);
+            SetDragListenerToCategories(); //
         }
         else {
-            categories[i].removeEventListener('dragstart', DragStart);
-            UnsetDragListenerToEmptyBoxes();
+            cat.removeEventListener('dragstart', DragStart);
+            UnSetDragListenerToCategories();
         }
-    }
+    });
 }
 
 function SetDraggable() {
@@ -37,13 +37,12 @@ function SetDraggable() {
 // dragstart
 function DragStart(e) {
     e.dataTransfer.setData('text/plain', e.target.id);
-    // SetDragListenerToEmptyBoxes();
 }
 
-function SetDragListenerToEmptyBoxes() {
-    var emptyBoxes = GetEmptyBoxes();
+function SetDragListenerToCategories() {
+    var categories = GetCategories();
 
-    Array.from(emptyBoxes).forEach(box => {
+    Array.from(categories).forEach(box => {
         box.addEventListener('dragenter', DragEnter);
         box.addEventListener('dragover', DragOver);
         box.addEventListener('dragleave', DragLeave);
@@ -51,10 +50,10 @@ function SetDragListenerToEmptyBoxes() {
     });
 }
 
-function UnsetDragListenerToEmptyBoxes() {
-    var emptyBoxes = GetEmptyBoxes();
+function UnSetDragListenerToCategories() {
+    var categories = GetCategories();
 
-    Array.from(emptyBoxes).forEach(box => {
+    Array.from(categories).forEach(box => {
         box.removeEventListener('dragenter', DragEnter);
         box.removeEventListener('dragover', DragOver);
         box.removeEventListener('dragleave', DragLeave);
@@ -64,28 +63,48 @@ function UnsetDragListenerToEmptyBoxes() {
 
 function DragEnter(e) {
     e.preventDefault();
-    e.target.classList.add('drag-over');
+    e.target.classList.add('drag-over'); // 
 }
 
 function DragOver(e) {
     e.preventDefault();
-    e.target.classList.add('drag-over');
+    e.target.classList.add('drag-over'); //
+
+    GetPositionOfMouseAndSetCSS(e);
 }
 
 function DragLeave(e) {
-    e.target.classList.remove('drag-over');
+    e.target.classList.remove('drag-over'); //
 }
 
 function Drop(e) {
-    e.target.classList.remove('drag-over');
+    e.currentTarget.classList.remove('drag-over'); //
 
+    // drop element and data
     const id = e.dataTransfer.getData('text/plain');
     const draggable = document.getElementById(id);
 
-    // e.target.appendChild(draggable);
-    e.target.after(draggable);
+    e.currentTarget.after(draggable);
 }
 
+function GetPositionOfMouseAndSetCSS(e) {
+    // get size of element
+    var x = e.currentTarget.offsetWidth;
+    var y = e.currentTarget.offsetHeight;
+
+    // position to place
+    var mouseX = e.offsetX;
+    var mouseY = e.offsetY;
+
+    // assign value = example
+    if (mouseY < y / 100 * 50) {
+        console.log("1");
+    }
+    if (mouseY >= y / 100 * 50) {
+        console.log("2");
+    }
+
+}
 
 
 // DraggableCatgegories(true);

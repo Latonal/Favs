@@ -1,7 +1,9 @@
 TODO :
 Remplacer la barre de scrolling
+Mettre un + à la fin pour ajouter une nouvelle catégorie (qui se trouve en dehors du playground mais ajoutera *dans* le playground)
 Chaque fois qu'on ajoute une nouvelle category, ajouter un unique id
 Pour update une icon, e.preventDefault et lancer autre fonction avec menu
+Pour les liens, e.preventDefault pour éviter qu'ils soient cliquable et pouvoir les changer
 
 Playground?
 
@@ -12,7 +14,7 @@ Playground?
 - Ajouter une todo-list (bouton pour cocher et décocher, si coché alors on barre le texte)
 - Ajouter pagination OU menu
 - Ajouter horloge + timezones
-- Compteur et décompte
+- Compteur et décompte (décompte ==> message custom quand ça atteint 0 ? pareil pour compteur mais déterminer l'objectif ?)
 - Ajouter changement de background (par section + couleur avec transparence)
 - Blank/Void area
 - Pouvoir porter le contenu d'une category vers une autre category (par exemple, un icon-list vers un sub-list) --> appendChild()
@@ -50,10 +52,21 @@ Bien d'avoir :
 Drag and drop : https://www.javascripttutorial.net/web-apis/javascript-drag-and-drop/
 Pure CSS X : https://stackoverflow.com/questions/10019797/pure-css-close-button
 Drag and drop : https://www.kirupa.com/html5/drag.htm
-Placer after un élément: https://attacomsian.com/blog/javascript-insert-element-after
+Placer after un élément: https://attacomsian.com/blog/javascript-insert-element-after  // appendChild : mettre dans un élément
+Taille d'élément : https://code-boxx.com/get-width-height-elements-javascript/
 Position du curseur dans un élément : https://stackoverflow.com/questions/3234256/find-mouse-position-relative-to-element/42111623#42111623
 Scrollbar : https://medium.com/frontend-development-with-js/how-to-hide-scrollbar-and-visible-only-scrolling-79cc3472e503
+Event triggered only on parent : https://stackoverflow.com/a/53815609
+
+Github Page : https://pages.github.com/
 
 // Explications : 
 Pour chaque category ajoutée, mettre une empty-box (avec custom margin) à la suite.
 Le site a par défaut une empty-box au tout début.
+
+// Tuto :
+Au final, donner au début des raccourcis vers Youtube, Twitter, Tiktok en Icon-list
+et dans les autres style de la documentation de l'outil, mon Twitter, supporter le Github, etc
+
+// Bugs :
+Quand on slide un lien ou une image, ça créé un null
