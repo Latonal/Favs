@@ -31,9 +31,18 @@ html {
     background:rgba(255, 255, 255, 0);
 }
 
+/* Other */
+.test {
+    background-color:red;
+    color:red;
+}
+.hide {
+    display:none;
+}
+
 /* Menu */
 .edit-menu {
-    position:absolute;
+    position:fixed;
     top:100px;
     right:100px;
     /* padding:0 3px; */
