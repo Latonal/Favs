@@ -85,6 +85,9 @@ html {
 .category.is-dragged {
     cursor:grabbing;
 }
+.category.drag-over {
+    border:5px dotted #500000;
+}
 
 /* Background overlay for positioning */
 .drag-bottom {
@@ -104,37 +107,26 @@ html {
     background-repeat:no-repeat;
 }
 
-/* Empty box */
-.empty-box {
-    border:5px dotted #ffffff00;
-    transition:0.4s;
-}
-.empty-box.drag-over {
-    border:5px dotted #500000;
-}
-/* .empty-box.drag-over:hover {
-    border:5px dashed #ff0000;
-} */
-
 /* Icon list */
 .icon-list {
     display:block;
     margin-left:auto;
     margin-right:auto;
-}
-.icon-wrap {
     display:flex;
     flex-wrap: wrap;
     justify-content: center;
-    width:50%;
-    margin:auto;
 }
-.img-pos {
+.icon-list a .icon {
     width:50px;
     height:50px;
     margin:auto;
 }
-a.icon {
+.icon-list a img {
+    max-width:50px;
+    max-height:50px;
+    margin:auto;
+}
+.icon-list a {
     padding-top:15px;
     text-align:center;
     min-width:100px;
@@ -145,14 +137,14 @@ a.icon {
     color:#eeeeee;
     text-decoration: none;
 }
-a.icon:hover {
+.icon-list a:hover {
     background-color:#2e2e2e;
 }
-a.icon img {
+.icon-list img {
     max-width:50px;
     max-height:50px;
 }
-a.icon p {
+.icon-list p {
     margin-top:5px;
 }
 
@@ -178,8 +170,12 @@ a.icon p {
 .sub-list a:visited {
     color:#eeeeee;
 }
-.sub-list img {
-    width:auto;
+.sub-list .icon {
+    width:20px;
     height:20px;
     margin-right:10px;
+}
+.sub-list img {
+    max-width:20px;
+    max-height:20px;
 }
