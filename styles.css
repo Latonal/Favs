@@ -39,7 +39,7 @@ html {
 .hide {
     display:none;
 }
-#playground.link-disabled a {
+.link-disabled a {
     pointer-events: none;
 }
 
@@ -157,27 +157,28 @@ a.icon p {
 }
 
 /* Sub-list */
-.sub-list ul li {
-    list-style:none;
+.sub-list {
     display:flex;
-    flex-direction:row;
+    flex-direction:column;
     color:#eeeeee;
-    justify-content:center;;
+    justify-content:center;
+    align-items:center;
 }
-.sub-list ul li a:hover {
+.sub-list a:hover {
     background-color:#2e2e2e;
     transition:0.4s;
 }
-.sub-list ul li a {
+.sub-list a {
     display:flex;
+    color:#eeeeee;
     padding:5px;
     border-radius:5px;
     text-decoration:none;
 }
-.sub-list ul li a:visited {
+.sub-list a:visited {
     color:#eeeeee;
 }
-.sub-list ul li img {
+.sub-list img {
     width:auto;
     height:20px;
     margin-right:10px;

@@ -73,12 +73,12 @@ function UnSetDragListenerToCategories() {
 
 function DragEnter(e) {
     e.preventDefault();
-    e.target.classList.add('drag-over'); // 
+    e.currentTarget.classList.add('drag-over'); // 
 }
 
 function DragOver(e) {
     e.preventDefault();
-    e.target.classList.add('drag-over'); //
+    e.currentTarget.classList.add('drag-over'); //
 
     var val = GetPositionOfMouseAndSetCSS(e);
 
@@ -101,7 +101,7 @@ function DragOver(e) {
 }
 
 function DragLeave(e) {
-    e.target.classList.remove('drag-over'); //
+    e.currentTarget.classList.remove('drag-over'); //
     SetDragClasses(e, null);
 }
 
@@ -142,6 +142,8 @@ function GetPositionOfMouseAndSetCSS(e) {
     // position to place
     var mouseX = e.offsetX;
     var mouseY = e.offsetY;
+    // var mouseX = e.currentTarget.offsetX;
+    // var mouseY = e.currentTarget.offsetY;
 
     // assign value
     if (mouseY >= y / 100 * 50 && (mouseX > x / 100 * 15 && mouseX < x / 100 * 85)) return 1; // bottom
