@@ -39,6 +39,9 @@ html {
 .hide {
     display:none;
 }
+#playground.link-disabled a {
+    pointer-events: none;
+}
 
 /* Menu */
 .edit-menu {
@@ -72,6 +75,8 @@ html {
     border:5px dashed #ffffff00;
     border-radius:5px;
     transition:0.4s;
+    min-width:10px;
+    min-height:10px;
 }
 .category.is-draggable {
     border:5px dashed #63a2ff;
@@ -81,10 +86,27 @@ html {
     cursor:grabbing;
 }
 
+/* Background overlay for positioning */
+.drag-bottom {
+    background:linear-gradient(0deg, #722935 20%, rgba(0, 0, 0, 0) 50%);
+    background-repeat:no-repeat;
+}
+.drag-left {
+    background:linear-gradient(90deg, #722935 7.5%, rgba(0, 0, 0, 0) 15%);
+    background-repeat:no-repeat;
+}
+.drag-top {
+    background:linear-gradient(180deg, #722935 20%, rgba(0, 0, 0, 0) 50%);
+    background-repeat:no-repeat;
+}
+.drag-right {
+    background:linear-gradient(270deg, #722935 7.5%, rgba(0, 0, 0, 0) 15%);
+    background-repeat:no-repeat;
+}
+
 /* Empty box */
 .empty-box {
     border:5px dotted #ffffff00;
-    /* border:5px dotted #ff0000; */
     transition:0.4s;
 }
 .empty-box.drag-over {
