@@ -1,5 +1,5 @@
 TODO :
-Remplacer la barre de scrolling
+Quand il y a plusieurs category en une ligne mais que l'une est vide, ajouter un + et un X pour ajouter une nouvelle category ou supprimer l'espace vide
 Mettre un + à la fin pour ajouter une nouvelle catégorie (qui se trouve en dehors du playground mais ajoutera *dans* le playground)
 Chaque fois qu'on ajoute une nouvelle category, ajouter un unique id
 Pour update une icon, e.preventDefault et lancer autre fonction avec menu
@@ -19,6 +19,7 @@ Playground?
 - Blank/Void area
 - Pouvoir porter le contenu d'une category vers une autre category (par exemple, un icon-list vers un sub-list) --> appendChild()
 - Music Category with possible 1 autoplay
+- Pop-up au début qui demande d'activer Javascript
 
 Bien d'avoir :
 - Une image par défaut au cas où une image ne peut pas être chargée
@@ -57,8 +58,13 @@ Taille d'élément : https://code-boxx.com/get-width-height-elements-javascript/
 Position du curseur dans un élément : https://stackoverflow.com/questions/3234256/find-mouse-position-relative-to-element/42111623#42111623
 Scrollbar : https://medium.com/frontend-development-with-js/how-to-hide-scrollbar-and-visible-only-scrolling-79cc3472e503
 Event triggered only on parent : https://stackoverflow.com/a/53815609
+Background-color take defined size : https://stackoverflow.com/questions/8541081/css-set-a-background-color-which-is-50-of-the-width-of-the-window
+Disable all links : https://stackoverflow.com/questions/8002579/how-to-disable-all-a-links-using-javascript-in-firefox-and-chrome
 
 Github Page : https://pages.github.com/
+
+// Done :
+Remplacer la barre de scrolling
 
 // Explications : 
 Pour chaque category ajoutée, mettre une empty-box (avec custom margin) à la suite.

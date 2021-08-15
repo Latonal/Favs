@@ -3,13 +3,27 @@ isDraggable = false;
 
 function GetCategories() {
     // Get every categories
-    var categories = document.getElementById('homepage').getElementsByClassName('category');
-    return categories;
+    return document.getElementById('playground').getElementsByClassName('category');
 }
 
 function GetEmptyBoxes() {
-    var emptyBoxes = document.getElementById('homepage').getElementsByClassName('empty-box');
-    return emptyBoxes;
+    return document.getElementById('playground').getElementsByClassName('empty-box');
+}
+
+function GetEveryLinks() {
+    return document.getElementById('playground').getElementsByTagName("a");
+}
+
+function SetEveryLinks(val) {
+    if (val) document.getElementById('playground').classList.add('link-disabled');
+    else document.getElementById('playground').classList.remove('link-disabled');
+}
+
+
+/************************* DRAG CATEGORIES *************************/
+function SetDraggable() {
+    isDraggable = !isDraggable;
+    DraggableCatgegories(isDraggable);
 }
 
 function DraggableCatgegories(val) {
@@ -17,21 +31,17 @@ function DraggableCatgegories(val) {
     Array.from(categories).forEach(cat => {
         cat.setAttribute('draggable', val);
         cat.classList.toggle("is-draggable");
-        // dragstart
         if (val) {
             cat.addEventListener('dragstart', DragStart);
+            SetEveryLinks(true);
             SetDragListenerToCategories(); //
         }
         else {
             cat.removeEventListener('dragstart', DragStart);
+            SetEveryLinks(false);
             UnSetDragListenerToCategories();
         }
     });
-}
-
-function SetDraggable() {
-    isDraggable = !isDraggable;
-    DraggableCatgegories(isDraggable);
 }
 
 // dragstart
@@ -70,11 +80,29 @@ function DragOver(e) {
     e.preventDefault();
     e.target.classList.add('drag-over'); //
 
-    GetPositionOfMouseAndSetCSS(e);
+    var val = GetPositionOfMouseAndSetCSS(e);
+
+    switch (val) {
+        case 1:
+            SetDragClasses(e, 'drag-bottom');
+            break;
+        case 2:
+            SetDragClasses(e, 'drag-left');
+            break;
+        case 3:
+            SetDragClasses(e, 'drag-top');
+            break;
+        case 4:
+            SetDragClasses(e, 'drag-right');
+            break;
+        default:
+            break;
+    }
 }
 
 function DragLeave(e) {
     e.target.classList.remove('drag-over'); //
+    SetDragClasses(e, null);
 }
 
 function Drop(e) {
@@ -84,7 +112,26 @@ function Drop(e) {
     const id = e.dataTransfer.getData('text/plain');
     const draggable = document.getElementById(id);
 
-    e.currentTarget.after(draggable);
+    var val = GetPositionOfMouseAndSetCSS(e);
+    switch (val) {
+        case 1:
+            e.currentTarget.after(draggable);
+            break;
+        case 2:
+            // left
+            break;
+        case 3:
+            e.currentTarget.before(draggable);
+            break;
+        case 4:
+            // right
+            break;
+        default:
+            console.log(val);
+            break;
+    }
+
+    SetDragClasses(e, null);
 }
 
 function GetPositionOfMouseAndSetCSS(e) {
@@ -96,16 +143,29 @@ function GetPositionOfMouseAndSetCSS(e) {
     var mouseX = e.offsetX;
     var mouseY = e.offsetY;
 
-    // assign value = example
-    if (mouseY < y / 100 * 50) {
-        console.log("1");
-    }
-    if (mouseY >= y / 100 * 50) {
-        console.log("2");
-    }
-
+    // assign value
+    if (mouseY >= y / 100 * 50 && (mouseX > x / 100 * 15 && mouseX < x / 100 * 85)) return 1; // bottom
+    if (mouseX <= x / 100 * 15) return 2; // left
+    if (mouseY < y / 100 * 50 && (mouseX > x / 100 * 15 && mouseX < x / 100 * 85)) return 3; // top
+    if (mouseX >= x / 100 * 15) return 4; // right
 }
 
+function SetDragClasses(e, c) {
+    if (c !== 'drag-bottom') e.currentTarget.classList.remove('drag-bottom');
+    if (c !== 'drag-left') e.currentTarget.classList.remove('drag-left');
+    if (c !== 'drag-top') e.currentTarget.classList.remove('drag-top');
+    if (c !== 'drag-right') e.currentTarget.classList.remove('drag-right');
+
+    if (c !== null) e.currentTarget.classList.add(c);
+}
+/*************************  END DRAG CATEGORIES *************************/
+
+
+/************************* CREATE CATEGORIES *************************/
+
+// Don't forget unique ID
+
+/************************* END CREATE CATEGORIES *************************/
 
 // DraggableCatgegories(true);
 
