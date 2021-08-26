@@ -1,4 +1,4 @@
-/* Base */
+/************************* Base *************************/
 * {
     box-sizing: border-box;
     margin:0;
@@ -11,7 +11,7 @@ html {
     font-family:'Lato';
 }
 
-/* Scrollbar */
+/************************* Scrollbar *************************/
 ::-webkit-scrollbar {
     width:5px;
 }
@@ -31,7 +31,7 @@ html {
     background:rgba(255, 255, 255, 0);
 }
 
-/* Other */
+/************************* Other *************************/
 .test {
     background-color:red;
     color:red;
@@ -43,7 +43,7 @@ html {
     pointer-events: none;
 }
 
-/* Menu */
+/************************* Menu *************************/
 .edit-menu {
     position:fixed;
     top:100px;
@@ -70,7 +70,7 @@ html {
     background-color:red;
 }
 
-/* Category */
+/************************* Category *************************/
 .category {
     border:5px dashed #ffffff00;
     border-radius:5px;
@@ -89,7 +89,7 @@ html {
     border:5px dotted #500000;
 }
 
-/* Background overlay for positioning */
+/************************* Background overlay for positioning *************************/
 .drag-bottom {
     background:linear-gradient(0deg, #722935 20%, rgba(0, 0, 0, 0) 50%);
     background-repeat:no-repeat;
@@ -107,7 +107,7 @@ html {
     background-repeat:no-repeat;
 }
 
-/* Icon list */
+/************************* Icon list *************************/
 .icon-list {
     display:block;
     margin-left:auto;
@@ -120,6 +120,7 @@ html {
     width:50px;
     height:50px;
     margin:auto;
+    display:flex;
 }
 .icon-list a img {
     max-width:50px;
@@ -140,15 +141,11 @@ html {
 .icon-list a:hover {
     background-color:#2e2e2e;
 }
-.icon-list img {
-    max-width:50px;
-    max-height:50px;
-}
 .icon-list p {
     margin-top:5px;
 }
 
-/* Sub-list */
+/************************* Sub-list *************************/
 .sub-list {
     display:flex;
     flex-direction:column;
@@ -178,4 +175,16 @@ html {
 .sub-list img {
     max-width:20px;
     max-height:20px;
+}
+
+/************************* Animations *************************/
+@keyframes FadeOut {
+    from {opacity:1;}
+    to {opacity:0;}
+}
+
+.fade-out {
+    animation-name:FadeOut;
+    animation-duration:0.4s;
+    animation-fill-mode: forwards;
 }
