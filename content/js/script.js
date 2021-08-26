@@ -164,12 +164,24 @@ function SetDragClasses(e, c) {
 
 
 /************************* CREATE CATEGORIES *************************/
-
 // Don't forget unique ID
-
 /************************* END CREATE CATEGORIES *************************/
 
-// DraggableCatgegories(true);
 
-// When dragged, show dotted borders
-// Then show empty areas on top and bottom when over a category
+/************************* CACHE *************************/
+if ('caches' in window) { // If web browser support cache
+    test();
+}
+// TODO : else display message asking to upgrade web browser to allow cache
+/************************* END CACHE *************************/
+
+
+/************************* OTHERS *************************/
+function Fade(css, animation) {
+    css.classList.add(animation);
+    setTimeout(() => {
+        css.innerHTML = "";
+        css.classList.remove(animation);
+    }, 400);
+}
+/************************* END OTHERS *************************/
