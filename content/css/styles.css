@@ -188,3 +188,14 @@ html {
     animation-duration:0.4s;
     animation-fill-mode: forwards;
 }
+
+@keyframes FadeIn {
+    from {opacity:0;}
+    to {opacity:1;}
+}
+
+.fade-in {
+    animation-name:FadeIn;
+    animation-duration:0.4s;
+    animation-fill-mode: forwards;
+}

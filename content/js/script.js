@@ -170,7 +170,7 @@ function SetDragClasses(e, c) {
 
 /************************* CACHE *************************/
 if ('caches' in window) { // If web browser support cache
-    test();
+    StartCache();
 }
 // TODO : else display message asking to upgrade web browser to allow cache
 /************************* END CACHE *************************/
@@ -180,7 +180,6 @@ if ('caches' in window) { // If web browser support cache
 function Fade(css, animation) {
     css.classList.add(animation);
     setTimeout(() => {
-        css.innerHTML = "";
         css.classList.remove(animation);
     }, 400);
 }
