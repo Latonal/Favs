@@ -169,9 +169,9 @@ function SetDragClasses(e, c) {
 
 
 /************************* CACHE *************************/
-if ('caches' in window) { // If web browser support cache
-    StartCache();
-}
+// if ('caches' in window) { // If web browser support cache
+    StartData();
+// }
 // TODO : else display message asking to upgrade web browser to allow cache
 /************************* END CACHE *************************/
 

@@ -67,6 +67,8 @@ More about cache : https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage
 Fonction avant de quitter la page : https://stackoverflow.com/questions/28627111/how-to-call-a-function-before-leaving-page-with-javascript
 Inclure une fonction d'un autre fichier : https://www.geeksforgeeks.org/how-to-include-a-javascript-file-in-another-javascript-file/
 Savoir si on est en local ou non : https://stackoverflow.com/questions/3162457/how-to-check-with-javascript-if-connection-is-local-host
+IndexedDB use : https://www.w3docs.com/learn-javascript/javascript-indexeddb.html
+IndexedDB JSON : https://www.scriptol.com/javascript/indexedDB-JSON.php
 
 Github Page : https://pages.github.com/
 
