@@ -1,4 +1,5 @@
 TODO :
+"If you see this message, your browser is not compatible with most functionalities used, or you didn't allowed them. Default model has been applied."
 Créer un message qui dit qu'on utilise le cache, sinon désactiver le cache
     Sauvegarder avant de quitter la page
 Quand il y a plusieurs category en une ligne mais que l'une est vide, ajouter un + et un X pour ajouter une nouvelle category ou supprimer l'espace vide
