@@ -20,6 +20,47 @@ function SetEveryLinks(val) {
 }
 
 
+/************************* PLAYGROUND PARSER *************************/
+function PlaygroundParser() {
+    var data = defaultPlayground;
+    var html = '';
+    var id = 7;
+    console.log(data);
+    var test = document.getElementById('playground');
+    // console.log(data.playground.length);
+    data.playground.forEach(e1 => {
+        // Page : content / name
+        var v2 = '';
+        e1.content.forEach(e2 => {
+            var v3 = '';
+            e2.categories.forEach(e3 => {
+                console.log(e3);
+                var v4 = '';
+                if (e3.links) {
+                    e3.links.forEach(e4 => {
+                        // console.log(e4);
+                        var target4 = (e4.target) ? 'target="_blank"' : '';
+                        var css4 = (e4.customcss) ? 'style="' + e4.customcss + '"' : '';
+                        v4 += '<a href="' + e4.url + '" ' + target4 + ' ' + css4 + '><div class="icon"><img src="' + e4.icon + '"></div><p>' + e4.text + '</p></a>'
+                    });
+                }
+                var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
+                v3 += '<div class="category ' + e3.name + '" id="cat-' + id + '" ' + css3 +'>' + v4 + '</div>';
+                id++;
+            });
+
+            v2 += v3;
+        });
+        html += v2;
+    });
+
+
+
+    test.innerHTML += html;
+}
+/************************* END PLAYGROUND PARSER *************************/
+
+
 /************************* DRAG CATEGORIES *************************/
 function SetDraggable() {
     isDraggable = !isDraggable;
@@ -170,7 +211,8 @@ function SetDragClasses(e, c) {
 
 /************************* CACHE *************************/
 // if ('caches' in window) { // If web browser support cache
-    StartData();
+StartData();
+PlaygroundParser();
 // }
 // TODO : else display message asking to upgrade web browser to allow cache
 /************************* END CACHE *************************/
