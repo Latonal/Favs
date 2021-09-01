@@ -96,6 +96,10 @@ html {
     justify-content: space-evenly;
 }
 
+.group .category {
+    flex: 2 1 auto;
+}
+
 /************************* Background overlay for positioning *************************/
 .drag-bottom {
     background:linear-gradient(0deg, #722935 20%, rgba(0, 0, 0, 0) 50%);
@@ -119,6 +123,7 @@ html {
     display:flex;
     flex-wrap: wrap;
     justify-content: center;
+    align-items:center;
 }
 .icon-list a .icon {
     width:50px;
@@ -136,6 +141,7 @@ html {
     text-align:center;
     min-width:100px;
     min-height:100px;
+    max-height:10px;
     border:1px solid #eeeeee;
     margin:20px;
     transition:0.4s;
