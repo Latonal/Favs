@@ -9,8 +9,12 @@ var defaultPlayground = {
                     "categories": [
                         {
                             "name": "empty-box",
-                            "customcss": "height:55vh;"
-                        },
+                            "customcss": "min-height:55vh;"
+                        }
+                    ]
+                },
+                {
+                    "categories": [
                         {
                             "name": "icon-list",
                             "customcss": "",
@@ -54,10 +58,6 @@ var defaultPlayground = {
                             ]
                         },
                         {
-                            "name": "empty-box",
-                            "customcss": "height:40px;"
-                        },
-                        {
                             "name": "sub-list",
                             "customcss": "",
                             "target": true,
@@ -84,10 +84,22 @@ var defaultPlayground = {
                                     "target": true
                                 }
                             ]
-                        },
+                        }
+                    ]
+                },
+                {
+                    "categories": [
                         {
                             "name": "empty-box",
-                            "customcss": "height:40px;"
+                            "customcss": "min-height:40px;"
+                        }
+                    ]
+                },
+                {
+                    "categories": [
+                        {
+                            "name": "empty-box",
+                            "customcss": "min-height:40px;"
                         }
                     ]
                 }

@@ -37,7 +37,7 @@ function PlaygroundParser() {
     var html = '';
     var id = 0;
     console.log(data);
-    var test = document.getElementById('playground');
+    var pg = document.getElementById('playground');
     // console.log(data.playground.length);
     data.playground.forEach(e1 => {
         // Page : content / name
@@ -59,7 +59,11 @@ function PlaygroundParser() {
                 v3 += '<div class="category ' + e3.name + '" id="cat-' + id + '" ' + css3 +'>' + v4 + '</div>';
                 id++;
             });
-
+            if (e2.categories.length > 1) {
+                v3 = '<div class="group">' + v3 + "</div>";
+            }
+            console.log(e2);
+            console.log(e2.categories.length);
             v2 += v3;
         });
         html += v2;
@@ -67,7 +71,7 @@ function PlaygroundParser() {
 
 
 
-    test.innerHTML += html;
+    pg.innerHTML += html;
 }
 /************************* END PLAYGROUND PARSER *************************/
 
@@ -189,6 +193,7 @@ function SetCategoryPosition(e, val, draggable) {
     if (val == 1) e.after(draggable);
     if (val == 3) e.before(draggable);
 
+    // console.log(e.childNodes.length); // bug ?
     if (hasParent && e.childNodes.length <= 1) {
         e.after(e.childNodes[0]);
         e.remove();
