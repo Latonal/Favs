@@ -52,6 +52,13 @@ Bien d'avoir :
 - Smart template
 - Sauvegardes de template
 
+// html https://www.youtube.com/watch?v=9lP8TcVJv-I
+abbr : abbreviation
+bdo : spécifier la direction du texte
+kbd : key de keyboard
+samp : computer output
+details + summary : détail, sommaire et contenu
+
 // Aide :
 Drag and drop : https://www.javascripttutorial.net/web-apis/javascript-drag-and-drop/
 Pure CSS X : https://stackoverflow.com/questions/10019797/pure-css-close-button
@@ -72,6 +79,7 @@ IndexedDB use : https://www.w3docs.com/learn-javascript/javascript-indexeddb.htm
 IndexedDB JSON : https://www.scriptol.com/javascript/indexedDB-JSON.php
 
 Github Page : https://pages.github.com/
+EXAMPLE OF STANDARD : https://webhint.io/docs/user-guide/hints/hint-x-content-type-options/?source=devtools
 
 // Done :
 Remplacer la barre de scrolling

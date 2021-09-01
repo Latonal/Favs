@@ -19,12 +19,23 @@ function SetEveryLinks(val) {
     else document.getElementById('playground').classList.remove('link-disabled');
 }
 
+function validURL(str) {
+    // https://stackoverflow.com/a/5717133
+    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    return !!pattern.test(str);
+  }
+
 
 /************************* PLAYGROUND PARSER *************************/
 function PlaygroundParser() {
     var data = defaultPlayground;
     var html = '';
-    var id = 7;
+    var id = 0;
     console.log(data);
     var test = document.getElementById('playground');
     // console.log(data.playground.length);
@@ -34,16 +45,16 @@ function PlaygroundParser() {
         e1.content.forEach(e2 => {
             var v3 = '';
             e2.categories.forEach(e3 => {
-                console.log(e3);
                 var v4 = '';
                 if (e3.links) {
                     e3.links.forEach(e4 => {
                         // console.log(e4);
                         var target4 = (e4.target) ? 'target="_blank"' : '';
                         var css4 = (e4.customcss) ? 'style="' + e4.customcss + '"' : '';
-                        v4 += '<a href="' + e4.url + '" ' + target4 + ' ' + css4 + '><div class="icon"><img src="' + e4.icon + '"></div><p>' + e4.text + '</p></a>'
+                        var icon4 = (validURL(e4.icon)) ? './content/img/logo/' + e4.icon : e4.icon;
+                        v4 += '<a href="' + e4.url + '" ' + target4 + ' ' + css4 + '><div class="icon"><img src="' + icon4 + '"></div><p>' + e4.text + '</p></a>'
                     });
-                }
+                };
                 var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
                 v3 += '<div class="category ' + e3.name + '" id="cat-' + id + '" ' + css3 +'>' + v4 + '</div>';
                 id++;
@@ -156,16 +167,12 @@ function Drop(e) {
     var val = GetPositionOfMouseAndSetCSS(e);
     switch (val) {
         case 1:
-            e.currentTarget.after(draggable);
+        case 3:
+            SetCategoryPosition(e.currentTarget, val, draggable);
             break;
         case 2:
-            // left
-            break;
-        case 3:
-            e.currentTarget.before(draggable);
-            break;
         case 4:
-            // right
+            SetCategoryToGroup(e.currentTarget, val, draggable);
             break;
         default:
             console.log(val);
@@ -173,6 +180,31 @@ function Drop(e) {
     }
 
     SetDragClasses(e, null);
+}
+
+function SetCategoryPosition(e, val, draggable) {
+    var hasParent = e.parentNode.classList.contains("group");
+    if (hasParent) e = e.parentNode;
+
+    if (val == 1) e.after(draggable);
+    if (val == 3) e.before(draggable);
+
+    if (hasParent && e.childNodes.length <= 1) {
+        e.after(e.childNodes[0]);
+        e.remove();
+    }
+}
+
+function SetCategoryToGroup(e, val, draggable) {
+    var hasParent = e.parentNode.classList.contains("group");
+    if (!hasParent) { // create a group parent
+        var group = document.createElement('div');
+        group.classList.add('group');
+        e.before(group);
+        group.appendChild(e);
+    }
+    if (val == 2) e.before(draggable);
+    if (val == 4) e.after(draggable);
 }
 
 function GetPositionOfMouseAndSetCSS(e) {
@@ -183,8 +215,6 @@ function GetPositionOfMouseAndSetCSS(e) {
     // position to place
     var mouseX = e.offsetX;
     var mouseY = e.offsetY;
-    // var mouseX = e.currentTarget.offsetX;
-    // var mouseY = e.currentTarget.offsetY;
 
     // assign value
     if (mouseY >= y / 100 * 50 && (mouseX > x / 100 * 15 && mouseX < x / 100 * 85)) return 1; // bottom
