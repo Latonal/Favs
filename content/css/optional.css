@@ -26,8 +26,10 @@
 #popup .ask-cache .text p:nth-child(2) {
     margin:20px auto;
     text-decoration: underline;
-    width:fit-content;
     font-size:14px;
+    display:flex;
+    justify-content: center;
+    width:min-content;
 }
 
 #popup .ask-cache .text p:nth-child(2):hover {

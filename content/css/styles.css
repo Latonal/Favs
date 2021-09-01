@@ -5,7 +5,7 @@
     padding:0;
 }
 html {
-    width:100vw;
+    width:calc(100vw - 5px);
     height:100vh;
     background-color:#3e3e3e;
     font-family:'Lato';
@@ -89,6 +89,13 @@ html {
     border:5px dotted #500000;
 }
 
+/************************* Group *************************/
+.group {
+    display:flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
 /************************* Background overlay for positioning *************************/
 .drag-bottom {
     background:linear-gradient(0deg, #722935 20%, rgba(0, 0, 0, 0) 50%);
@@ -109,9 +116,6 @@ html {
 
 /************************* Icon list *************************/
 .icon-list {
-    display:block;
-    margin-left:auto;
-    margin-right:auto;
     display:flex;
     flex-wrap: wrap;
     justify-content: center;
