@@ -1,6 +1,8 @@
 isDraggable = false;
 // idCount = GetCategories().length; // Ou Unique ID // Ou Incrément
 
+
+/************************* GENERAL USE *************************/
 function GetCategories() {
     // Get every categories
     return document.getElementById('playground').getElementsByClassName('category');
@@ -19,7 +21,19 @@ function SetEveryLinks(val) {
     else document.getElementById('playground').classList.remove('link-disabled');
 }
 
-function validURL(str) {
+function Fade(css, animation) { // animation : "fade-in"/"fade-out"
+    css.classList.add(animation);
+    setTimeout(() => {
+        css.classList.remove(animation);
+    }, 400);
+}
+
+function GetRandomUUID() {
+    // https://stackoverflow.com/a/2117523
+    return crypto.randomUUID();
+}
+
+function ValidURL(str) {
     // https://stackoverflow.com/a/5717133
     var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
       '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
@@ -28,12 +42,13 @@ function validURL(str) {
       '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
       '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
     return !!pattern.test(str);
-  }
+}
+/************************* END OF GENERAL USE *************************/
 
 
 /************************* PLAYGROUND PARSER *************************/
 function PlaygroundParser() {
-    var data = defaultPlayground;
+    var data = defaultPlayground; // test
     var html = '';
     var id = 0;
     console.log(data);
@@ -51,7 +66,7 @@ function PlaygroundParser() {
                         // console.log(e4);
                         var target4 = (e4.target) ? 'target="_blank"' : '';
                         var css4 = (e4.customcss) ? 'style="' + e4.customcss + '"' : '';
-                        var icon4 = (validURL(e4.icon)) ? './content/img/logo/' + e4.icon : e4.icon;
+                        var icon4 = (ValidURL(e4.icon)) ? './content/img/logo/' + e4.icon : e4.icon;
                         v4 += '<a href="' + e4.url + '" ' + target4 + ' ' + css4 + '><div class="icon"><img src="' + icon4 + '"></div><p>' + e4.text + '</p></a>'
                     });
                 };
@@ -169,47 +184,59 @@ function Drop(e) {
     const draggable = document.getElementById(id);
 
     var val = GetPositionOfMouseAndSetCSS(e);
-    switch (val) {
-        case 1:
-        case 3:
-            SetCategoryPosition(e.currentTarget, val, draggable);
-            break;
-        case 2:
-        case 4:
-            SetCategoryToGroup(e.currentTarget, val, draggable);
-            break;
-        default:
-            console.log(val);
-            break;
-    }
+
+    SetCategoryPositionAndGroup(e.currentTarget, val, draggable);
 
     SetDragClasses(e, null);
 }
 
-function SetCategoryPosition(e, val, draggable) {
-    var hasParent = e.parentNode.classList.contains("group");
-    if (hasParent) e = e.parentNode;
-
-    if (val == 1) e.after(draggable);
-    if (val == 3) e.before(draggable);
-
-    // console.log(e.childNodes.length); // bug ?
-    if (hasParent && e.childNodes.length <= 1) {
-        e.after(e.childNodes[0]);
-        e.remove();
+function SetCategoryPositionAndGroup(e, val, draggable) {
+    // if OG parent has group
+    // // if parent has less or equal to 1 child (2 at this moment)
+    // // // want to delete group later
+    var draggableHadParent = draggable.parentNode.classList.contains("group");
+    // console.log((draggableHadParent) ? "Draggable had group parent : " + draggable.parentNode.childNodes.length : "Draggable does not have group parent");
+    var groupToRemove = null;
+    if (draggableHadParent && draggable.parentNode.childNodes.length <= 2) {
+        console.log("DESTROY");
+        groupToRemove = draggable.parentNode;
     }
-}
-
-function SetCategoryToGroup(e, val, draggable) {
-    var hasParent = e.parentNode.classList.contains("group");
-    if (!hasParent) { // create a group parent
+    // if TARGET does not have group
+    // // create group
+    var targetHasParent = e.parentNode.classList.contains("group");
+    // console.log((targetHasParent) ? "Target has group parent : " + e.parentNode.childNodes.length : "Target does not have group parent");
+    // if target does not have group parent
+    if(!targetHasParent && (val == 2 || val == 4)) {
         var group = document.createElement('div');
         group.classList.add('group');
         e.before(group);
         group.appendChild(e);
     }
-    if (val == 2) e.before(draggable);
-    if (val == 4) e.after(draggable);
+    // move
+    console.log("val: "+ val);
+    switch(val) {
+        case 1: //
+            if (targetHasParent) e = e.parentNode;
+            e.after(draggable);
+            break;
+        case 2:
+            e.before(draggable);
+            break;
+        case 3: //
+            if (targetHasParent) e = e.parentNode;
+            e.before(draggable);
+            break;
+        case 4:
+            e.after(draggable);
+            break;
+        default:
+            break;
+    }
+    // delete OG parent group 'later'
+    if (groupToRemove != null) {
+        groupToRemove.after(groupToRemove.childNodes[0]);
+        groupToRemove.remove();
+    }
 }
 
 function GetPositionOfMouseAndSetCSS(e) {
@@ -251,13 +278,3 @@ PlaygroundParser();
 // }
 // TODO : else display message asking to upgrade web browser to allow cache
 /************************* END CACHE *************************/
-
-
-/************************* OTHERS *************************/
-function Fade(css, animation) {
-    css.classList.add(animation);
-    setTimeout(() => {
-        css.classList.remove(animation);
-    }, 400);
-}
-/************************* END OTHERS *************************/
