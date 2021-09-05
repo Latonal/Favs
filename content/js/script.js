@@ -71,7 +71,7 @@ function PlaygroundParser() {
                     });
                 };
                 var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
-                v3 += '<div class="category ' + e3.name + '" id="cat-' + id + '" ' + css3 +'>' + v4 + '</div>';
+                v3 += '<div class="category ' + e3.name + '" id="cat-' + e3.uuid + '" ' + css3 +'>' + v4 + '</div>';
                 id++;
             });
             if (e2.categories.length > 1) {
