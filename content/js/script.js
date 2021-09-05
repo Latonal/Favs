@@ -213,7 +213,7 @@ function SetCategoryPositionAndGroup(e, val, draggable) {
         group.appendChild(e);
     }
     // move
-    console.log("val: "+ val);
+    // console.log("val: "+ val);
     switch(val) {
         case 1: //
             if (targetHasParent) e = e.parentNode;
@@ -234,8 +234,11 @@ function SetCategoryPositionAndGroup(e, val, draggable) {
     }
     // delete OG parent group 'later'
     if (groupToRemove != null) {
-        groupToRemove.after(groupToRemove.childNodes[0]);
-        groupToRemove.remove();
+        if (groupToRemove != e.parentNode) {
+            groupToRemove.after(groupToRemove.childNodes[0]);
+            groupToRemove.remove();
+        }
+        // else console.log("DO NOT DESTROY!");
     }
 }
 
