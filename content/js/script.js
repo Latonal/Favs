@@ -1,4 +1,5 @@
 isDraggable = false;
+data = defaultPlayground; // data
 // idCount = GetCategories().length; // Ou Unique ID // Ou Incrément
 
 
@@ -48,7 +49,7 @@ function ValidURL(str) {
 
 /************************* PLAYGROUND PARSER *************************/
 function PlaygroundParser() {
-    var data = defaultPlayground; // test
+    // var data = defaultPlayground; // test
     var html = '';
     var id = 0;
     console.log(data);
@@ -77,8 +78,6 @@ function PlaygroundParser() {
             if (e2.categories.length > 1) {
                 v3 = '<div class="group">' + v3 + "</div>";
             }
-            console.log(e2);
-            console.log(e2.categories.length);
             v2 += v3;
         });
         html += v2;
@@ -89,6 +88,95 @@ function PlaygroundParser() {
     pg.innerHTML += html;
 }
 /************************* END PLAYGROUND PARSER *************************/
+
+
+/************************* JSON MODIFICATIONS *************************/
+function ModifyGroupPositionJSON(toMove, target, val) {
+    console.log("ToMove:");
+    console.log(toMove.id.substring(4));
+    console.log("Target:");
+    console.log(target.id.substring(4));
+    console.log("Val:" + val);
+
+    console.log(data);
+    // console.log(data.find(toMove.id.substring(4)));
+    // console.log(GetGroupPerId(toMove.id.substring(4)));
+    // console.log(GetGroupPerId(toMove.id.substring(4)));
+    // console.log(GetGroupPerId(toMove.id.substring(3)));
+    console.log("ToMove:" + GetGroupPerId(toMove.id.substring(4)));
+    console.log("Target:" + GetGroupPerId(target.id.substring(4)));
+    // val
+    // if 1 after parent
+    // if 2 before elem in group
+    // if 3 before parent
+    // if 4 after elem in group
+
+
+    // check after changes
+    console.log("ToMove:" + GetGroupPerId(toMove.id.substring(4)));
+    console.log("Target:" + GetGroupPerId(target.id.substring(4)));
+}
+
+function GetGroupPerId(id) {
+    // // return data.filter(
+    // //     function(data) { return data.playground.categories.uuid == id }
+    // // );
+    // var val = false;
+    // data.playground.forEach(e1 => {
+    //     e1.content.forEach(e2 => {
+    //         e2.categories.forEach(e3 => {
+    //             console.log(id);
+    //             console.log(e3.uuid);
+    //             console.log("1f83fd06-1118-4a4b-94c3-2cca92099ae5");
+    //             if (typeof id === "string") console.log("STRING!");
+    //             if (typeof e3.uuid === "string") console.log("STRING!");
+    //             if (id === e3.uuid) {
+    //                 val = true;
+    //                 return;
+    //             } 
+    //             else {
+    //                 console.log("wtf");
+    //             }
+    //             console.log("get access");
+    //         });
+    //     });
+    // });
+
+    // return val;
+
+    
+
+    // return data.playground.map(function(e, i, y) {
+    //     if (e.content[i].categories[y].uuid == id) return true;
+    // }).indexOf(id);
+
+    // return data.playground.map(function(e, i, y) {
+    //     return e.content[i].categories[y].uuid;
+    // }).indexOf(id);
+
+    // var aaa = data.playground.map((e, i, y) => [
+    //     e.content[i],
+    // ]);
+    // console.log(aaa);
+
+    for (let i1 = 0; i1 < data.playground.length; i1++) {
+        for (let i2 = 0; i2 < data.playground[i1].content.length; i2++) {
+            for (let i3 = 0; i3 < data.playground[i1].content[i2].categories.length; i3++) {
+
+                // console.log("length: "+data.playground[i1].content[i2].categories.length);
+                // console.log(data.playground[i1].content[i2].categories[i3]);
+                if (data.playground[i1].content[i2].categories[i3].uuid === id) {
+                    // console.log("^found!");
+                    return [i1, i2, i3];
+                }
+            }
+        }
+    }
+}
+
+// modify items
+
+/************************* END JSON MODIFICATIONS *************************/
 
 
 /************************* DRAG CATEGORIES *************************/
@@ -191,6 +279,7 @@ function Drop(e) {
 }
 
 function SetCategoryPositionAndGroup(e, val, draggable) {
+    ModifyGroupPositionJSON(draggable, e, val);
     // if OG parent has group
     // // if parent has less or equal to 1 child (2 at this moment)
     // // // want to delete group later
@@ -198,7 +287,7 @@ function SetCategoryPositionAndGroup(e, val, draggable) {
     // console.log((draggableHadParent) ? "Draggable had group parent : " + draggable.parentNode.childNodes.length : "Draggable does not have group parent");
     var groupToRemove = null;
     if (draggableHadParent && draggable.parentNode.childNodes.length <= 2) {
-        console.log("DESTROY");
+        // console.log("DESTROY");
         groupToRemove = draggable.parentNode;
     }
     // if TARGET does not have group
@@ -213,7 +302,6 @@ function SetCategoryPositionAndGroup(e, val, draggable) {
         group.appendChild(e);
     }
     // move
-    // console.log("val: "+ val);
     switch(val) {
         case 1: //
             if (targetHasParent) e = e.parentNode;
@@ -238,7 +326,6 @@ function SetCategoryPositionAndGroup(e, val, draggable) {
             groupToRemove.after(groupToRemove.childNodes[0]);
             groupToRemove.remove();
         }
-        // else console.log("DO NOT DESTROY!");
     }
 }
 

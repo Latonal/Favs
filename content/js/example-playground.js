@@ -1,4 +1,5 @@
 var defaultPlayground = {
+    "version": "0.1",
     "customcss": {},
     "target": true,
     "playground": [
