@@ -85,6 +85,13 @@ var defaultPlayground = {
                                     "icon": "bing.png",
                                     "customcss": "",
                                     "target": true
+                                },
+                                {
+                                    "text": "Useful links",
+                                    "url": "https://docs.google.com/document/d/1Hy7agMqInEB_cjPixlLFgypadTfMm36frgjIhkKLQh4/edit",
+                                    "icon": "bing.png",
+                                    "customcss": "",
+                                    "target": true
                                 }
                             ]
                         }
