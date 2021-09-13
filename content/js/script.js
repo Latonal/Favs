@@ -36,12 +36,12 @@ function GetRandomUUID() {
 
 function ValidURL(str) {
     // https://stackoverflow.com/a/5717133
-    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+        '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
     return !!pattern.test(str);
 }
 /************************* END OF GENERAL USE *************************/
@@ -72,7 +72,7 @@ function PlaygroundParser() {
                     });
                 };
                 var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
-                v3 += '<div class="category ' + e3.name + '" id="cat-' + e3.uuid + '" ' + css3 +'>' + v4 + '</div>';
+                v3 += '<div class="category ' + e3.name + '" id="cat-' + e3.uuid + '" ' + css3 + '>' + v4 + '</div>';
                 id++;
             });
             if (e2.categories.length > 1) {
@@ -92,81 +92,57 @@ function PlaygroundParser() {
 
 /************************* JSON MODIFICATIONS *************************/
 function ModifyGroupPositionJSON(toMove, target, val) {
-    console.log("ToMove:");
-    console.log(toMove.id.substring(4));
-    console.log("Target:");
-    console.log(target.id.substring(4));
-    console.log("Val:" + val);
+    var toMoveJSONPos = GetGroupPerId(toMove.id.substring(4));
+    var targetJSONPos = GetGroupPerId(target.id.substring(4));
 
-    console.log(data);
-    // console.log(data.find(toMove.id.substring(4)));
-    // console.log(GetGroupPerId(toMove.id.substring(4)));
-    // console.log(GetGroupPerId(toMove.id.substring(4)));
-    // console.log(GetGroupPerId(toMove.id.substring(3)));
-    console.log("ToMove:" + GetGroupPerId(toMove.id.substring(4)));
-    console.log("Target:" + GetGroupPerId(target.id.substring(4)));
     // val
-    // if 1 after parent
-    // if 2 before elem in group
-    // if 3 before parent
-    // if 4 after elem in group
+    switch (val) {
+        case 1: // bottom
+            var cat = { "categories" : [ data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]] ] };
+            data.playground[targetJSONPos[0]].content.splice(targetJSONPos[1] + 1, 0, cat);
+            break;
+        case 2: // left
+            data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories.splice(targetJSONPos[2], 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]);
+            if (toMoveJSONPos[2] > targetJSONPos[2]) toMoveJSONPos[2] += 1;
+            break;
+        case 3: // top
+            var cat = { "categories" : [ data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]] ] };
+            data.playground[targetJSONPos[0]].content.splice(targetJSONPos[1], 0, cat);
+            if (toMoveJSONPos[1] > targetJSONPos[1]) toMoveJSONPos[1] += 1;
+            break;
+        case 4: // right
+            data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories.splice(targetJSONPos[2] + 1, 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]);
+            break;
+        default:
+            break;
+    }
 
+    // if (toMoveJSONPos[1] > targetJSONPos[1]) toMoveJSONPos[1] += 1;
+
+    // if array has 1 child or less, destroy the array
+    if (data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories.length <= 1) {
+        data.playground[toMoveJSONPos[0]].content.splice(toMoveJSONPos[1], 1);
+    }
+    else {
+        data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories.splice(toMoveJSONPos[2], 1);
+    }
+
+    // ok donc en fait le if else juste avant s'exécute après, sauf que ça va supprimer la clé qui ne correspond plus à l'emplacement précédent. Ex : si on était en 0 0 3 puis 0 0 1, la clé 0 0 3 est désormais la 0 0 2 et on va supprimer la mauvaise.
+    // il faudrait sauvegarder le contenu, le supprimer du json et le réintégrer après à la bonne position ? mais penser qu'on a besoin de la dite position après la suppression
+    // default pourrait être de réintégrer l'objet à sa position initiale
 
     // check after changes
     console.log("ToMove:" + GetGroupPerId(toMove.id.substring(4)));
     console.log("Target:" + GetGroupPerId(target.id.substring(4)));
+
+    console.log(data);
 }
 
 function GetGroupPerId(id) {
-    // // return data.filter(
-    // //     function(data) { return data.playground.categories.uuid == id }
-    // // );
-    // var val = false;
-    // data.playground.forEach(e1 => {
-    //     e1.content.forEach(e2 => {
-    //         e2.categories.forEach(e3 => {
-    //             console.log(id);
-    //             console.log(e3.uuid);
-    //             console.log("1f83fd06-1118-4a4b-94c3-2cca92099ae5");
-    //             if (typeof id === "string") console.log("STRING!");
-    //             if (typeof e3.uuid === "string") console.log("STRING!");
-    //             if (id === e3.uuid) {
-    //                 val = true;
-    //                 return;
-    //             } 
-    //             else {
-    //                 console.log("wtf");
-    //             }
-    //             console.log("get access");
-    //         });
-    //     });
-    // });
-
-    // return val;
-
-    
-
-    // return data.playground.map(function(e, i, y) {
-    //     if (e.content[i].categories[y].uuid == id) return true;
-    // }).indexOf(id);
-
-    // return data.playground.map(function(e, i, y) {
-    //     return e.content[i].categories[y].uuid;
-    // }).indexOf(id);
-
-    // var aaa = data.playground.map((e, i, y) => [
-    //     e.content[i],
-    // ]);
-    // console.log(aaa);
-
     for (let i1 = 0; i1 < data.playground.length; i1++) {
         for (let i2 = 0; i2 < data.playground[i1].content.length; i2++) {
             for (let i3 = 0; i3 < data.playground[i1].content[i2].categories.length; i3++) {
-
-                // console.log("length: "+data.playground[i1].content[i2].categories.length);
-                // console.log(data.playground[i1].content[i2].categories[i3]);
                 if (data.playground[i1].content[i2].categories[i3].uuid === id) {
-                    // console.log("^found!");
                     return [i1, i2, i3];
                 }
             }
@@ -242,16 +218,16 @@ function DragOver(e) {
     var val = GetPositionOfMouseAndSetCSS(e);
 
     switch (val) {
-        case 1:
+        case 1: // bottom
             SetDragClasses(e, 'drag-bottom');
             break;
-        case 2:
+        case 2: // left
             SetDragClasses(e, 'drag-left');
             break;
-        case 3:
+        case 3: // top
             SetDragClasses(e, 'drag-top');
             break;
-        case 4:
+        case 4: // right
             SetDragClasses(e, 'drag-right');
             break;
         default:
@@ -295,26 +271,26 @@ function SetCategoryPositionAndGroup(e, val, draggable) {
     var targetHasParent = e.parentNode.classList.contains("group");
     // console.log((targetHasParent) ? "Target has group parent : " + e.parentNode.childNodes.length : "Target does not have group parent");
     // if target does not have group parent
-    if(!targetHasParent && (val == 2 || val == 4)) {
+    if (!targetHasParent && (val == 2 || val == 4)) {
         var group = document.createElement('div');
         group.classList.add('group');
         e.before(group);
         group.appendChild(e);
     }
     // move
-    switch(val) {
-        case 1: //
+    switch (val) {
+        case 1: // bottom
             if (targetHasParent) e = e.parentNode;
             e.after(draggable);
             break;
-        case 2:
+        case 2: // left
             e.before(draggable);
             break;
-        case 3: //
+        case 3: // top
             if (targetHasParent) e = e.parentNode;
             e.before(draggable);
             break;
-        case 4:
+        case 4: // right
             e.after(draggable);
             break;
         default:
