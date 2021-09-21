@@ -1,5 +1,4 @@
 isDraggable = false;
-data = defaultPlayground; // data
 // idCount = GetCategories().length; // Ou Unique ID // Ou Incrément
 
 
@@ -29,9 +28,14 @@ function Fade(css, animation) { // animation : "fade-in"/"fade-out"
     }, 400);
 }
 
-function GetRandomUUID() {
+function GetRandomUUID(text) { // text = "cat-"
     // https://stackoverflow.com/a/2117523
-    return crypto.randomUUID();
+    // generate a uuid, then check if uuid already exist, if so, generate new one
+    while (true) {
+        var uuid = crypto.randomUUID();
+        if (!document.getElementById(text + uuid)) 
+            return uuid;
+    }
 }
 
 function ValidURL(str) {
@@ -117,24 +121,13 @@ function ModifyGroupPositionJSON(toMove, target, val) {
             break;
     }
 
-    // if (toMoveJSONPos[1] > targetJSONPos[1]) toMoveJSONPos[1] += 1;
-
-    // if array has 1 child or less, destroy the array
     if (data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories.length <= 1) {
         data.playground[toMoveJSONPos[0]].content.splice(toMoveJSONPos[1], 1);
     }
     else {
         data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories.splice(toMoveJSONPos[2], 1);
     }
-
-    // ok donc en fait le if else juste avant s'exécute après, sauf que ça va supprimer la clé qui ne correspond plus à l'emplacement précédent. Ex : si on était en 0 0 3 puis 0 0 1, la clé 0 0 3 est désormais la 0 0 2 et on va supprimer la mauvaise.
-    // il faudrait sauvegarder le contenu, le supprimer du json et le réintégrer après à la bonne position ? mais penser qu'on a besoin de la dite position après la suppression
-    // default pourrait être de réintégrer l'objet à sa position initiale
-
-    // check after changes
-    console.log("ToMove:" + GetGroupPerId(toMove.id.substring(4)));
-    console.log("Target:" + GetGroupPerId(target.id.substring(4)));
-
+    
     console.log(data);
 }
 
@@ -339,7 +332,13 @@ function SetDragClasses(e, c) {
 
 /************************* CACHE *************************/
 // if ('caches' in window) { // If web browser support cache
-StartData();
+if (window.indexedDB) {
+    StartData();
+}
+else {
+    console.log("Browser does not support IndexedDB");
+}
+data = defaultPlayground; // if data in indexeddb empty, then use default
 PlaygroundParser();
 // }
 // TODO : else display message asking to upgrade web browser to allow cache
