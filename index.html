@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <div class="debug" onclick="SavePlayground();">SavePlayground</div>
+    <div class="debug" onclick="SavePlaygroundData();">SavePlayground</div>
     <div class="debug" onclick="DeleteDB();">DeleteDB</div>
     <div class="debug" onclick="console.log(data);">ShowData</div>
     <div class="debug" onclick="console.log(navigator.storage.estimate());">GetStorage</div>
@@ -23,7 +23,8 @@
         <img src="content/img/icon/editW.png" onclick="SetDraggable();">
     </div>
 
-    <div id="playground"></div>
+    <!-- <nav> pages - utiliser flex pour changer la position -->
+    <section id="playground"></section>
 
     <!-- Javascript -->
     <script type="text/javascript" src="content/js/default-playground.js"></script>

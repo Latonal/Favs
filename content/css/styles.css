@@ -77,6 +77,7 @@ html {
     transition:0.4s;
     min-width:10px;
     min-height:10px;
+    position:relative;
 }
 .category.is-draggable {
     border:5px dashed #63a2ff;
@@ -87,6 +88,25 @@ html {
 }
 .category.drag-over {
     border:5px dotted #500000;
+}
+.add-element {
+    display:none;
+    position:absolute;
+    top:5px;
+    right:5px;
+}
+#playground.link-disabled .add-element {
+    display:flex;
+    min-width:20px;
+    min-height:20px;
+    justify-content: center;
+    align-items: center;
+}
+#playground.link-disabled .add-element {
+    cursor:pointer;
+}
+#playground.link-disabled .category.is-dragged .add-element {
+    display:none;
 }
 
 /************************* Group *************************/
@@ -143,6 +163,7 @@ html {
     min-height:100px;
     max-height:10px;
     border:1px solid #eeeeee;
+    border-radius:10px;
     margin:20px;
     transition:0.4s;
     color:#eeeeee;

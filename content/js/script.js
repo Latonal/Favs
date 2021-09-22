@@ -1,5 +1,5 @@
+/*************************************************************************** SKELETON ***************************************************************************/
 isDraggable = false;
-// idCount = GetCategories().length; // Ou Unique ID // Ou Incrément
 
 
 /************************* GENERAL USE *************************/
@@ -33,7 +33,7 @@ function GetRandomUUID(text) { // text = "cat-"
     // generate a uuid, then check if uuid already exist, if so, generate new one
     while (true) {
         var uuid = crypto.randomUUID();
-        if (!document.getElementById(text + uuid)) 
+        if (!document.getElementById(text + uuid))
             return uuid;
     }
 }
@@ -64,7 +64,7 @@ function PlaygroundParser() {
         e1.content.forEach(e2 => {
             var v3 = '';
             e2.categories.forEach(e3 => {
-                var v4 = '';
+                var v4 = '<div class="add-element" onclick="CreateNewItem(this)";>+</div>';
                 if (e3.links) {
                     e3.links.forEach(e4 => {
                         // console.log(e4);
@@ -93,14 +93,14 @@ function PlaygroundParser() {
 
 
 /************************* JSON MODIFICATIONS *************************/
-function ModifyGroupPositionJSON(toMove, target, val) {
+function ModifyGroupPositionJSON(target, val, toMove) {
     var toMoveJSONPos = GetGroupPerId(toMove.id.substring(4));
     var targetJSONPos = GetGroupPerId(target.id.substring(4));
 
     // val
     switch (val) {
         case 1: // bottom
-            var cat = { "categories" : [ data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]] ] };
+            var cat = { "categories": [data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]] };
             data.playground[targetJSONPos[0]].content.splice(targetJSONPos[1] + 1, 0, cat);
             break;
         case 2: // left
@@ -108,7 +108,7 @@ function ModifyGroupPositionJSON(toMove, target, val) {
             if (toMoveJSONPos[2] > targetJSONPos[2]) toMoveJSONPos[2] += 1;
             break;
         case 3: // top
-            var cat = { "categories" : [ data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]] ] };
+            var cat = { "categories": [data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]] };
             data.playground[targetJSONPos[0]].content.splice(targetJSONPos[1], 0, cat);
             if (toMoveJSONPos[1] > targetJSONPos[1]) toMoveJSONPos[1] += 1;
             break;
@@ -125,7 +125,7 @@ function ModifyGroupPositionJSON(toMove, target, val) {
     else {
         data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories.splice(toMoveJSONPos[2], 1);
     }
-    
+
     // console.log(data);
 }
 
@@ -170,7 +170,6 @@ function DraggableCatgegories(val) {
     });
 }
 
-// dragstart
 function DragStart(e) {
     e.dataTransfer.setData('text/plain', e.target.id);
 }
@@ -241,12 +240,13 @@ function Drop(e) {
     var val = GetPositionOfMouseAndSetCSS(e);
 
     SetCategoryPositionAndGroup(e.currentTarget, val, draggable);
+    ModifyGroupPositionJSON(e.currentTarget, val, draggable);
 
     SetDragClasses(e, null);
+    SavePlayground();
 }
 
 function SetCategoryPositionAndGroup(e, val, draggable) {
-    ModifyGroupPositionJSON(draggable, e, val);
     // if OG parent has group
     // // if parent has less or equal to 1 child (2 at this moment)
     // // // want to delete group later
@@ -313,12 +313,15 @@ function GetPositionOfMouseAndSetCSS(e) {
 }
 
 function SetDragClasses(e, c) {
+    e.currentTarget.classList.add('is-dragged');
+
     if (c !== 'drag-bottom') e.currentTarget.classList.remove('drag-bottom');
     if (c !== 'drag-left') e.currentTarget.classList.remove('drag-left');
     if (c !== 'drag-top') e.currentTarget.classList.remove('drag-top');
     if (c !== 'drag-right') e.currentTarget.classList.remove('drag-right');
 
     if (c !== null) e.currentTarget.classList.add(c);
+    if (c == null) e.currentTarget.classList.remove('is-dragged');
 }
 /*************************  END DRAG CATEGORIES *************************/
 
@@ -328,12 +331,27 @@ function SetDragClasses(e, c) {
 /************************* END CREATE CATEGORIES *************************/
 
 
-/************************* CACHE *************************/
-// if ('caches' in window) { // If web browser support cache
-if (!window.indexedDB) {
-    data=defaultPlayground();
+/************************* SAVE *************************/
+if (!window.indexedDB) { // If does not support IndexedDB
+    data = defaultPlayground();
     console.log("Browser does not support IndexedDB");
 }
-// }
+
+var saveCall = 0;
+function SavePlayground() {
+    var changeNeeded = 1;
+    saveCall++;
+    if (saveCall % changeNeeded == 0) {
+        console.log("saved");
+        SavePlaygroundData();
+    }
+}
 // TODO : else display message asking to upgrade web browser to allow cache
-/************************* END CACHE *************************/
+/************************* END SAVE *************************/
+/*************************************************************************** END OF SKELETON ***************************************************************************/
+
+
+function CreateNewItem(e) {
+    console.log("Create new item:", e.parentNode.id);
+    // e.parentNode.getElementsByTagName;
+}
