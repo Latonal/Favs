@@ -7,38 +7,36 @@ data = null;
 // DEBUG
 function DeleteDB() {
     let deleteReq = indexedDB.deleteDatabase(DB_NAME);
-    deleteReq.onsuccess = function() { console.log("Successfully deleted db");}
-    deleteReq.onerror = function() { console.log("Couldn't delete db");}
+    deleteReq.onsuccess = function () { console.log("Successfully deleted db"); }
+    deleteReq.onerror = function () { console.log("Couldn't delete db"); }
     console.log("Deleted DB");
 }
 
 let openRequest = indexedDB.open(DB_NAME, DB_VERSION);
 let db;
 
-openRequest.onupgradeneeded = function(e) {
+openRequest.onupgradeneeded = function (e) {
     db = openRequest.result;
     if (e.oldVersion < 1) {
         console.log("version 1, precedent was: " + e.oldVersion);
-        const store = db.createObjectStore("data", { keyPath: "id"});
-        const playground = store.createIndex("playground", "playground", {unique: true});
-        
-        store.put({playground:defaultPlayground.playground, id:0});
+        const store = db.createObjectStore("data", { keyPath: "id" });
+        const playground = store.createIndex("playground", "playground", { unique: true });
+
+        store.put({ playground: defaultPlayground.playground, id: 0 });
     }
 }
-// Delete object store :
-// db.deleteObjectStore('playground');
-openRequest.onerror = function() {
+openRequest.onerror = function () {
     console.log("Error opening the DB ", openRequest.error);
 }
 
-openRequest.onsuccess = function() {
+openRequest.onsuccess = function () {
     db = openRequest.result;
     console.log("Opened db", db);
 
     let transaction = db.transaction("data", "readonly");
     let store = transaction.objectStore("data");
     let request = store.openCursor();
-    request.onsuccess = function() {
+    request.onsuccess = function () {
         let cursor = request.result;
         if (cursor) {
             // let key = cursor.key;
@@ -52,29 +50,26 @@ openRequest.onsuccess = function() {
             console.log("No cursor");
         }
     }
-    console.log("store:",store);
+    console.log("store:", store);
 }
 
-async function SavePlayground() {
+async function SavePlaygroundData() {
     console.log("aaaaaaaaa");
     db = openRequest.result;
     let transaction = db.transaction("data", "readwrite");
     let store = transaction.objectStore("data");
     let request = store.get(0);
 
-    request.onsuccess = function(e) {
+    request.onsuccess = function (e) {
         var dataplg = e.target.result;
         dataplg.playground = data.playground;
-
         var objRequest = store.put(dataplg);
-
-        objRequest.onsuccess = function() {
-            console.log("Success updating the record");
+        objRequest.onsuccess = function () {
+            // console.log("Success updating the record");
         }
-        objRequest.onerror = function() {
+        objRequest.onerror = function () {
             console.log("No success updating the record", objRequest.error);
         }
     }
-
-    console.log("data",data.playground);
+    // console.log("data",data.playground);
 }
