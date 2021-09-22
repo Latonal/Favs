@@ -54,9 +54,8 @@ function ValidURL(str) {
 /************************* PLAYGROUND PARSER *************************/
 function PlaygroundParser() {
     // var data = defaultPlayground; // test
+    // console.log(data);
     var html = '';
-    var id = 0;
-    console.log(data);
     var pg = document.getElementById('playground');
     // console.log(data.playground.length);
     data.playground.forEach(e1 => {
@@ -77,7 +76,6 @@ function PlaygroundParser() {
                 };
                 var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
                 v3 += '<div class="category ' + e3.name + '" id="cat-' + e3.uuid + '" ' + css3 + '>' + v4 + '</div>';
-                id++;
             });
             if (e2.categories.length > 1) {
                 v3 = '<div class="group">' + v3 + "</div>";
@@ -128,7 +126,7 @@ function ModifyGroupPositionJSON(toMove, target, val) {
         data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories.splice(toMoveJSONPos[2], 1);
     }
     
-    console.log(data);
+    // console.log(data);
 }
 
 function GetGroupPerId(id) {
@@ -332,14 +330,10 @@ function SetDragClasses(e, c) {
 
 /************************* CACHE *************************/
 // if ('caches' in window) { // If web browser support cache
-if (window.indexedDB) {
-    StartData();
-}
-else {
+if (!window.indexedDB) {
+    data=defaultPlayground();
     console.log("Browser does not support IndexedDB");
 }
-data = defaultPlayground; // if data in indexeddb empty, then use default
-PlaygroundParser();
 // }
 // TODO : else display message asking to upgrade web browser to allow cache
 /************************* END CACHE *************************/
