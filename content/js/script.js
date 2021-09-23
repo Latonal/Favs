@@ -3,6 +3,8 @@ isDraggable = false;
 
 
 /************************* GENERAL USE *************************/
+document.documentElement.setAttribute('lang', navigator.language); // set language depending of navigator
+
 function GetCategories() {
     // Get every categories
     return document.getElementById('playground').getElementsByClassName('category');
@@ -21,10 +23,10 @@ function SetEveryLinks(val) {
     else document.getElementById('playground').classList.remove('link-disabled');
 }
 
-function Fade(css, animation) { // animation : "fade-in"/"fade-out"
-    css.classList.add(animation);
+function Fade(idelem, animation) { // animation : "fade-in"/"fade-out"
+    idelem.classList.add(animation);
     setTimeout(() => {
-        css.classList.remove(animation);
+        idelem.classList.remove(animation);
     }, 400);
 }
 
@@ -53,7 +55,7 @@ function ValidURL(str) {
 
 /************************* PLAYGROUND PARSER *************************/
 function PlaygroundParser() {
-    // var data = defaultPlayground; // test
+    // TODO : mettre la page sélectionné à la fois : 1 par défault ?url=2 sinon
     // console.log(data);
     var html = '';
     var pg = document.getElementById('playground');
@@ -205,7 +207,7 @@ function DragOver(e) {
     e.preventDefault();
     e.currentTarget.classList.add('drag-over'); //
 
-    var val = GetPositionOfMouseAndSetCSS(e);
+    var val = GetPositionInCategory(e);
 
     switch (val) {
         case 1: // bottom
@@ -237,7 +239,7 @@ function Drop(e) {
     const id = e.dataTransfer.getData('text/plain');
     const draggable = document.getElementById(id);
 
-    var val = GetPositionOfMouseAndSetCSS(e);
+    var val = GetPositionInCategory(e);
 
     SetCategoryPositionAndGroup(e.currentTarget, val, draggable);
     ModifyGroupPositionJSON(e.currentTarget, val, draggable);
@@ -296,7 +298,7 @@ function SetCategoryPositionAndGroup(e, val, draggable) {
     }
 }
 
-function GetPositionOfMouseAndSetCSS(e) {
+function GetPositionInCategory(e) {
     // get size of element
     var x = e.currentTarget.offsetWidth;
     var y = e.currentTarget.offsetHeight;
@@ -351,7 +353,34 @@ function SavePlayground() {
 /*************************************************************************** END OF SKELETON ***************************************************************************/
 
 
+var currentId = null;
+function GetPositionOfMouseAndSetPlace(sizeX, sizeY) {
+    // position of mouse
+    var pageX = window.event.clientX;
+    var pageY = window.event.clientY;
+    // size of current screen
+    var viewport_width = window.innerWidth;
+    var viewport_height = window.innerHeight;
+    // check if overflow
+    if (pageX + sizeX > viewport_width) pageX -= sizeX;
+    if (pageY + sizeY > viewport_height) pageY -= sizeY;
+
+    return [pageX, pageY];
+}
+
+function SetEditMenu(bool) {
+    setTimeout(() => {
+        (bool) ? document.getElementById('edit-menu').classList.add('active') : document.getElementById('edit-menu').classList.remove('active');
+    }, (bool) ? 0 : 400);
+    Fade(document.getElementById('edit-menu'), (bool) ? "fade-in" : "fade-out");
+}
+
 function CreateNewItem(e) {
-    console.log("Create new item:", e.parentNode.id);
+    currentId = e.parentNode.id;
+    SetEditMenu(true);  
+    var mousePosition = GetPositionOfMouseAndSetPlace(100, 100);
+    document.getElementById('create-item').style["left"] = mousePosition[0] + "px";
+    document.getElementById('create-item').style["top"] = mousePosition[1] + "px";
+    console.log(mousePosition);
     // e.parentNode.getElementsByTagName;
 }
