@@ -1,6 +1,6 @@
 // using https://www.w3.org/TR/IndexedDB/ & https://www.w3docs.com/learn-javascript/javascript-indexeddb.html
 allowLocalStorage = false;
-DB_NAME = "playground-ltnl-461";
+DB_NAME = "playground-ltnl-461"; // please if you are copying my code, change the DB_NAME
 DB_VERSION = 1;
 data = null;
 
