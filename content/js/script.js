@@ -30,7 +30,7 @@ function Fade(idelem, animation) { // animation : "fade-in"/"fade-out"
     }, 400);
 }
 
-function GetRandomUUID(text) { // text = "cat-"
+function GetRandomUUID(text) { // text = "cat-", "it-"
     // https://stackoverflow.com/a/2117523
     // generate a uuid, then check if uuid already exist, if so, generate new one
     while (true) {
@@ -66,14 +66,14 @@ function PlaygroundParser() {
         e1.content.forEach(e2 => {
             var v3 = '';
             e2.categories.forEach(e3 => {
-                var v4 = '<div class="add-element" onclick="CreateNewItem(this)";>+</div>';
+                var v4 = '<div class="add-element" onclick="CreateNewContentMenu(this)";>+</div>';
                 if (e3.links) {
                     e3.links.forEach(e4 => {
                         // console.log(e4);
                         var target4 = (e4.target) ? 'target="_blank"' : '';
                         var css4 = (e4.customcss) ? 'style="' + e4.customcss + '"' : '';
                         var icon4 = (ValidURL(e4.icon)) ? './content/img/logo/' + e4.icon : e4.icon;
-                        v4 += '<a href="' + e4.url + '" ' + target4 + ' ' + css4 + '><div class="icon"><img src="' + icon4 + '"></div><p>' + e4.text + '</p></a>'
+                        v4 += '<a href="' + e4.url + '" id="it-' + e4.uuid + '" ' + target4 + ' ' + css4 + '><div class="icon"><img src="' + icon4 + '"></div><p>' + e4.text + '</p></a>'
                     });
                 };
                 var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
@@ -104,6 +104,7 @@ function ModifyGroupPositionJSON(target, val, toMove) {
         case 1: // bottom
             var cat = { "categories": [data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]] };
             data.playground[targetJSONPos[0]].content.splice(targetJSONPos[1] + 1, 0, cat);
+            toMoveJSONPos[1] = (targetJSONPos[1] < toMoveJSONPos[1]) ? toMoveJSONPos[1] + 1 : toMoveJSONPos[1];
             break;
         case 2: // left
             data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories.splice(targetJSONPos[2], 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]);
@@ -111,8 +112,9 @@ function ModifyGroupPositionJSON(target, val, toMove) {
             break;
         case 3: // top
             var cat = { "categories": [data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]] };
+            toMoveJSONPos[1] = (targetJSONPos[1] <= toMoveJSONPos[1]) ? toMoveJSONPos[1] + 1 : toMoveJSONPos[1];
             data.playground[targetJSONPos[0]].content.splice(targetJSONPos[1], 0, cat);
-            if (toMoveJSONPos[1] > targetJSONPos[1]) toMoveJSONPos[1] += 1;
+            console.log(data);
             break;
         case 4: // right
             data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories.splice(targetJSONPos[2] + 1, 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]);
@@ -128,7 +130,7 @@ function ModifyGroupPositionJSON(target, val, toMove) {
         data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories.splice(toMoveJSONPos[2], 1);
     }
 
-    // console.log(data);
+    console.log(data);
 }
 
 function GetGroupPerId(id) {
@@ -337,6 +339,7 @@ function SetDragClasses(e, c) {
 if (!window.indexedDB) { // If does not support IndexedDB
     data = defaultPlayground();
     console.log("Browser does not support IndexedDB");
+    // TODO : else display message asking to upgrade web browser to allow cache
 }
 
 var saveCall = 0;
@@ -348,7 +351,6 @@ function SavePlayground() {
         SavePlaygroundData();
     }
 }
-// TODO : else display message asking to upgrade web browser to allow cache
 /************************* END SAVE *************************/
 /*************************************************************************** END OF SKELETON ***************************************************************************/
 
@@ -375,12 +377,28 @@ function SetEditMenu(bool) {
     Fade(document.getElementById('edit-menu'), (bool) ? "fade-in" : "fade-out");
 }
 
-function CreateNewItem(e) {
+function CreateNewContentMenu(e) {
     currentId = e.parentNode.id;
-    SetEditMenu(true);  
-    var mousePosition = GetPositionOfMouseAndSetPlace(100, 100);
-    document.getElementById('create-item').style["left"] = mousePosition[0] + "px";
-    document.getElementById('create-item').style["top"] = mousePosition[1] + "px";
+    SetEditMenu(true);
+    var mousePosition = GetPositionOfMouseAndSetPlace(200, 100);
+    document.getElementById('create-content').style["left"] = mousePosition[0] + "px";
+    document.getElementById('create-content').style["top"] = mousePosition[1] + "px";
     console.log(mousePosition);
     // e.parentNode.getElementsByTagName;
+}
+
+function CreateNewItem() {
+    console.log(currentId);
+    // TODO : if parent has target enabled, set target=_blank
+    var uuid = GetRandomUUID("it-");
+    document.getElementById(currentId).innerHTML += '<a href="#" id="it-' + uuid + '"><div class="icon"><img src=""></div><p>NEW!</p></a>';
+    var parentJSONPos = GetGroupPerId(currentId.substring(4));
+    data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[[parentJSONPos[2]]].links.push({ text: "NEW!", url: "#", icon: "", uuid: uuid, customcss: "", target: "" });
+    // add to json
+    SetEditMenu(false);
+    SavePlayground();
+}
+
+function GetCurrentPage() { // query
+    return new URLSearchParams(window.location.search).get('page') ?? "0";
 }

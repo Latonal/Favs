@@ -10,10 +10,10 @@
 </head>
 
 <body>
-    <!-- <div class="debug" onclick="SavePlaygroundData();">SavePlayground</div>
+    <div class="debug" onclick="SavePlaygroundData();">SavePlayground</div>
     <div class="debug" onclick="DeleteDB();">DeleteDB</div>
     <div class="debug" onclick="console.log(data);">ShowData</div>
-    <div class="debug" onclick="console.log(navigator.storage.estimate());">GetStorage</div> -->
+    <div class="debug" onclick="console.log(navigator.storage.estimate());">GetStorage</div>
 
     <!-- Popup -->
     <div id="popup"></div>
@@ -26,8 +26,12 @@
     <!-- Edit menu -->
     <div id="edit-menu">
         <div id="depop-menu" onclick="SetEditMenu(false);"></div>
-        <div id="create-item">
-            Create a new item mayB
+        <div id="create-content">
+            <div id="create-item" onclick="CreateNewItem();">
+                Create a new item mayB
+            </div>
+            <div>Create something else
+            </div>
         </div>
     </div>
 
