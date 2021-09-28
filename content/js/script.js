@@ -1,38 +1,53 @@
 /*************************************************************************** SKELETON ***************************************************************************/
-isDraggable = false;
+/** @type {Boolean} */
+var isDraggable = false;
 
 
 /************************* GENERAL USE *************************/
-document.documentElement.setAttribute('lang', navigator.language); // set language depending of navigator
+document.documentElement.setAttribute('lang', navigator.language); // set language depending of navigator's language
 
-function GetCategories() {
-    // Get every categories
-    return document.getElementById('playground').getElementsByClassName('category');
+/** Get every elements that has class {className}
+ * @param {string} className - name of class
+ * @returns {HTMLCollectionOf<Element>} return an array with all the results */
+function GetPlaygroundElementsByClass(className) {
+    return document.getElementById('playground').getElementsByClassName(className);
 }
 
-function GetEmptyBoxes() {
-    return document.getElementById('playground').getElementsByClassName('empty-box');
+/** Get every elements with tag {tagName}
+ * @param {string} tagName - name of tag
+ * @returns {HTMLCollectionOf<Element>} return an array with all the results */
+function GetPlaygroundTags(tagName) {
+    return document.getElementById('playground').getElementsByTagName(tagName);
 }
 
-function GetEveryLinks() {
-    return document.getElementById('playground').getElementsByTagName("a");
+/** TODO */
+function GetCurrentPage() { // query
+    return new URLSearchParams(window.location.search).get('page') ?? "0";
 }
 
-function SetEveryLinks(val) {
-    if (val) document.getElementById('playground').classList.add('link-disabled');
+/** Add a css class to enable or disable links
+ * @param {Boolean} bool true (disabled) or false (enable) */
+function SetEveryLinks(bool) {
+    if (bool) document.getElementById('playground').classList.add('link-disabled');
     else document.getElementById('playground').classList.remove('link-disabled');
 }
 
-function Fade(idelem, animation) { // animation : "fade-in"/"fade-out"
-    idelem.classList.add(animation);
+/** Set {animation} to play on {idElem} during {setTime}
+ * @param {HTMLElement} idElem id of the element
+ * @param {string} animation name of the animation, like "fade-in"/"fade-out"
+ * @param {number} setTime time of animation in ms, default 400 */
+function Fade(idElem, animation, setTime=400) {
+    idElem.classList.add(animation);
     setTimeout(() => {
-        idelem.classList.remove(animation);
-    }, 400);
+        idElem.classList.remove(animation);
+    }, setTime);
 }
 
+/** Create a new uuid but verify beforehand if it doesn't already exists
+ * @param {string} text text preceding the type of id we want to check, like "cat-", "it-"
+ * @returns {string} return a uuid in string format
+ * @source : https://stackoverflow.com/a/2117523 */
 function GetRandomUUID(text) { // text = "cat-", "it-"
-    // https://stackoverflow.com/a/2117523
-    // generate a uuid, then check if uuid already exist, if so, generate new one
     while (true) {
         var uuid = crypto.randomUUID();
         if (!document.getElementById(text + uuid))
@@ -40,7 +55,11 @@ function GetRandomUUID(text) { // text = "cat-", "it-"
     }
 }
 
-function ValidURL(str) {
+/** Verify if {str} is a valid url 
+ * @param {URL} url url to check
+ * @returns {Boolean} return a boolean
+*/
+function ValidURL(url) {
     // https://stackoverflow.com/a/5717133
     var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
@@ -48,12 +67,13 @@ function ValidURL(str) {
         '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
         '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
         '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-    return !!pattern.test(str);
+    return !!pattern.test(url);
 }
 /************************* END OF GENERAL USE *************************/
 
 
 /************************* PLAYGROUND PARSER *************************/
+/** TODO */
 function PlaygroundParser() {
     // TODO : mettre la page sélectionné à la fois : 1 par défault ?url=2 sinon
     // console.log(data);
@@ -73,7 +93,7 @@ function PlaygroundParser() {
                         var target4 = (e4.target) ? 'target="_blank"' : '';
                         var css4 = (e4.customcss) ? 'style="' + e4.customcss + '"' : '';
                         var icon4 = (ValidURL(e4.icon)) ? './content/img/logo/' + e4.icon : e4.icon;
-                        v4 += '<a href="' + e4.url + '" id="it-' + e4.uuid + '" ' + target4 + ' ' + css4 + '><div class="icon"><img src="' + icon4 + '"></div><p>' + e4.text + '</p></a>'
+                        v4 += '<a href="' + e4.url + '" class="item" id="it-' + e4.uuid + '" ' + target4 + ' ' + css4 + '><div class="icon"><img src="' + icon4 + '"></div><p>' + e4.text + '</p></a>'
                     });
                 };
                 var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
@@ -95,11 +115,14 @@ function PlaygroundParser() {
 
 
 /************************* JSON MODIFICATIONS *************************/
-function ModifyGroupPositionJSON(target, val, toMove) {
+/** Modify the position of an element in the JS Object, here a category inside or outside a group
+ * @param {HTMLElement} target element helping to position the main element
+ * @param {HTMLElement} toMove main element to move
+ * @param {number} val position (top, bottom...) of mouse inside targeted element */
+function ModifyGroupPositionJSON(target, toMove, val) {
     var toMoveJSONPos = GetGroupPerId(toMove.id.substring(4));
     var targetJSONPos = GetGroupPerId(target.id.substring(4));
 
-    // val
     switch (val) {
         case 1: // bottom
             var cat = { "categories": [data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]] };
@@ -133,6 +156,9 @@ function ModifyGroupPositionJSON(target, val, toMove) {
     console.log(data);
 }
 
+/** Find the position of an {id} inside a JSON Object
+ * @param {HTMLElement} id id of the element to find
+ * @returns {Array<number>} return the position in numbers */
 function GetGroupPerId(id) {
     for (let i1 = 0; i1 < data.playground.length; i1++) {
         for (let i2 = 0; i2 < data.playground[i1].content.length; i2++) {
@@ -145,19 +171,19 @@ function GetGroupPerId(id) {
     }
 }
 
-// modify items
-
 /************************* END JSON MODIFICATIONS *************************/
 
 
 /************************* DRAG CATEGORIES *************************/
-function SetDraggable() {
+/** Set the playground to be editable */
+function SetEdit() {
     isDraggable = !isDraggable;
     DraggableCatgegories(isDraggable);
 }
 
+/** TODO Set every Categories to be draggable */
 function DraggableCatgegories(val) {
-    var categories = GetCategories();
+    var categories = GetPlaygroundElementsByClass('category');
     Array.from(categories).forEach(cat => {
         cat.setAttribute('draggable', val);
         cat.classList.toggle("is-draggable");
@@ -174,12 +200,14 @@ function DraggableCatgegories(val) {
     });
 }
 
+/** TODO */
 function DragStart(e) {
     e.dataTransfer.setData('text/plain', e.target.id);
 }
 
+/** TODO */
 function SetDragListenerToCategories() {
-    var categories = GetCategories();
+    var categories = GetPlaygroundElementsByClass('category');
 
     Array.from(categories).forEach(box => {
         box.addEventListener('dragenter', DragEnter);
@@ -189,8 +217,9 @@ function SetDragListenerToCategories() {
     });
 }
 
+/** TODO */
 function UnSetDragListenerToCategories() {
-    var categories = GetCategories();
+    var categories = GetPlaygroundElementsByClass('category');
 
     Array.from(categories).forEach(box => {
         box.removeEventListener('dragenter', DragEnter);
@@ -200,11 +229,13 @@ function UnSetDragListenerToCategories() {
     });
 }
 
+/** TODO */
 function DragEnter(e) {
     e.preventDefault();
     e.currentTarget.classList.add('drag-over'); // 
 }
 
+/** TODO */
 function DragOver(e) {
     e.preventDefault();
     e.currentTarget.classList.add('drag-over'); //
@@ -229,11 +260,13 @@ function DragOver(e) {
     }
 }
 
+/** TODO */
 function DragLeave(e) {
     e.currentTarget.classList.remove('drag-over'); //
     SetDragClasses(e, null);
 }
 
+/** TODO */
 function Drop(e) {
     e.currentTarget.classList.remove('drag-over'); //
 
@@ -243,14 +276,15 @@ function Drop(e) {
 
     var val = GetPositionInCategory(e);
 
-    SetCategoryPositionAndGroup(e.currentTarget, val, draggable);
-    ModifyGroupPositionJSON(e.currentTarget, val, draggable);
+    SetCategoryPositionAndGroup(e.currentTarget, draggable, val);
+    ModifyGroupPositionJSON(e.currentTarget, draggable, val);
 
     SetDragClasses(e, null);
     SavePlayground();
 }
 
-function SetCategoryPositionAndGroup(e, val, draggable) {
+/** TODO */
+function SetCategoryPositionAndGroup(e, draggable, val) {
     // if OG parent has group
     // // if parent has less or equal to 1 child (2 at this moment)
     // // // want to delete group later
@@ -300,6 +334,7 @@ function SetCategoryPositionAndGroup(e, val, draggable) {
     }
 }
 
+/** TODO */
 function GetPositionInCategory(e) {
     // get size of element
     var x = e.currentTarget.offsetWidth;
@@ -316,6 +351,7 @@ function GetPositionInCategory(e) {
     if (mouseX >= x / 100 * 15) return 4; // right
 }
 
+/** TODO */
 function SetDragClasses(e, c) {
     e.currentTarget.classList.add('is-dragged');
 
@@ -336,6 +372,7 @@ function SetDragClasses(e, c) {
 
 
 /************************* SAVE *************************/
+/** TODO */
 if (!window.indexedDB) { // If does not support IndexedDB
     data = defaultPlayground();
     console.log("Browser does not support IndexedDB");
@@ -343,6 +380,7 @@ if (!window.indexedDB) { // If does not support IndexedDB
 }
 
 var saveCall = 0;
+/** TODO */
 function SavePlayground() {
     var changeNeeded = 1;
     saveCall++;
@@ -356,6 +394,7 @@ function SavePlayground() {
 
 
 var currentId = null;
+/** TODO */
 function GetPositionOfMouseAndSetPlace(sizeX, sizeY) {
     // position of mouse
     var pageX = window.event.clientX;
@@ -370,6 +409,7 @@ function GetPositionOfMouseAndSetPlace(sizeX, sizeY) {
     return [pageX, pageY];
 }
 
+/** TODO */
 function SetEditMenu(bool) {
     setTimeout(() => {
         (bool) ? document.getElementById('edit-menu').classList.add('active') : document.getElementById('edit-menu').classList.remove('active');
@@ -377,28 +417,24 @@ function SetEditMenu(bool) {
     Fade(document.getElementById('edit-menu'), (bool) ? "fade-in" : "fade-out");
 }
 
+/** TODO */
 function CreateNewContentMenu(e) {
     currentId = e.parentNode.id;
     SetEditMenu(true);
     var mousePosition = GetPositionOfMouseAndSetPlace(200, 100);
     document.getElementById('create-content').style["left"] = mousePosition[0] + "px";
     document.getElementById('create-content').style["top"] = mousePosition[1] + "px";
-    console.log(mousePosition);
-    // e.parentNode.getElementsByTagName;
 }
 
+/** TODO */
 function CreateNewItem() {
     console.log(currentId);
     // TODO : if parent has target enabled, set target=_blank
     var uuid = GetRandomUUID("it-");
-    document.getElementById(currentId).innerHTML += '<a href="#" id="it-' + uuid + '"><div class="icon"><img src=""></div><p>NEW!</p></a>';
+    document.getElementById(currentId).innerHTML += '<a href="#" class="item" id="it-' + uuid + '"><div class="icon"><img src=""></div><p>NEW!</p></a>';
     var parentJSONPos = GetGroupPerId(currentId.substring(4));
     data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[[parentJSONPos[2]]].links.push({ text: "NEW!", url: "#", icon: "", uuid: uuid, customcss: "", target: "" });
     // add to json
     SetEditMenu(false);
     SavePlayground();
-}
-
-function GetCurrentPage() { // query
-    return new URLSearchParams(window.location.search).get('page') ?? "0";
 }
