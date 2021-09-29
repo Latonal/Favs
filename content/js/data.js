@@ -53,6 +53,7 @@ openRequest.onsuccess = function () {
     console.log("store:", store);
 }
 
+/** Save into the navigator the data JSON object */
 async function SavePlaygroundData() {
     console.log("aaaaaaaaa");
     db = openRequest.result;
