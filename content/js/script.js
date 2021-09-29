@@ -142,8 +142,8 @@ function ModifyGroupPositionJSON(target, toMove, val) {
         case 4: // right
             data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories.splice(targetJSONPos[2] + 1, 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]);
             break;
-        default:
-            break;
+        default: // drag cancel
+            return;
     }
 
     if (data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories.length <= 1) {
@@ -181,7 +181,8 @@ function SetEdit() {
     DraggableCatgegories(isDraggable);
 }
 
-/** TODO Set every Categories to be draggable */
+/** Set every Categories to be draggable
+ * @param {Boolean} val true (disabled) or false (enable) */
 function DraggableCatgegories(val) {
     var categories = GetPlaygroundElementsByClass('category');
     Array.from(categories).forEach(cat => {
@@ -195,17 +196,18 @@ function DraggableCatgegories(val) {
         else {
             cat.removeEventListener('dragstart', DragStart);
             SetEveryLinks(false);
-            UnSetDragListenerToCategories();
+            UnsetDragListenerToCategories();
         }
     });
 }
 
-/** TODO */
+/** Set dragged element id to be saved in dataTransfer for later use
+ * @param {HTMLElement} e id of the element */
 function DragStart(e) {
     e.dataTransfer.setData('text/plain', e.target.id);
 }
 
-/** TODO */
+/** Set events for every class category in playground */
 function SetDragListenerToCategories() {
     var categories = GetPlaygroundElementsByClass('category');
 
@@ -217,8 +219,8 @@ function SetDragListenerToCategories() {
     });
 }
 
-/** TODO */
-function UnSetDragListenerToCategories() {
+/** Unset events for every class category in playground */
+function UnsetDragListenerToCategories() {
     var categories = GetPlaygroundElementsByClass('category');
 
     Array.from(categories).forEach(box => {
@@ -229,16 +231,16 @@ function UnSetDragListenerToCategories() {
     });
 }
 
-/** TODO */
+/** Listen when dragged element enter another appropriate element and add css class to target */
 function DragEnter(e) {
     e.preventDefault();
     e.currentTarget.classList.add('drag-over'); // 
 }
 
-/** TODO */
+/** Listen when dragged element goes over another appropriate element and add css class to target depending of the position of the dragged element to it */
 function DragOver(e) {
     e.preventDefault();
-    e.currentTarget.classList.add('drag-over'); //
+    e.currentTarget.classList.add('drag-over'); 
 
     var val = GetPositionInCategory(e);
 
@@ -256,17 +258,18 @@ function DragOver(e) {
             SetDragClasses(e, 'drag-right');
             break;
         default:
+            SetDragClasses(e, null);
             break;
     }
 }
 
-/** TODO */
+/** Listen when dragged element leave another appropriate element and remove css class to target */
 function DragLeave(e) {
     e.currentTarget.classList.remove('drag-over'); //
     SetDragClasses(e, null);
 }
 
-/** TODO */
+/** Listen when dragged element is dragged on another appropriate element, then send dragged, target and position to two function, one for the DOM, another for the JSON */
 function Drop(e) {
     e.currentTarget.classList.remove('drag-over'); //
 
@@ -283,59 +286,68 @@ function Drop(e) {
     SavePlayground();
 }
 
-/** TODO */
-function SetCategoryPositionAndGroup(e, draggable, val) {
+/** Modify the position of an element in the DOM, here a category inside or outside a group
+ * @param {HTMLElement} target element helping to position the main element
+ * @param {HTMLElement} toMove main element to move
+ * @param {number} val position (top, bottom...) of mouse inside targeted element */
+function SetCategoryPositionAndGroup(target, toMove, val) {
     // if OG parent has group
     // // if parent has less or equal to 1 child (2 at this moment)
     // // // want to delete group later
-    var draggableHadParent = draggable.parentNode.classList.contains("group");
-    // console.log((draggableHadParent) ? "Draggable had group parent : " + draggable.parentNode.childNodes.length : "Draggable does not have group parent");
+    var draggableHadParent = toMove.parentNode.classList.contains("group");
+    // console.log((draggableHadParent) ? "toMove had group parent : " + toMove.parentNode.childNodes.length : "toMove does not have group parent");
     var groupToRemove = null;
-    if (draggableHadParent && draggable.parentNode.childNodes.length <= 2) {
+    if (draggableHadParent && toMove.parentNode.childNodes.length <= 2) {
         // console.log("DESTROY");
-        groupToRemove = draggable.parentNode;
+        groupToRemove = toMove.parentNode;
     }
     // if TARGET does not have group
     // // create group
-    var targetHasParent = e.parentNode.classList.contains("group");
-    // console.log((targetHasParent) ? "Target has group parent : " + e.parentNode.childNodes.length : "Target does not have group parent");
+    var targetHasParent = target.parentNode.classList.contains("group");
+    // console.log((targetHasParent) ? "Target has group parent : " + target.parentNode.childNodes.length : "Target does not have group parent");
     // if target does not have group parent
     if (!targetHasParent && (val == 2 || val == 4)) {
         var group = document.createElement('div');
         group.classList.add('group');
-        e.before(group);
-        group.appendChild(e);
+        target.before(group);
+        group.appendChild(target);
     }
     // move
     switch (val) {
         case 1: // bottom
-            if (targetHasParent) e = e.parentNode;
-            e.after(draggable);
+            if (targetHasParent) target = target.parentNode;
+            target.after(toMove);
             break;
         case 2: // left
-            e.before(draggable);
+            target.before(toMove);
             break;
         case 3: // top
-            if (targetHasParent) e = e.parentNode;
-            e.before(draggable);
+            if (targetHasParent) target = target.parentNode;
+            target.before(toMove);
             break;
         case 4: // right
-            e.after(draggable);
+            target.after(toMove);
             break;
-        default:
-            break;
+        default: // Drag cancel
+            return;
     }
     // delete OG parent group 'later'
     if (groupToRemove != null) {
-        if (groupToRemove != e.parentNode) {
+        if (groupToRemove != target.parentNode) {
             groupToRemove.after(groupToRemove.childNodes[0]);
             groupToRemove.remove();
         }
     }
 }
 
-/** TODO */
-function GetPositionInCategory(e) {
+/** Return a value depending of the position of the mouse in the element 
+ * @param {HTMLElement} e element to compare to
+ * @param {number} offsetX horizontal limit
+ * @param {number} offsetY vertical limit
+ * @param {Boolean} vertical allow to return vertical values (1 & 3)
+ * @param {Boolean} horizontal allow to return horizontal values (2 & 4)
+ * @returns {1 | 2 | 3 | 4} return a number between 1 and 4 */
+function GetPositionInCategory(e, offsetX = 15, offsetY = 35, vertical = true, horizontal = true) {
     // get size of element
     var x = e.currentTarget.offsetWidth;
     var y = e.currentTarget.offsetHeight;
@@ -345,13 +357,16 @@ function GetPositionInCategory(e) {
     var mouseY = e.offsetY;
 
     // assign value
-    if (mouseY >= y / 100 * 50 && (mouseX > x / 100 * 15 && mouseX < x / 100 * 85)) return 1; // bottom
-    if (mouseX <= x / 100 * 15) return 2; // left
-    if (mouseY < y / 100 * 50 && (mouseX > x / 100 * 15 && mouseX < x / 100 * 85)) return 3; // top
-    if (mouseX >= x / 100 * 15) return 4; // right
+    if (vertical && mouseY >= y / 100 * (100 - offsetY) && (mouseX > x / 100 * offsetX && mouseX < x / 100 * (100 - offsetX))) return 1; // bottom
+    if (horizontal && mouseX <= x / 100 * offsetX) return 2; // left
+    if (vertical && mouseY < y / 100 * offsetY && (mouseX > x / 100 * offsetX && mouseX < x / 100 * (100 - offsetX))) return 3; // top
+    if (horizontal && mouseX >= x / 100 * (100 - offsetX)) return 4; // right
 }
 
-/** TODO */
+/** Add and remove class depending of class asked to add to element
+ * @param {HTMLElement} e element to add classes
+ * @param {string} c class to add
+ * @ Todo : Optimize function so it takes two arrays : one to set and the other to remove so it can be used in more cases */
 function SetDragClasses(e, c) {
     e.currentTarget.classList.add('is-dragged');
 
@@ -380,7 +395,7 @@ if (!window.indexedDB) { // If does not support IndexedDB
 }
 
 var saveCall = 0;
-/** TODO */
+/** Save the current JSON playground each X number of change (hardcoded) */
 function SavePlayground() {
     var changeNeeded = 1;
     saveCall++;
@@ -394,7 +409,10 @@ function SavePlayground() {
 
 
 var currentId = null;
-/** TODO */
+/** Get position of the mouse and place the item to be on screen depending of its {sizeX} and {sizeY}
+ * @param {number} sizeX horizontal size of the item we want to place
+ * @param {number} sizeY vertical size of the item we want to place
+ * @returns {Array<number>} return an array of number */
 function GetPositionOfMouseAndSetPlace(sizeX, sizeY) {
     // position of mouse
     var pageX = window.event.clientX;
@@ -409,7 +427,9 @@ function GetPositionOfMouseAndSetPlace(sizeX, sizeY) {
     return [pageX, pageY];
 }
 
-/** TODO */
+/** Set the edit menu to be active or not, and execute an animation
+ * @param {Boolean} bool true (enabled) or false (disabled)
+ * @ Todo : make so we can choose id targeted and animation used */
 function SetEditMenu(bool) {
     setTimeout(() => {
         (bool) ? document.getElementById('edit-menu').classList.add('active') : document.getElementById('edit-menu').classList.remove('active');
@@ -417,7 +437,8 @@ function SetEditMenu(bool) {
     Fade(document.getElementById('edit-menu'), (bool) ? "fade-in" : "fade-out");
 }
 
-/** TODO */
+/** Create a menu where clicked
+ * @param {HTMLElement} e element on which we click */
 function CreateNewContentMenu(e) {
     currentId = e.parentNode.id;
     SetEditMenu(true);
@@ -426,7 +447,7 @@ function CreateNewContentMenu(e) {
     document.getElementById('create-content').style["top"] = mousePosition[1] + "px";
 }
 
-/** TODO */
+/** Create a new empty item */
 function CreateNewItem() {
     console.log(currentId);
     // TODO : if parent has target enabled, set target=_blank
