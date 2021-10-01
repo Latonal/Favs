@@ -36,7 +36,7 @@ function SetEveryLinks(bool) {
  * @param {HTMLElement} idElem id of the element
  * @param {string} animation name of the animation, like "fade-in"/"fade-out"
  * @param {number} setTime time of animation in ms, default 400 */
-function Fade(idElem, animation, setTime=400) {
+function Fade(idElem, animation, setTime = 400) {
     idElem.classList.add(animation);
     setTimeout(() => {
         idElem.classList.remove(animation);
@@ -73,7 +73,7 @@ function ValidURL(url) {
 
 
 /************************* PLAYGROUND PARSER *************************/
-/** TODO */
+/** Add elements into the DOM thanks to a JSON */
 function PlaygroundParser() {
     // TODO : mettre la page sélectionné à la fois : 1 par défault ?url=2 sinon
     // console.log(data);
@@ -240,7 +240,7 @@ function DragEnter(e) {
 /** Listen when dragged element goes over another appropriate element and add css class to target depending of the position of the dragged element to it */
 function DragOver(e) {
     e.preventDefault();
-    e.currentTarget.classList.add('drag-over'); 
+    e.currentTarget.classList.add('drag-over');
 
     var val = GetPositionInCategory(e);
 
@@ -447,7 +447,7 @@ function CreateNewContentMenu(e) {
     document.getElementById('create-content').style["top"] = mousePosition[1] + "px";
 }
 
-/** Create a new empty item */
+/** Create a new empty item, both in the DOM and JSON playground */
 function CreateNewItem() {
     console.log(currentId);
     // TODO : if parent has target enabled, set target=_blank
@@ -457,5 +457,5 @@ function CreateNewItem() {
     data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[[parentJSONPos[2]]].links.push({ text: "NEW!", url: "#", icon: "", uuid: uuid, customcss: "", target: "" });
     // add to json
     SetEditMenu(false);
-    SavePlayground();
+    SavePlayground(); // Do not do that in final ver TODO
 }
