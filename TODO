@@ -2,6 +2,7 @@ TODO :
 Vérifier si un objet JSON et valide (pour importer un JSON custom) : https://stackoverflow.com/a/20392392
 Element Aria afin de permettre plus d'informations disponible sur la page en invisible : https://developer.mozilla.org/en-US/docs/Web/API/Element/ariaCurrent
 Custom right click menu : https://stackoverflow.com/questions/4909167/how-to-add-a-custom-right-click-menu-to-a-webpage
+Annuler le dernier élément supprimé
 
 "If you see this message, your browser is not compatible with most functionalities used, or you didn't allowed them. Default model has been applied."
 Créer un message qui dit qu'on utilise le cache, sinon désactiver le cache
@@ -87,6 +88,7 @@ JSDoc comments : https://www.jetbrains.com/help/rider/Creating_JSDoc_Comments.ht
 Ajouter un élément dans un JSON Array : https://www.codespeedy.com/how-to-add-elements-in-json-array-using-javascript/
 Get Query string : https://davidwalsh.name/query-string-javascript
 HTML Sementics : https://stackoverflow.com/questions/4909167/how-to-add-a-custom-right-click-menu-to-a-webpage
+HTML Character code : https://html.com/character-codes/
 
 Github Page : https://pages.github.com/
 EXAMPLE OF STANDARD : https://webhint.io/docs/user-guide/hints/hint-x-content-type-options/?source=devtools

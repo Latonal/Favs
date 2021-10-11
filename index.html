@@ -23,15 +23,26 @@
         <img src="content/img/icon/editW.png" onclick="SetEdit();">
     </div>
 
-    <!-- Edit menu -->
-    <div id="edit-menu">
-        <div id="depop-menu" onclick="SetEditMenu(false);"></div>
+    <!-- Create menu -->
+    <div id="create-menu">
+        <div class="depop-menu" onclick="SetElement(false, 'create-menu');"></div>
         <div id="create-content">
             <div id="create-item" onclick="CreateNewItem();">
                 Create a new item mayB
             </div>
-            <div>Create something else
+            <div>
+                Create something else
             </div>
+        </div>
+    </div>
+    <!-- Edit menu -->
+    <div id="edit-menu">
+        <div class="depop-menu" onclick="SetElement(false, 'edit-menu');"></div>
+        <div id="edit-item">
+            <p>Title of section</p>
+            <p>Modify text:</p>
+            <p>Modify url:</p>
+            <p>Modify image --&gt;</p><!-- TODO Change for hexa -->
         </div>
     </div>
 
@@ -41,8 +52,8 @@
 
     <!-- Javascript -->
     <script type="text/javascript" src="content/js/default-playground.js"></script>
-    <script type="text/javascript" src="content/js/script.js"></script>
     <script type="text/javascript" src="content/js/data.js"></script>
+    <script type="text/javascript" src="content/js/script.js"></script>
 </body>
 
 </html>
