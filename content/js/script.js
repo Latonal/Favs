@@ -242,7 +242,7 @@ function DragOver(e) {
     e.preventDefault();
     e.currentTarget.classList.add('drag-over');
 
-    var val = GetPositionInCategory(e);
+    var val = GetPositionInElement(e);
 
     switch (val) {
         case 1: // bottom
@@ -277,7 +277,7 @@ function Drop(e) {
     const id = e.dataTransfer.getData('text/plain');
     const draggable = document.getElementById(id);
 
-    var val = GetPositionInCategory(e);
+    var val = GetPositionInElement(e);
 
     SetCategoryPositionAndGroup(e.currentTarget, draggable, val);
     ModifyGroupPositionJSON(e.currentTarget, draggable, val);
@@ -347,7 +347,7 @@ function SetCategoryPositionAndGroup(target, toMove, val) {
  * @param {Boolean} vertical allow to return vertical values (1 & 3)
  * @param {Boolean} horizontal allow to return horizontal values (2 & 4)
  * @returns {1 | 2 | 3 | 4} return a number between 1 and 4 */
-function GetPositionInCategory(e, offsetX = 15, offsetY = 35, vertical = true, horizontal = true) {
+function GetPositionInElement(e, offsetX = 15, offsetY = 35, vertical = true, horizontal = true) {
     // get size of element
     var x = e.currentTarget.offsetWidth;
     var y = e.currentTarget.offsetHeight;
@@ -393,6 +393,9 @@ if (!window.indexedDB) { // If does not support IndexedDB
     console.log("Browser does not support IndexedDB");
     // TODO : else display message asking to upgrade web browser to allow cache
 }
+else {
+    InstantiateDB();
+}
 
 var saveCall = 0;
 /** Save the current JSON playground each X number of change (hardcoded) */
@@ -427,21 +430,22 @@ function GetPositionOfMouseAndSetPlace(sizeX, sizeY) {
     return [pageX, pageY];
 }
 
-/** Set the edit menu to be active or not, and execute an animation
+/** Set the element to be active or not, and execute an animation
  * @param {Boolean} bool true (enabled) or false (disabled)
+ * @param {String} c class targeted
  * @ Todo : make so we can choose id targeted and animation used */
-function SetEditMenu(bool) {
+function SetElement(bool, c) {
     setTimeout(() => {
-        (bool) ? document.getElementById('edit-menu').classList.add('active') : document.getElementById('edit-menu').classList.remove('active');
+        (bool) ? document.getElementById(c).classList.add('active') : document.getElementById(c).classList.remove('active');
     }, (bool) ? 0 : 400);
-    Fade(document.getElementById('edit-menu'), (bool) ? "fade-in" : "fade-out");
+    Fade(document.getElementById(c), (bool) ? "fade-in" : "fade-out");
 }
 
 /** Create a menu where clicked
  * @param {HTMLElement} e element on which we click */
 function CreateNewContentMenu(e) {
     currentId = e.parentNode.id;
-    SetEditMenu(true);
+    SetElement(true, 'create-menu');
     var mousePosition = GetPositionOfMouseAndSetPlace(200, 100);
     document.getElementById('create-content').style["left"] = mousePosition[0] + "px";
     document.getElementById('create-content').style["top"] = mousePosition[1] + "px";
@@ -455,7 +459,6 @@ function CreateNewItem() {
     document.getElementById(currentId).innerHTML += '<a href="#" class="item" id="it-' + uuid + '"><div class="icon"><img src=""></div><p>NEW!</p></a>';
     var parentJSONPos = GetGroupPerId(currentId.substring(4));
     data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[[parentJSONPos[2]]].links.push({ text: "NEW!", url: "#", icon: "", uuid: uuid, customcss: "", target: "" });
-    // add to json
-    SetEditMenu(false);
+    SetElement(false, 'create-menu');
     SavePlayground(); // Do not do that in final ver TODO
 }

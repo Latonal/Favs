@@ -15,42 +15,44 @@ function DeleteDB() {
 let openRequest = indexedDB.open(DB_NAME, DB_VERSION);
 let db;
 
-openRequest.onupgradeneeded = function (e) {
-    db = openRequest.result;
-    if (e.oldVersion < 1) {
-        console.log("version 1, precedent was: " + e.oldVersion);
-        const store = db.createObjectStore("data", { keyPath: "id" });
-        const playground = store.createIndex("playground", "playground", { unique: true });
-
-        store.put({ playground: defaultPlayground.playground, id: 0 });
-    }
-}
-openRequest.onerror = function () {
-    console.log("Error opening the DB ", openRequest.error);
-}
-
-openRequest.onsuccess = function () {
-    db = openRequest.result;
-    console.log("Opened db", db);
-
-    let transaction = db.transaction("data", "readonly");
-    let store = transaction.objectStore("data");
-    let request = store.openCursor();
-    request.onsuccess = function () {
-        let cursor = request.result;
-        if (cursor) {
-            // let key = cursor.key;
-            let value = cursor.value;
-            data = value;
-            console.log(value.playground);
-            cursor.continue;
-            PlaygroundParser();
-        }
-        else {
-            console.log("No cursor");
+function InstantiateDB() {
+    openRequest.onupgradeneeded = function (e) {
+        db = openRequest.result;
+        if (e.oldVersion < 1) {
+            console.log("version 1, precedent was: " + e.oldVersion);
+            const store = db.createObjectStore("data", { keyPath: "id" });
+            const playground = store.createIndex("playground", "playground", { unique: true });
+    
+            store.put({ playground: defaultPlayground.playground, id: 0 });
         }
     }
-    console.log("store:", store);
+    openRequest.onerror = function () {
+        console.log("Error opening the DB ", openRequest.error);
+    }
+    
+    openRequest.onsuccess = function () {
+        db = openRequest.result;
+        console.log("Opened db", db);
+    
+        let transaction = db.transaction("data", "readonly");
+        let store = transaction.objectStore("data");
+        let request = store.openCursor();
+        request.onsuccess = function () {
+            let cursor = request.result;
+            if (cursor) {
+                // let key = cursor.key;
+                let value = cursor.value;
+                data = value;
+                console.log(value.playground);
+                cursor.continue;
+                PlaygroundParser();
+            }
+            else {
+                console.log("No cursor");
+            }
+        }
+        console.log("store:", store);
+    }
 }
 
 /** Save into the navigator the data JSON object */
