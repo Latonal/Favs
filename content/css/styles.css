@@ -74,12 +74,12 @@ html {
 }
 
 /************************* Create menu *************************/
-#create-menu {
+#create-menu, #edit-menu {
     display:none;
     position:absolute;
     z-index:2;
 }
-#create-menu .depop-menu {
+#create-menu .depop-menu, #edit-menu .depop-menu {
     position:fixed;
     top:0;
     left:0;
@@ -87,9 +87,8 @@ html {
     height:100%;
     z-index:2;
 }
-#create-menu.active {
+#create-menu.active, #edit-menu.active {
     display:block;
-    position:absolute;
     top:0;
     left:0;
 }
@@ -119,14 +118,12 @@ html {
 
 /************************* Edit menu *************************/
 #edit-menu #edit-item {
-    position:absolute;
     height:100vh;
-    top:0;
-    right:0;
+    position:fixed;
     background-color:#808080;
-    z-index:3;
     padding:20px;
     border-left:2px #a7a6a6 solid;
+    z-index:3;
 }
 
 /************************* Category *************************/
@@ -154,17 +151,17 @@ html {
     top:5px;
     right:5px;
 }
-#playground.link-disabled .add-element {
+#playground .is-draggable .add-element {
     display:flex;
     min-width:20px;
     min-height:20px;
     justify-content: center;
     align-items: center;
 }
-#playground.link-disabled .add-element {
+#playground .is-draggable .add-element {
     cursor:pointer;
 }
-#playground.link-disabled .category.is-dragged .add-element {
+#playground .category.is-dragged .add-element {
     display:none;
 }
 
@@ -174,7 +171,6 @@ html {
     flex-direction: row;
     justify-content: space-evenly;
 }
-
 .group .category {
     flex: 2 1 auto;
 }
