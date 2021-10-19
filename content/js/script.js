@@ -157,8 +157,8 @@ function ModifyGroupPositionJSON(target, toMove, val) {
     console.log(data);
 }
 
-/** Find the position of an {id} inside a JSON Object
- * @param {HTMLElement} id id of the element to find
+/** Find the position of a category {id} inside a JSON Object
+ * @param {HTMLElement} id id of the category to find
  * @returns {Array<number>} return the position in numbers */
 function GetGroupPerId(id) {
     for (let i1 = 0; i1 < data.playground.length; i1++) {
@@ -169,6 +169,16 @@ function GetGroupPerId(id) {
                 }
             }
         }
+    }
+}
+
+/** Find the position of an item {id} inside a JSON Object
+ * @param {HTMLElement} id id of the category to find
+ * @param {Array<number>} idList list of the category to check in the JSON element, use GetGroupPerId() to get this list
+ * @returns {Array<number>} return the position in numbers */
+function GetItemPerId(id, idList) {
+    for (let i = 0; i < data.playground[idList[0]].content[idList[1]].categories[idList[2]].links.length; i++) {
+        if (data.playground[idList[0]].content[idList[1]].categories[idList[2]].links[i].uuid == id) return [idList[0], idList[1], idList[2], i];
     }
 }
 
@@ -184,7 +194,7 @@ function SetEdit() {
 }
 
 /** Set every Categories to be draggable
- * @param {Boolean} val true (disabled) or false (enable) */
+ * @param {Boolean} val true (enable) or false (disable) */
 function DraggableCatgegories(val) {
     var categories = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'category');
     Array.from(categories).forEach(cat => {
@@ -382,32 +392,79 @@ function SetDragClasses(e, c) {
 
 
 /*************************  EDIT ITEMS *************************/
-function EditItem(val) { // TODO
+/** Set every item to be editable
+ * @param {Boolean} val true (enable) or false (disable) */
+function EditItem(val) {
     var item = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'item');
     Array.from(item).forEach(it => {
         if (val) {
-            // SetEveryLinks(true);
             it.removeAttribute("href");
             InstantiateItemEvents(it);
         }
         else {
-            // SetEveryLinks(false);
             it.setAttribute("href", it.dataset.url)
             it.removeEventListener('click', OpenEditMenu);
             it.removeEventListener('dragstart', DragStart);
         }
-        // click does not work if we disable the click event
     });
 }
 
+/** Put event on element to answer to click and drag
+ * @param {HTMLElement} it element to put event on */
 function InstantiateItemEvents(it) {
     it.addEventListener('click', OpenEditMenu);
     it.addEventListener('dragstart', DragStart);
 }
 
+/** Open edit menu and set inner element to correspond to element clicked on */
 function OpenEditMenu() {
-    console.log("Open Edit Menu");
     SetElement(true, 'edit-menu');
+    currentItemId = this.id;
+    currentGroupId = this.parentNode.id;
+    document.getElementById("edit-item-text").value = document.getElementById(currentItemId).getElementsByTagName("p")[0].innerText;
+    document.getElementById("edit-item-url").value = document.getElementById(currentItemId).dataset.url;
+    document.getElementById("edit-item-target").checked = (document.getElementById(currentItemId).attributes.target) ? true : false;
+
+
+    /* SANITIZE !!! Replace special characters */
+}
+
+/** Put text into the DOM element calling the function
+ * @param {String} val text to put */
+function EditChangeText(val) {
+    document.getElementById(currentItemId).getElementsByTagName("p")[0].innerText = val;
+}
+
+/** Put text into a JSON Object
+ * @param {String} val text to put */
+function EditAddTextToJson(val) {
+    itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
+    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].text = val;
+    SavePlayground();
+}
+
+/** Put url into the DOM element calling the function
+ * @param {String} val url to put */
+function EditChangeUrl(val) {
+    document.getElementById(currentItemId).dataset.url = val;
+}
+
+/** Put url into a JSON object
+ * @param {String} val url to put */
+function EditAddUrlToJson(val) {
+    itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
+    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].url = val;
+    SavePlayground();
+}
+
+/** Put checkbox value into a JSON object
+ * @param {*} val value to put */
+function EditAddTargetToJson(val) {
+    console.log("target: " + val);
+    (val) ? document.getElementById(currentItemId).target = "_blank" : document.getElementById(currentItemId).target = "";
+    itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
+    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].target = val;
+    SavePlayground();
 }
 /*************************  EDIT ITEMS *************************/
 
@@ -442,7 +499,8 @@ function SavePlayground() {
 /*************************************************************************** END OF SKELETON ***************************************************************************/
 
 
-var currentId = null;
+var currentGroupId = null;
+var currentItemId = null;
 /** Get position of the mouse and place the item to be on screen depending of its {sizeX} and {sizeY}
  * @param {number} sizeX horizontal size of the item we want to place
  * @param {number} sizeY vertical size of the item we want to place
@@ -475,7 +533,7 @@ function SetElement(bool, c) {
 /** Create a menu where clicked
  * @param {HTMLElement} e element on which we click */
 function CreateNewContentMenu(e) {
-    currentId = e.parentNode.id;
+    currentGroupId = e.parentNode.id;
     SetElement(true, 'create-menu');
     var mousePosition = GetPositionOfMouseAndSetPlace(200, 100);
     document.getElementById('create-content').style["left"] = mousePosition[0] + "px";
@@ -484,12 +542,12 @@ function CreateNewContentMenu(e) {
 
 /** Create a new empty item, both in the DOM and JSON playground */
 function CreateNewItem() {
-    console.log(currentId);
+    console.log(currentGroupId);
     // TODO : if parent has target enabled, set target=_blank
     var uuid = GetRandomUUID("it-");
-    document.getElementById(currentId).innerHTML += '<a href="#" class="item" id="it-' + uuid + '"><div class="icon"><img src=""></div><p>NEW!</p></a>';
+    document.getElementById(currentGroupId).innerHTML += '<a href="#" class="item" id="it-' + uuid + '"><div class="icon"><img src=""></div><p>NEW!</p></a>';
     InstantiateItemEvents(document.getElementById("it-" + uuid));
-    var parentJSONPos = GetGroupPerId(currentId.substring(4));
+    var parentJSONPos = GetGroupPerId(currentGroupId.substring(4));
     data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[[parentJSONPos[2]]].links.push({ text: "NEW!", url: "#", icon: "", uuid: uuid, customcss: "", target: "" });
     SetElement(false, 'create-menu');
     SavePlayground(); // Do not do that in final ver TODO

@@ -40,8 +40,17 @@
         <div class="depop-menu" onclick="SetElement(false, 'edit-menu');"></div>
         <div id="edit-item">
             <p>Title of section</p>
-            <p>Modify text:</p>
-            <p>Modify url:</p>
+            <fieldset>
+                <legend>Text</legend>
+                <input type="text" placeholder="Text" id="edit-item-text" oninput="EditChangeText(this.value);" onchange="EditAddTextToJson(this.value);">
+            </fieldset>
+            <fieldset>
+                <legend>Url</legend>
+                <div>
+                    <input type="url" placeholder="Text" id="edit-item-url" oninput="EditChangeUrl(this.value);" onchange="EditAddUrlToJson(this.value);">
+                    <p>Open in new window <input type="checkbox" id="edit-item-target" onchange="EditAddTargetToJson(this.checked)"></p>
+                </div>
+            </fieldset>
             <p>Modify image --&gt;</p><!-- TODO Change for hexa -->
         </div>
     </div>
