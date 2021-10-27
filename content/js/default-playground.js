@@ -5,6 +5,7 @@ var defaultPlayground = {
     "playground": [
         {
             "name": "ntm hemz <3",
+            "templatestyle": "",
             "content": [
                 {
                     "categories": [

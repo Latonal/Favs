@@ -10,9 +10,17 @@ html {
     background-color:#3e3e3e;
     font-family:'Lato';
 }
-/* :root {
- for variables
-} */
+
+/************************* Variables *************************/
+:root {
+    --transition-time: 0.4s;
+    --form-control-color: rgb(0, 0, 0);
+    --form-control-disabled: #959495;
+    --text-color: #eee;
+}
+.veranda {
+    --text-color: rgb(95, 10, 95);
+}
 
 /************************* Scrollbar *************************/
 ::-webkit-scrollbar {
@@ -46,6 +54,50 @@ html {
     pointer-events: none;
 }
 
+/************************* Checkboxes *************************/
+input[type=checkbox] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: #fff;
+    margin: 0;
+    font: inherit;
+    color:currentColor;
+    width:1.15em;
+    height:1.15em;
+    /* width:19px;
+    height:19px; */
+    border:0.15em solid currentColor;
+    border-radius:25%;
+    transform: translateY(-0.075em);
+    display:grid;
+    place-content:center;
+}
+/* label + label {
+    margin-top:1em;
+} */
+input[type=checkbox]::before {
+    content:"";
+    width:0.65em;
+    height:0.65em;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transform: scale(0);
+    transform-origin: bottom left;
+    transition:var(--transition-time) transform ease-in-out;
+    box-shadow: inset 1em 1em var(--form-control-color);
+}
+input[type=checkbox]:checked::before {
+    transform:scale(1);
+}
+/* input[type="checkbox"]:focus {
+    outline: max(2px, 0.15em) solid currentColor;
+    outline-offset: max(2px, 0.15em);
+} */
+input[type=checkbox]:disabled {
+    --form-control-color: var(--form-control-disabled);
+    color: var(--form-control-disabled);
+    cursor:not-allowed;
+}
+
 /************************* Toolbar *************************/
 .toolbar {
     position:fixed;
@@ -65,7 +117,7 @@ html {
     max-width:24px;
     max-height:24px;
     padding:3px;
-    transition:0.4s;
+    transition:var(--transition-time);
     border-radius:5px;
     cursor:pointer;
 }
@@ -122,34 +174,47 @@ html {
     position:fixed;
     background-color:#808080;
     padding:10px;
-    border-left:2px #a7a6a6 solid;
+    /* border-left:2px #a7a6a6 solid; */
     z-index:3;
 }
-
+#edit-menu fieldset {
+    border-width:2px 0 0;
+    border-color:#fff;
+    border-style:inset;
+    /* border-radius:50%; */
+}
 #edit-menu fieldset legend {
-    background-color:#000;
+    background-color:transparent;
     color:#fff;
     padding:3px 6px;
     margin-left:7px;
 }
-
 #edit-menu fieldset input {
     margin: 0.4rem;
     height:25px;
     font-family: 'Lato';
     font-size:16px;
 }
-
 #edit-menu fieldset>div {
     display:flex;
     flex-direction: column;
+}
+#edit-menu fieldset>div>label {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    padding-left:2px;
+}
+#edit-menu fieldset>div>label>input[type=checkbox] {
+    height: 19px;
 }
 
 /************************* Category *************************/
 .category {
     border:5px dashed #ffffff00;
     border-radius:5px;
-    transition:0.4s;
+    transition:var(--transition-time);
     min-width:10px;
     min-height:10px;
     position:relative;
@@ -236,11 +301,11 @@ html {
     min-width:100px;
     min-height:100px;
     max-height:10px;
-    border:1px solid #eeeeee;
+    border:1px solid var(--text-color);
     border-radius:10px;
     margin:20px;
-    transition:0.4s;
-    color:#eeeeee;
+    transition:var(--transition-time);
+    color:var(--text-color);
     text-decoration: none;
 }
 .icon-list a:hover {
@@ -254,23 +319,23 @@ html {
 .sub-list {
     display:flex;
     flex-direction:column;
-    color:#eeeeee;
+    color:var(--text-color);
     justify-content:center;
     align-items:center;
 }
 .sub-list a:hover {
     background-color:#2e2e2e;
-    transition:0.4s;
+    transition:var(--transition-time);
 }
 .sub-list a {
     display:flex;
-    color:#eeeeee;
+    color:var(--text-color);
     padding:5px;
     border-radius:5px;
     text-decoration:none;
 }
 .sub-list a:visited {
-    color:#eeeeee;
+    color:var(--text-color);
 }
 .sub-list .icon {
     width:20px;
@@ -287,7 +352,6 @@ html {
     from {opacity:1;}
     to {opacity:0;}
 }
-
 .fade-out {
     animation-name:FadeOut;
     animation-duration:0.4s;
@@ -298,7 +362,6 @@ html {
     from {opacity:0;}
     to {opacity:1;}
 }
-
 .fade-in {
     animation-name:FadeIn;
     animation-duration:0.4s;
