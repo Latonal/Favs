@@ -9,56 +9,58 @@
     <link rel="stylesheet" type="text/css" href="content/css/optional.css">
 </head>
 
-<body>
-    <div class="debug" onclick="SavePlaygroundData();">SavePlayground</div>
-    <div class="debug" onclick="DeleteDB();">DeleteDB</div>
-    <div class="debug" onclick="console.log(data);">ShowData</div>
-    <div class="debug" onclick="console.log(navigator.storage.estimate());">GetStorage</div>
+<body> <!-- style -->
+    <div id="template">
+        <div class="debug" onclick="SavePlaygroundData();">SavePlayground</div>
+        <div class="debug" onclick="DeleteDB();">DeleteDB</div>
+        <div class="debug" onclick="console.log(data);">ShowData</div>
+        <div class="debug" onclick="console.log(navigator.storage.estimate());">GetStorage</div>
 
-    <!-- Popup -->
-    <div id="popup"></div>
+        <!-- Popup -->
+        <div id="popup"></div>
 
-    <!-- Toolbar -->
-    <div class="toolbar">
-        <img src="content/img/icon/editW.png" onclick="SetEdit();">
-    </div>
-
-    <!-- Create menu -->
-    <div id="create-menu">
-        <div class="depop-menu" onclick="SetElement(false, 'create-menu');"></div>
-        <div id="create-content">
-            <div id="create-item" onclick="CreateNewItem();">
-                Create a new item mayB
-            </div>
-            <div>
-                Create something else
-            </div>
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <img src="content/img/icon/editW.png" onclick="SetEdit();">
         </div>
-    </div>
-    <!-- Edit menu -->
-    <div id="edit-menu">
-        <div class="depop-menu" onclick="SetElement(false, 'edit-menu');"></div>
-        <div id="edit-item">
-            <p>Title of section</p>
-            <fieldset>
-                <legend>Text</legend>
-                <input type="text" placeholder="Text" id="edit-item-text" oninput="EditChangeText(this.value);" onchange="EditAddTextToJson(this.value);">
-            </fieldset>
-            <fieldset>
-                <legend>Url</legend>
-                <div>
-                    <input type="url" placeholder="Text" id="edit-item-url" oninput="EditChangeUrl(this.value);" onchange="EditAddUrlToJson(this.value);">
-                    <p>Open in new window <input type="checkbox" id="edit-item-target" onchange="EditAddTargetToJson(this.checked)"></p>
+
+        <!-- Create menu -->
+        <div id="create-menu">
+            <div class="depop-menu" onclick="SetElement(false, 'create-menu');"></div>
+            <div id="create-content">
+                <div id="create-item" onclick="CreateNewItem();">
+                    Create a new item mayB
                 </div>
-            </fieldset>
-            <p>Modify image --&gt;</p><!-- TODO Change for hexa -->
+                <div>
+                    Create something else
+                </div>
+            </div>
         </div>
+        <!-- Edit menu -->
+        <div id="edit-menu">
+            <div class="depop-menu" onclick="SetElement(false, 'edit-menu');"></div>
+            <div id="edit-item">
+                <fieldset>
+                    <legend>Text</legend>
+                    <input type="text" placeholder="Text" id="edit-item-text" oninput="EditChangeText(this.value);" onchange="EditAddTextToJson(this.value);">
+                </fieldset>
+                <fieldset>
+                    <legend>Url</legend>
+                    <div>
+                        <input type="url" placeholder="Text" id="edit-item-url" oninput="EditChangeUrl(this.value);" onchange="EditAddUrlToJson(this.value);">
+                        <label onchange="EditAddTargetToJson(this.checked)">Open in new window <input type="checkbox" id="edit-item-target"></label>
+                    </div>
+                </fieldset>
+                <p>Modify image --&gt;</p><!-- TODO Change for hexa -->
+            </div>
+        </div>
+
+        <!-- <main> ?-->
+        <!-- <nav> pages - utiliser flex pour changer la position -->
+        <section id="playground"></section>
+        <!-- <footer></footer> -->
+
     </div>
-
-    <!-- <nav> pages - utiliser flex pour changer la position -->
-    <section id="playground"></section>
-    <!-- <footer></footer> -->
-
     <!-- Javascript -->
     <script type="text/javascript" src="content/js/default-playground.js"></script>
     <script type="text/javascript" src="content/js/data.js"></script>

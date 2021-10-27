@@ -106,7 +106,8 @@ function PlaygroundParser() {
             }
             v2 += v3;
         });
-        html += '<div id="page-' + pageId + '">' + v2 + "</div>";
+        var templatestyle = (e1.templatestyle) ? 'class="' + e1.templatestyle + '"' : '';
+        html += '<div id="page-' + pageId + '" ' + templatestyle + '>' + v2 + "</div>";
         pageId++;
     });
 
@@ -132,7 +133,7 @@ function ModifyGroupPositionJSON(target, toMove, val) {
             break;
         case 2: // left
             data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories.splice(targetJSONPos[2], 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]);
-            if (toMoveJSONPos[2] > targetJSONPos[2]) toMoveJSONPos[2] += 1;
+            if (toMoveJSONPos[1] == targetJSONPos[1] && toMoveJSONPos[2] > targetJSONPos[2]) toMoveJSONPos[2] += 1;
             break;
         case 3: // top
             var cat = { "categories": [data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]] };
@@ -552,3 +553,15 @@ function CreateNewItem() {
     SetElement(false, 'create-menu');
     SavePlayground(); // Do not do that in final ver TODO
 }
+
+
+
+
+
+
+
+/************************* CREATE TODO *************************/
+function ChangePage(page) {
+    // check if page already exists
+}
+/************************* END OF TODO *************************/
