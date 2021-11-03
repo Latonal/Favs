@@ -95,19 +95,20 @@ function PlaygroundParser() {
                         var target4 = (e4.target) ? 'target="_blank"' : '';
                         var css4 = (e4.customcss) ? 'style="' + e4.customcss + '"' : '';
                         var icon4 = (ValidURL(e4.icon)) ? './content/img/logo/' + e4.icon : e4.icon;
-                        v4 += '<a href="' + e4.url + '" class="item" id="it-' + e4.uuid + '" data-url="' + e4.url + '" ' + css4 + ' ' + target4 + '><div class="icon"><img src="' + icon4 + '"></div><p>' + e4.text + '</p></a>'
+                        /* TODO : Url display href if content url */
+                        v4 += '<a href="' + e4.url + '" class="item ' + e4.theme + '" id="it-' + e4.uuid + '" data-url="' + e4.url + '" ' + css4 + ' ' + target4 + '><div class="icon"><img src="' + icon4 + '"></div><p>' + e4.text + '</p></a>'
                     });
                 };
                 var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
-                v3 += '<div class="category ' + e3.name + '" id="cat-' + e3.uuid + '" ' + css3 + '>' + v4 + '</div>';
+                v3 += '<div class="category ' + e3.name + ' ' + e3.theme + '" id="cat-' + e3.uuid + '" ' + css3 + '>' + v4 + '</div>';
             });
             if (e2.categories.length > 1) {
-                v3 = '<div class="group">' + v3 + "</div>";
+                v3 = '<div class="group ' + e2.theme + '">' + v3 + "</div>";
             }
             v2 += v3;
         });
-        var templatestyle = (e1.templatestyle) ? 'class="' + e1.templatestyle + '"' : '';
-        html += '<div id="page-' + pageId + '" ' + templatestyle + '>' + v2 + "</div>";
+        var theme = (e1.theme) ? 'class="' + e1.theme + '"' : '';
+        html += '<div id="page-' + pageId + '" ' + theme + '>' + v2 + "</div>";
         pageId++;
     });
 
