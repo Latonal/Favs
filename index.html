@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage Maker</title>
     <link rel="stylesheet" type="text/css" href="content/css/styles.css">
@@ -14,14 +14,14 @@
         <div class="debug" onclick="SavePlaygroundData();">SavePlayground</div>
         <div class="debug" onclick="DeleteDB();">DeleteDB</div>
         <div class="debug" onclick="console.log(data);">ShowData</div>
-        <div class="debug" onclick="console.log(navigator.storage.estimate());">GetStorage</div>
+        <div class="debug" onclick="console.log(navigator.storage.estimate());">GetStorage <span class="special-character">&#57621;</span> &#xE115;</div>
 
         <!-- Popup -->
         <div id="popup"></div>
 
         <!-- Toolbar -->
-        <div class="toolbar">
-            <img src="content/img/icon/editW.png" onclick="SetEdit();">
+        <div class="toolbar special-character">
+            <div onclick="SetEdit();">&#57604;</div>
         </div>
 
         <!-- Create menu -->

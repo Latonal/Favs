@@ -10,6 +10,7 @@
     --border-radius:5px;
     --border-radius-link:10px;
     --hidden-border-color:5px dashed #ffffff00;
+    --text-decoration:none;
     /* icon-list */
     --text-color-icon-list:#eee;
     --flex-direction-icon-list:row;
@@ -90,6 +91,13 @@ html {
 .link-disabled a, a.link-disabled {
     pointer-events: none;
 }
+.special-character {
+    font-family: -webkit-pictograph;
+    font-size:15px;
+}
+.bold {
+    font-weight: bold;
+}
 
 /************************* Checkboxes *************************/
 input[type=checkbox] {
@@ -141,13 +149,29 @@ input[type=checkbox]:disabled {
     top:100px;
     right:100px;
     /* padding:0 3px; */
-    background-color:#333333;
+    background-color:#333;
     display:flex;
     justify-content: center;
     align-items: center;
     border:#eeeeee80 solid 1px;
     border-radius:5px;
     z-index:1;
+    overflow: auto;
+    height:24px;
+}
+.toolbar > div {
+    width:24px;
+    color:#eee;
+    transition:var(--transition-time);
+    cursor:pointer;
+    height:100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+.toolbar > div:hover {
+    background-color: #eee;
+    color:#333;
 }
 .toolbar img {
     margin:auto 0;
@@ -300,6 +324,12 @@ input[type=checkbox]:disabled {
     top:5px;
     right:5px;
 }
+#playground .add-element div {
+    margin:0 2px 0 2px;
+}
+#playground .add-element div:nth-child(2) {
+    font-family:sans-serif;
+}
 #playground .is-draggable .add-element {
     display:flex;
     min-width:20px;
@@ -329,7 +359,7 @@ input[type=checkbox]:disabled {
     display:flex;
     align-items: center;
     justify-content: center;
-    text-decoration: none;
+    text-decoration: var(--text-decoration);
 }
 .category a:visited {
     color:var(--text-color-visited);
