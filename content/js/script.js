@@ -88,7 +88,7 @@ function PlaygroundParser() {
         e1.content.forEach(e2 => {
             var v3 = '';
             e2.categories.forEach(e3 => {
-                var v4 = '<div class="add-element" onclick="CreateNewContentMenu(this)";>+</div>';
+                var v4 = '<span class="special-character add-element"><div>&#57621;</div><div class="bold" onclick="CreateNewContentMenu(this)";>&plus;</div></span>';
                 if (e3.links) {
                     e3.links.forEach(e4 => {
                         // console.log(e4);
@@ -103,12 +103,12 @@ function PlaygroundParser() {
                 v3 += '<div class="category ' + e3.name + ' ' + e3.theme + '" id="cat-' + e3.uuid + '" ' + css3 + '>' + v4 + '</div>';
             });
             if (e2.categories.length > 1) {
-                v3 = '<div class="group ' + e2.theme + '">' + v3 + "</div>";
+                v3 = '<div class="group">' + v3 + "</div>";
             }
             v2 += v3;
         });
-        var theme = (e1.theme) ? 'class="' + e1.theme + '"' : '';
-        html += '<div id="page-' + pageId + '" ' + theme + '>' + v2 + "</div>";
+        var theme1 = (e1.theme) ? 'class="' + e1.theme + '"' : '';
+        html += '<div id="page-' + pageId + '" ' + theme1 + '>' + v2 + "</div>";
         pageId++;
     });
 
@@ -439,7 +439,7 @@ function EditChangeText(val) {
 
 /** Put text into a JSON Object
  * @param {String} val text to put */
-function EditAddTextToJson(val) {
+function EditAddTextToJson(val) { // TODO : SANITIZE INPUT
     itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
     data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].text = val;
     SavePlayground();
@@ -453,7 +453,7 @@ function EditChangeUrl(val) {
 
 /** Put url into a JSON object
  * @param {String} val url to put */
-function EditAddUrlToJson(val) {
+function EditAddUrlToJson(val) { // TODO : SANITIZE INPUT
     itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
     data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].url = val;
     SavePlayground();
@@ -535,7 +535,7 @@ function SetElement(bool, c) {
 /** Create a menu where clicked
  * @param {HTMLElement} e element on which we click */
 function CreateNewContentMenu(e) {
-    currentGroupId = e.parentNode.id;
+    currentGroupId = e.parentNode.parentNode.id;
     SetElement(true, 'create-menu');
     var mousePosition = GetPositionOfMouseAndSetPlace(200, 100);
     document.getElementById('create-content').style["left"] = mousePosition[0] + "px";
@@ -545,12 +545,12 @@ function CreateNewContentMenu(e) {
 /** Create a new empty item, both in the DOM and JSON playground */
 function CreateNewItem() {
     console.log(currentGroupId);
-    // TODO : if parent has target enabled, set target=_blank
+    // TODO : if parent has target enabled, set target="_blank"
     var uuid = GetRandomUUID("it-");
     document.getElementById(currentGroupId).innerHTML += '<a href="#" class="item" id="it-' + uuid + '"><div class="icon"><img src=""></div><p>NEW!</p></a>';
     InstantiateItemEvents(document.getElementById("it-" + uuid));
     var parentJSONPos = GetGroupPerId(currentGroupId.substring(4));
-    data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[[parentJSONPos[2]]].links.push({ text: "NEW!", url: "#", icon: "", uuid: uuid, customcss: "", target: "" });
+    data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[[parentJSONPos[2]]].links.push({ text: "NEW!", url: "#", icon: "", uuid: uuid, theme: "", customcss: "", target: "" });
     SetElement(false, 'create-menu');
     SavePlayground(); // Do not do that in final ver TODO
 }

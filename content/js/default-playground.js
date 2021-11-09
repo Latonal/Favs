@@ -1,5 +1,6 @@
 var defaultPlayground = {
     "version": "0.1",
+    "toolbarposition":"",
     "customcss": "",
     "target": true,
     "playground": [
@@ -42,6 +43,7 @@ var defaultPlayground = {
                                     "url": "https://mail.google.com/mail/u/0/?hl=fr#inbox",
                                     "icon": "Gmail.svg",
                                     "uuid": "365eac08-cf01-463e-8d05-d07c41c92b451",
+                                    "theme":"",
                                     "customcss": "background-color:#111;",
                                     "target": true
                                 },
@@ -142,5 +144,6 @@ var defaultPlayground = {
                 }
             ]
         }
-    ]
+    ],
+    "extra":[]
 }
