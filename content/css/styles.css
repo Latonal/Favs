@@ -144,10 +144,11 @@ input[type=checkbox]:disabled {
 }
 
 /************************* Toolbar *************************/
-.toolbar {
-    position:fixed;
+#toolbar {
+    position:absolute;
     top:100px;
     right:100px;
+    /* left:calc(100vw - 130px); */
     /* padding:0 3px; */
     background-color:#333;
     display:flex;
@@ -159,8 +160,8 @@ input[type=checkbox]:disabled {
     overflow: auto;
     height:24px;
 }
-.toolbar > div {
-    width:24px;
+#toolbar > div {
+    width:25px;
     color:#eee;
     transition:var(--transition-time);
     cursor:pointer;
@@ -169,11 +170,17 @@ input[type=checkbox]:disabled {
     justify-content: center;
     align-items: center;
 }
-.toolbar > div:hover {
+#toolbar > div:hover:not(:first-child) {
     background-color: #eee;
     color:#333;
 }
-.toolbar img {
+#toolbar div:first-child {
+    font-size:10px;
+    width:10px;
+    color:#838383;
+    cursor:move;
+}
+#toolbar img {
     margin:auto 0;
     max-width:24px;
     max-height:24px;
@@ -182,7 +189,7 @@ input[type=checkbox]:disabled {
     border-radius:5px;
     cursor:pointer;
 }
-.toolbar img:hover {
+#toolbar img:hover {
     background-color:red;
 }
 
@@ -195,10 +202,12 @@ input[type=checkbox]:disabled {
 #create-menu .depop-menu, #edit-menu .depop-menu {
     position:fixed;
     top:0;
-    left:0;
     width:100%;
     height:100%;
     z-index:2;
+}
+#create-menu.active {
+    right:0;
 }
 #create-menu.active, #edit-menu.active {
     display:block;
@@ -237,6 +246,9 @@ input[type=checkbox]:disabled {
     padding:10px;
     /* border-left:2px #a7a6a6 solid; */
     z-index:3;
+}
+#edit-menu.active {
+    right:0;
 }
 #edit-menu fieldset {
     border-width:2px 0 0;

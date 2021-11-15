@@ -22,7 +22,7 @@ function InstantiateDB() {
             const store = db.createObjectStore("data", { keyPath: "id" });
             const playground = store.createIndex("playground", "playground", { unique: true });
     
-            store.put({ playground: defaultPlayground.playground, id: 0 });
+            store.put({ data: defaultPlayground, id: 0 });
         }
     }
     openRequest.onerror = function () {
@@ -41,10 +41,10 @@ function InstantiateDB() {
             if (cursor) {
                 // let key = cursor.key;
                 let value = cursor.value;
-                data = value;
-                console.log(value.playground);
+                data = value.data;
+                console.log("value", data);
                 cursor.continue;
-                PlaygroundParser();
+                PlaygroundParser(GetCurrentPage());
             }
             else {
                 console.log("No cursor");
@@ -64,7 +64,8 @@ async function SavePlaygroundData() {
 
     request.onsuccess = function (e) {
         var dataplg = e.target.result;
-        dataplg.playground = data.playground;
+        // dataplg.playground = data.playground;
+        dataplg.data = data;
         var objRequest = store.put(dataplg);
         objRequest.onsuccess = function () {
             // console.log("Success updating the record");
