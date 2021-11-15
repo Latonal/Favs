@@ -1,6 +1,6 @@
 var defaultPlayground = {
-    "version": "0.1",
-    "toolbarposition":"",
+    "version": 0.1,
+    "toolbarposition":[-1, -1],
     "customcss": "",
     "target": true,
     "playground": [
