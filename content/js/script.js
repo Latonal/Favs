@@ -1,6 +1,7 @@
-//#region Skeleton
 /** @type {Boolean} */
+var currentPage = 0;
 var isDraggable = false;
+var isDeletable = false;
 
 //#region General Use
 document.documentElement.setAttribute('lang', navigator.language); // set language depending of navigator's language
@@ -23,6 +24,7 @@ function GetPlaygroundTags(tagName) {
 /** Return the current page thanks to query */
 function GetCurrentPage() { // query
     return (parseInt(new URLSearchParams(window.location.search).get('page') ?? 0));
+    // currentPage ? currentPage : ^;
 }
 
 /** Add a css class to enable or disable links
@@ -81,12 +83,10 @@ function PlaygroundParser(page = 0) {
     var html = '';
     var pageId = 0;
     var pg = document.getElementById('playground');
-    console.log("data", data);
-    console.log(data.toolbarposition);
     if (data.toolbarposition[0] != -1 && data.toolbarposition[0] != -1) {
         tb = document.getElementById("toolbar");
-        tb.style["right"] = data.toolbarposition[0] + "px";
-        tb.style["top"] = data.toolbarposition[1] + "px"
+        tb.style["right"] = data.toolbarposition[0] + "%";
+        tb.style["top"] = data.toolbarposition[1] + "%"
     }
     // console.log(data.playground.length);
     data.playground.forEach(e1 => {
@@ -198,6 +198,10 @@ function GetItemPerId(id, idList) {
 //#region Drag Categories
 /** Set the playground to be editable */
 function SetEdit() {
+    if (isDeletable) {
+        isDeletable = false;
+        DeletableElements(false);
+    }
     isDraggable = !isDraggable;
     DraggableCatgegories(isDraggable);
     EditItem(isDraggable);
@@ -401,6 +405,43 @@ function SetDragClasses(e, c) {
 //#endregion Drag Categories
 
 
+//#region Delete Item and Categories
+function SetDelete() {
+    console.log("set delete");
+    isDeletable = !isDeletable;
+    if (isDraggable)  {
+        isDraggable = false
+        DraggableCatgegories(false);
+    };
+    DeletableElements(isDeletable);
+}
+
+function DeletableElements(val) {
+    var categories = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'category');
+    Array.from(categories).forEach(cat => {
+        cat.classList.toggle("is-deletable");
+        if (val) {
+            cat.addEventListener('click', DeleteCategory);
+            // SetDragListenerToCategories();
+        }
+        else {
+            cat.removeEventListener('click', DeleteCategory);
+            // UnsetDragListenerToCategories();
+        }
+    });
+
+    // s'inspirer de Edit Item pour désactiver les liens
+}
+
+function DeleteCategory(e) {
+    var parentJSONPos = GetGroupPerId(e.target.id.substring(4));
+    e.target.remove();
+    console.log(parentJSONPos[2]);
+    data.playground[parentJSONPos[0]].content.splice(parentJSONPos[1], 1);
+    SavePlayground();
+}
+//#endregion Delete Item and Categories
+
 //#region Edit Items
 /** Set every item to be editable
  * @param {Boolean} val true (enable) or false (disable) */
@@ -479,6 +520,33 @@ function EditAddTargetToJson(val) {
 //#endregion Edit Items
 
 
+//#region Toolbar
+// https://devdojo.com/tnylea/how-to-drag-an-element-using-javascript
+toolbar = document.getElementById("move-toolbar");
+let toolbarNewPosX = 0, toolbarNewPosY = 0, toolbarStartPosX = 0, toolbarStartPosY = 0;
+toolbar.addEventListener('mousedown', function(e){
+    e.preventDefault();
+
+    toolbarStartPosX = e.clientX;
+    toolbarStartPosY = e.clientY;
+
+    document.addEventListener('mousemove', ToolbarMouseMove);
+    document.addEventListener('mouseup', ToolbarMouseUp);
+});
+function ToolbarMouseMove(e) {
+    var mousePosition = GetPositionOfMouseAndSetPlace(35, 24, 1);
+    toolbar.parentNode.style["right"] = mousePosition[0] + "%";
+    toolbar.parentNode.style["top"] = mousePosition[1] + "%";
+    data.toolbarposition = mousePosition;
+}
+function ToolbarMouseUp(e) {
+    document.removeEventListener('mousemove', ToolbarMouseMove);
+    SavePlayground();
+    document.removeEventListener('mouseup', ToolbarMouseUp);
+}
+//#endregion Toolbar
+
+
 /************************* CREATE CATEGORIES *************************/
 // Don't forget unique ID
 /************************* END CREATE CATEGORIES *************************/
@@ -507,28 +575,35 @@ function SavePlayground() {
     }
 }
 //#endregion Save
-//#endregion Skeleton
 
 
 var currentGroupId = null;
 var currentItemId = null;
-/** Get position of the mouse and place the item to be on screen depending of its {sizeX} and {sizeY}
+/** Get position of the mouse and place the item to be on screen depending of its {sizeX} and {sizeY} and return a percentage if needed
  * @param {number} sizeX horizontal size of the item we want to place
  * @param {number} sizeY vertical size of the item we want to place
+ * @param {any} percent any value (except null or undefined) to get the value in percent
  * @returns {Array<number>} return an array of number */
-function GetPositionOfMouseAndSetPlace(sizeX, sizeY) {
+function GetPositionOfMouseAndSetPlace(sizeX, sizeY, percent = null) {
     // size of current screen usable
     var screenX = document.documentElement.clientWidth;
     var screenY = document.documentElement.clientHeight;
     // position of mouse
     var mouseY = window.event.clientY;
     // set left width position to right width position so resize of screen don't mess up its position
-    var mouseX = screenX - (screenX - window.event.clientX);
+    var mouseX = window.event.clientX;
     if (mouseX < 0) mouseX = 0;
     if (mouseY < 0) mouseY = 0;
     if (mouseX > screenX - sizeX - 5) mouseX = screenX - sizeX - 5;
     if (mouseY > screenY - sizeY) mouseY = screenY - sizeY;
-    return [screenX - mouseX - sizeX, mouseY];
+    // Set mouseX on right instead of left
+    mouseX = screenX - mouseX - sizeX;
+    // if percent
+    if (percent) {
+        mouseX = (mouseX / screenX) * 100;
+        mouseY = (mouseY / screenY) * 100;
+    }
+    return [mouseX, mouseY];
 }
 
 /** Set the element to be active or not, and execute an animation
@@ -547,9 +622,9 @@ function SetElement(bool, c) {
 function CreateNewContentMenu(e) {
     currentGroupId = e.parentNode.parentNode.id;
     SetElement(true, 'create-menu');
-    var mousePosition = GetPositionOfMouseAndSetPlace(200, 100);
-    document.getElementById('create-content').style["right"] = mousePosition[0] + "px";
-    document.getElementById('create-content').style["top"] = mousePosition[1] + "px";
+    var mousePosition = GetPositionOfMouseAndSetPlace(200, 100, 1);
+    document.getElementById('create-content').style["right"] = mousePosition[0] + "%";
+    document.getElementById('create-content').style["top"] = mousePosition[1] + "%";
 }
 
 /** Create a new empty item, both in the DOM and JSON playground */
@@ -564,33 +639,10 @@ function CreateNewItem() {
     SetElement(false, 'create-menu');
     SavePlayground();
 }
-
-
-//#region Toolbar
-// https://devdojo.com/tnylea/how-to-drag-an-element-using-javascript
-toolbar = document.getElementById("move-toolbar");
-let toolbarNewPosX = 0, toolbarNewPosY = 0, toolbarStartPosX = 0, toolbarStartPosY = 0;
-toolbar.addEventListener('mousedown', function(e){
-    e.preventDefault();
-
-    toolbarStartPosX = e.clientX;
-    toolbarStartPosY = e.clientY;
-
-    document.addEventListener('mousemove', ToolbarMouseMove);
-    document.addEventListener('mouseup', ToolbarMouseUp);
-});
-function ToolbarMouseMove(e) {
-    var mousePosition = GetPositionOfMouseAndSetPlace(35,24);
-    toolbar.parentNode.style["right"] = mousePosition[0] + "px";
-    toolbar.parentNode.style["top"] = mousePosition[1] + "px";
-    data.toolbarposition = mousePosition;
+/** Show Choose Image menu */
+function OpenChooseImageMenu() {
+    console.log("open choose image menu");
 }
-function ToolbarMouseUp(e) {
-    document.removeEventListener('mousemove', ToolbarMouseMove);
-    SavePlayground();
-    document.removeEventListener('mouseup', ToolbarMouseUp);
-}
-//#endregion Toolbar
 
 
 /************************* CREATE TODO *************************/

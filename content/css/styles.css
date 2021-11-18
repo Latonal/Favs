@@ -6,6 +6,7 @@
     /* category */
     --text-color: #eee;
     --border-edit:5px dashed #63a2ff;
+    --border-delete: 5px dotted rgb(179, 55, 55);
     --border-hover:5px dotted #500000;
     --border-radius:5px;
     --border-radius-link:10px;
@@ -22,7 +23,7 @@
     --margin-icon-list-icon:0;
     --max-width-icon-list-img:50px;
     --max-height-icon-list-img:50px;
-    --margin-icon-list-text:5px 0 0 0;
+    --margin-icon-list-text:5px 5px 0 5px;
     /* sub-list */
     --text-color-sub-list:#eee;
     --flex-direction-sub-list:column;
@@ -145,11 +146,9 @@ input[type=checkbox]:disabled {
 
 /************************* Toolbar *************************/
 #toolbar {
-    position:absolute;
+    position:fixed;
     top:100px;
     right:100px;
-    /* left:calc(100vw - 130px); */
-    /* padding:0 3px; */
     background-color:#333;
     display:flex;
     justify-content: center;
@@ -170,7 +169,7 @@ input[type=checkbox]:disabled {
     justify-content: center;
     align-items: center;
 }
-#toolbar > div:hover:not(:first-child) {
+#toolbar > div:hover:not(:first-child), #toolbar svg:hover {
     background-color: #eee;
     color:#333;
 }
@@ -180,7 +179,10 @@ input[type=checkbox]:disabled {
     color:#838383;
     cursor:move;
 }
-#toolbar img {
+#toolbar div:first-child:active {
+    cursor:default;
+}
+#toolbar img, #toolbar svg {
     margin:auto 0;
     max-width:24px;
     max-height:24px;
@@ -188,12 +190,18 @@ input[type=checkbox]:disabled {
     transition:var(--transition-time);
     border-radius:5px;
     cursor:pointer;
+    color:#eee;
 }
-#toolbar img:hover {
-    background-color:red;
+#toolbar svg path {
+    max-width:24px;
+    max-height:24px;
 }
 
 /************************* Create menu *************************/
+#create-menu {
+    width:100vw;
+    height:100vh;
+}
 #create-menu, #edit-menu {
     display:none;
     position:absolute;
@@ -282,6 +290,9 @@ input[type=checkbox]:disabled {
 #edit-menu fieldset>div>label>input[type=checkbox] {
     height: 19px;
 }
+#edit-menu #edit-item p {
+    cursor:pointer;
+}
 
 /************************* Group *************************/
 .group {
@@ -329,6 +340,10 @@ input[type=checkbox]:disabled {
 }
 .category.drag-over {
     border:var(--border-hover);
+}
+.category.is-deletable {
+    border:var(--border-delete);
+    cursor:pointer;
 }
 .add-element {
     display:none;

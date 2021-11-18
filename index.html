@@ -20,9 +20,10 @@
         <div id="popup"></div>
 
         <!-- Toolbar -->
-        <div id="toolbar" class="special-character">
+        <div id="toolbar" class="special-character fade-in">
             <!-- <div onmousedown="StartDragToolbar(this.parentNode.id);" onmouseup="EndDragToolbar(this.parentNode.id);">&#57539;</div> -->
             <div id="move-toolbar">&#57539;</div>
+            <div onclick="SetDelete();">&#57607;</div>
             <div onclick="SetEdit();">&#57604;</div>
         </div>
 
@@ -53,7 +54,7 @@
                         <label onchange="EditAddTargetToJson(this.checked)">Open in new window <input type="checkbox" id="edit-item-target"></label>
                     </div>
                 </fieldset>
-                <p>Modify image --&gt;</p><!-- TODO Change for hexa -->
+                <p onclick="OpenChooseImageMenu();">Modify image --&gt;</p><!-- TODO Change for hexa -->
             </div>
         </div>
 
