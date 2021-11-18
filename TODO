@@ -14,8 +14,6 @@ Pour update une icon, e.preventDefault et lancer autre fonction avec menu
 
 __
 
-Playground?
-
 // Global functionnality
 - Bouton pour ajouter une category (menu qui s'ouvre)
 - Pour les menu, proposer différentes organisation (comme pour icon-list, permettre d'organiser comme les folders sur téléphone -> créer des folders ?)
@@ -98,9 +96,6 @@ https://colorpalettes.colorion.co/#1
 https://moderncss.dev/pure-css-custom-checkbox-style/
 https://protonvpn.com/
 
-// Done :
-Remplacer la barre de scrolling
-
 // Explications : 
 Pour chaque category ajoutée, mettre une empty-box (avec custom margin) à la suite.
 Le site a par défaut une empty-box au tout début.
@@ -111,3 +106,6 @@ et dans les autres style de la documentation de l'outil, mon Twitter, supporter 
 
 // Bugs :
 Quand on slide un lien ou une image, ça créé un null
+
+// TODO
+- GetPositionOfMouseAndSetPlace // impacté : toolbar et create-menu, quand on déplace ou clique sur l'élément, on se base sur la position 0,0 alors qu'il faudrait se positionner en x,y en fonction de là où on clique
