@@ -27,12 +27,20 @@ function GetCurrentPage() { // query
     // currentPage ? currentPage : ^;
 }
 
-/** Add a css class to enable or disable links
+/** Add or remove href on targeted element list
  * @param {Boolean} bool true (disabled) or false (enable) */
 function SetEveryLinks(bool) {
-    if (bool) document.getElementById('playground').classList.add('link-disabled');
-    else document.getElementById('playground').classList.remove('link-disabled');
+    // if (bool) document.getElementById('playground').classList.add('link-disabled');
+    // else document.getElementById('playground').classList.remove('link-disabled');
+
+    var item = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'item');
+    Array.from(item).forEach(it => {
+        if (bool) it.removeAttribute("href");
+        else it.setAttribute("href", it.dataset.url)
+    });
 }
+
+
 
 /** Set {animation} to play on {idElem} during {setTime}
  * @param {HTMLElement} idElem id of the element
@@ -57,7 +65,7 @@ function GetRandomUUID(text) {
     }
 }
 
-/** Verify if {str} is a valid url 
+/** Verify if {url} is a valid url 
  * @param {URL} url url to check
  * @returns {Boolean} return a boolean
 */
@@ -409,10 +417,11 @@ function SetDragClasses(e, c) {
 function SetDelete() {
     console.log("set delete");
     isDeletable = !isDeletable;
-    if (isDraggable)  {
+    if (isDraggable) {
         isDraggable = false
         DraggableCatgegories(false);
-    };
+    }
+    else SetEveryLinks(true);
     DeletableElements(isDeletable);
 }
 
@@ -429,15 +438,24 @@ function DeletableElements(val) {
             // UnsetDragListenerToCategories();
         }
     });
-
-    // s'inspirer de Edit Item pour désactiver les liens
 }
 
 function DeleteCategory(e) {
-    var parentJSONPos = GetGroupPerId(e.target.id.substring(4));
-    e.target.remove();
-    console.log(parentJSONPos[2]);
-    data.playground[parentJSONPos[0]].content.splice(parentJSONPos[1], 1);
+    var parentJSONPos = GetGroupPerId(e.currentTarget.id.substring(4));
+    if (e.currentTarget.parentNode.classList.contains("group")) {
+        data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories.splice(parentJSONPos[2], 1);
+        if (data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories.length <= 1) {
+            divParent = e.currentTarget.parentNode;
+            e.currentTarget.remove();
+            divParent.before(divParent.childNodes[0]);
+            divParent.remove();
+        }
+        else e.currentTarget.remove();
+    } 
+    else {
+        e.currentTarget.remove();
+        data.playground[parentJSONPos[0]].content.splice(parentJSONPos[1], 1);
+    } 
     SavePlayground();
 }
 //#endregion Delete Item and Categories
@@ -524,7 +542,7 @@ function EditAddTargetToJson(val) {
 // https://devdojo.com/tnylea/how-to-drag-an-element-using-javascript
 toolbar = document.getElementById("move-toolbar");
 let toolbarNewPosX = 0, toolbarNewPosY = 0, toolbarStartPosX = 0, toolbarStartPosY = 0;
-toolbar.addEventListener('mousedown', function(e){
+toolbar.addEventListener('mousedown', function (e) {
     e.preventDefault();
 
     toolbarStartPosX = e.clientX;
