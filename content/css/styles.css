@@ -370,6 +370,14 @@ input[type=checkbox]:disabled {
 #playground .category.is-dragged .add-element {
     display:none;
 }
+#playground .category.is-draggable img {
+    /* user-drag: none; */
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
 
 /************************* Category Style *************************/
 .category {
@@ -410,6 +418,7 @@ input[type=checkbox]:disabled {
     margin:var(--margin-icon-list-link);
     border:var(--border-icon-list-link);
     border-radius:var(--border-radius-icon-list-link);
+    position: relative;
 }
 .category.icon-list a .icon {
     width:var(--max-width-icon-list-img);
