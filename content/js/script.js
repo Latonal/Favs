@@ -33,8 +33,8 @@ function SetEveryLinks(bool) {
     // if (bool) document.getElementById('playground').classList.add('link-disabled');
     // else document.getElementById('playground').classList.remove('link-disabled');
 
-    var item = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'item');
-    Array.from(item).forEach(it => {
+    var items = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'item');
+    Array.from(items).forEach(it => {
         if (bool) it.removeAttribute("href");
         else it.setAttribute("href", it.dataset.url)
     });
@@ -171,8 +171,6 @@ function ModifyGroupPositionJSON(target, toMove, val) {
     else {
         data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories.splice(toMoveJSONPos[2], 1);
     }
-
-    console.log(data);
 }
 
 /** Find the position of a category {id} inside a JSON Object
@@ -205,72 +203,70 @@ function GetItemPerId(id, idList) {
 
 //#region Drag Categories
 /** Set the playground to be editable */
+var elemDragged = 0;
 function SetEdit() {
     if (isDeletable) {
         isDeletable = false;
         DeletableElements(false);
     }
     isDraggable = !isDraggable;
-    DraggableCatgegories(isDraggable);
+    DraggableCategories(isDraggable);
+    DraggableItems(isDraggable);
     EditItem(isDraggable);
 }
 
 /** Set every Categories to be draggable
  * @param {Boolean} val true (enable) or false (disable) */
-function DraggableCatgegories(val) {
+function DraggableCategories(val) {
     var categories = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'category');
     Array.from(categories).forEach(cat => {
         cat.setAttribute('draggable', val);
         cat.classList.toggle("is-draggable");
         if (val) {
-            cat.addEventListener('dragstart', DragStart);
-            SetDragListenerToCategories();
+            cat.addEventListener('dragstart', DragStartCategories);
+            cat.addEventListener('dragenter', DragEnterCategories);
+            cat.addEventListener('dragover', DragOverCategories);
+            cat.addEventListener('dragleave', DragLeaveCategories);
+            cat.addEventListener('drop', DropCategories);
         }
         else {
-            cat.removeEventListener('dragstart', DragStart);
-            UnsetDragListenerToCategories();
+            cat.removeEventListener('dragstart', DragStartCategories);
+            cat.removeEventListener('dragenter', DragEnterCategories);
+            cat.removeEventListener('dragover', DragOverCategories);
+            cat.removeEventListener('dragleave', DragLeaveCategories);
+            cat.removeEventListener('drop', DropCategories);
         }
     });
 }
 
 /** Set dragged element id to be saved in dataTransfer for later use
  * @param {HTMLElement} e id of the element */
-function DragStart(e) {
+function DragStartCategories(e) {
+    if (e.target.classList.contains("item")) {
+        elemDragged = 1;
+        return;
+    }
     e.dataTransfer.setData('text/plain', e.target.id);
 }
 
-/** Set events for every class category in playground */
-function SetDragListenerToCategories() {
-    var categories = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'category');
-
-    Array.from(categories).forEach(box => {
-        box.addEventListener('dragenter', DragEnter);
-        box.addEventListener('dragover', DragOver);
-        box.addEventListener('dragleave', DragLeave);
-        box.addEventListener('drop', Drop);
-    });
-}
-
-/** Unset events for every class category in playground */
-function UnsetDragListenerToCategories() {
-    var categories = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'category');
-
-    Array.from(categories).forEach(box => {
-        box.removeEventListener('dragenter', DragEnter);
-        box.removeEventListener('dragover', DragOver);
-        box.removeEventListener('dragleave', DragLeave);
-        box.removeEventListener('drop', Drop);
-    });
-}
-
 /** Listen when dragged element enter another appropriate element and add css class to target */
-function DragEnter(e) {
+function DragEnterCategories(e) {
     e.preventDefault();
-    e.currentTarget.classList.add('drag-over'); // 
+    console.log("datatransfer", e.dataTransfer);
+    switch (elemDragged) {
+        case 1:
+            e.currentTarget.classList.add('drag-over'); // 
+            break;
+        case 2:
+            break;
+        default:
+            return;
+    }
 }
 
 /** Listen when dragged element goes over another appropriate element and add css class to target depending of the position of the dragged element to it */
-function DragOver(e) {
+function DragOverCategories(e) {
+    // console.log(e);
     e.preventDefault();
     e.currentTarget.classList.add('drag-over');
 
@@ -296,13 +292,13 @@ function DragOver(e) {
 }
 
 /** Listen when dragged element leave another appropriate element and remove css class to target */
-function DragLeave(e) {
+function DragLeaveCategories(e) {
     e.currentTarget.classList.remove('drag-over');
     SetDragClasses(e, null);
 }
 
 /** Listen when dragged element is dragged on another appropriate element, then send dragged, target and position to two function, one for the DOM, another for the JSON */
-function Drop(e) {
+function DropCategories(e) {
     e.currentTarget.classList.remove('drag-over');
 
     // drop element and data
@@ -311,10 +307,12 @@ function Drop(e) {
 
     var val = GetPositionInElement(e);
 
+    SetDragClasses(e, null);
+
+    if (e.currentTarget == draggable && (val == 4 || val == 2)) return;
     SetCategoryPositionAndGroup(e.currentTarget, draggable, val);
     ModifyGroupPositionJSON(e.currentTarget, draggable, val);
 
-    SetDragClasses(e, null);
     SavePlayground();
 }
 
@@ -413,15 +411,40 @@ function SetDragClasses(e, c) {
 //#endregion Drag Categories
 
 
+//#region Drag Items
+function DraggableItems(val) {
+    var items = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'item');
+    Array.from(items).forEach(it => {
+        console.log(it);
+        it.setAttribute('draggable', val);
+        if (val) {
+            it.addEventListener('dragstart', DragStartItems);
+            // hover
+            // leave
+            // drop
+        }
+        else {
+            it.removeEventListener('dragstart', DragStartItems);
+        }        
+    });
+}
+
+function DragStartItems(e) {
+    elemDragged = 2;
+    e.dataTransfer.setData('text/plain', e.currentTarget.id);
+}
+/// AAAAAA
+//#endregion Drag Items
+
+
 //#region Delete Item and Categories
 function SetDelete() {
-    console.log("set delete");
     isDeletable = !isDeletable;
     if (isDraggable) {
         isDraggable = false
-        DraggableCatgegories(false);
+        DraggableCategories(false);
     }
-    else SetEveryLinks(true);
+    else SetEveryLinks(isDeletable);
     DeletableElements(isDeletable);
 }
 
@@ -431,31 +454,49 @@ function DeletableElements(val) {
         cat.classList.toggle("is-deletable");
         if (val) {
             cat.addEventListener('click', DeleteCategory);
-            // SetDragListenerToCategories();
         }
         else {
             cat.removeEventListener('click', DeleteCategory);
-            // UnsetDragListenerToCategories();
+        }
+    });
+    var items = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'item');
+    Array.from(items).forEach(it => {
+        if (val) {
+            it.addEventListener('click', DeleteItem);
+        }
+        else {
+            it.removeEventListener('click', DeleteItem);
         }
     });
 }
 
 function DeleteCategory(e) {
-    var parentJSONPos = GetGroupPerId(e.currentTarget.id.substring(4));
-    if (e.currentTarget.parentNode.classList.contains("group")) {
-        data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories.splice(parentJSONPos[2], 1);
-        if (data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories.length <= 1) {
-            divParent = e.currentTarget.parentNode;
+    if (e.target.classList.contains("category")) {
+        var parentJSONPos = GetGroupPerId(e.currentTarget.id.substring(4));
+        if (e.currentTarget.parentNode.classList.contains("group")) {
+            data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories.splice(parentJSONPos[2], 1);
+            if (data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories.length <= 1) {
+                divParent = e.currentTarget.parentNode;
+                e.currentTarget.remove();
+                divParent.before(divParent.childNodes[0]);
+                divParent.remove();
+            }
+            else e.currentTarget.remove();
+        } 
+        else {
             e.currentTarget.remove();
-            divParent.before(divParent.childNodes[0]);
-            divParent.remove();
-        }
-        else e.currentTarget.remove();
-    } 
-    else {
-        e.currentTarget.remove();
-        data.playground[parentJSONPos[0]].content.splice(parentJSONPos[1], 1);
-    } 
+            data.playground[parentJSONPos[0]].content.splice(parentJSONPos[1], 1);
+        } 
+        SavePlayground();
+    }
+}
+
+function DeleteItem(e) {
+    console.log(e.currentTarget.id);
+    console.log(e.currentTarget.parentNode.id);
+    itemJSONPos = GetItemPerId(e.currentTarget.id.substring(3), GetGroupPerId(e.currentTarget.parentNode.id.substring(4)));
+    e.currentTarget.remove();
+    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links.splice(itemJSONPos[3], 1);
     SavePlayground();
 }
 //#endregion Delete Item and Categories
@@ -464,8 +505,8 @@ function DeleteCategory(e) {
 /** Set every item to be editable
  * @param {Boolean} val true (enable) or false (disable) */
 function EditItem(val) {
-    var item = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'item');
-    Array.from(item).forEach(it => {
+    var items = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'item');
+    Array.from(items).forEach(it => {
         if (val) {
             it.removeAttribute("href");
             InstantiateItemEvents(it);
@@ -473,7 +514,7 @@ function EditItem(val) {
         else {
             it.setAttribute("href", it.dataset.url)
             it.removeEventListener('click', OpenEditMenu);
-            it.removeEventListener('dragstart', DragStart);
+            // it.removeEventListener('dragstart', DragStartItems);
         }
     });
 }
@@ -482,8 +523,9 @@ function EditItem(val) {
  * @param {HTMLElement} it element to put event on */
 function InstantiateItemEvents(it) {
     it.addEventListener('click', OpenEditMenu);
-    it.addEventListener('dragstart', DragStart);
+    // it.addEventListener('dragstart', DragStartItems);
 }
+/// AAAAAA
 
 /** Open edit menu and set inner element to correspond to element clicked on */
 function OpenEditMenu() {
