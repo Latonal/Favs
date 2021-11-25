@@ -321,7 +321,10 @@ input[type=checkbox]:disabled {
     background:linear-gradient(270deg, #722935 7.5%, rgba(0, 0, 0, 0) 15%);
     background-repeat:no-repeat;
 }
-
+.drag-item {
+    background: radial-gradient(circle, rgba(9,9,121,0) 15%, rgba(0,212,255,1) 100%);
+    background-repeat:no-repeat;
+}
 /************************* Category Global Rule *************************/
 .category {
     border:var(--hidden-border-color);
@@ -405,6 +408,7 @@ input[type=checkbox]:disabled {
 .category a:active {
     color:var(--text-color);
 }
+/*.category > *:nth-child(2n+1) *//* warning : touche aussi les boutons en haut à droite */
 /* Icon List Only */
 .category.icon-list {
     flex-direction:var(--flex-direction-icon-list);
