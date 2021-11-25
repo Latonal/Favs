@@ -242,10 +242,8 @@ function DraggableCategories(val) {
 /** Set dragged element id to be saved in dataTransfer for later use
  * @param {HTMLElement} e id of the element */
 function DragStartCategories(e) {
-    if (e.target.classList.contains("item")) {
-        elemDragged = 1;
-        return;
-    }
+    if (e.target.classList.contains("item")) return;
+    elemDragged = 1;
     e.dataTransfer.setData('text/plain', e.target.id);
 }
 
@@ -258,6 +256,7 @@ function DragEnterCategories(e) {
             e.currentTarget.classList.add('drag-over'); // 
             break;
         case 2:
+            e.currentTarget.classList.add('drag-item');
             break;
         default:
             return;
@@ -269,51 +268,98 @@ function DragOverCategories(e) {
     // console.log(e);
     e.preventDefault();
     e.currentTarget.classList.add('drag-over');
-
+    
     var val = GetPositionInElement(e);
-
-    switch (val) {
-        case 1: // bottom
-            SetDragClasses(e, 'drag-bottom');
+    switch (elemDragged) {
+        case 1:
+            switch (val) {
+                case 1: // bottom
+                    SetDragClasses(e, 'drag-bottom');
+                    break;
+                case 2: // left
+                    SetDragClasses(e, 'drag-left');
+                    break;
+                case 3: // top
+                    SetDragClasses(e, 'drag-top');
+                    break;
+                case 4: // right
+                    SetDragClasses(e, 'drag-right');
+                    break;
+                default:
+                    SetDragClasses(e, null);
+                    break;
+            }
             break;
-        case 2: // left
-            SetDragClasses(e, 'drag-left');
-            break;
-        case 3: // top
-            SetDragClasses(e, 'drag-top');
-            break;
-        case 4: // right
-            SetDragClasses(e, 'drag-right');
+        case 2:
+            switch (val) {
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    SetDragClasses(e, 'drag-item');
+                    break;
+                default:
+                    SetDragClasses(e, null);
+                    break;
+            }
             break;
         default:
-            SetDragClasses(e, null);
             break;
     }
 }
 
 /** Listen when dragged element leave another appropriate element and remove css class to target */
 function DragLeaveCategories(e) {
-    e.currentTarget.classList.remove('drag-over');
+    switch (elemDragged) {
+        case 1:
+            e.currentTarget.classList.remove('drag-over');
+            break;
+        case 2:
+            e.currentTarget.classList.remove('drag-over');
+            e.currentTarget.classList.remove('drag-item');
+            break;
+        default:
+            return;
+    }
     SetDragClasses(e, null);
 }
 
 /** Listen when dragged element is dragged on another appropriate element, then send dragged, target and position to two function, one for the DOM, another for the JSON */
 function DropCategories(e) {
-    e.currentTarget.classList.remove('drag-over');
+    let id;
+    let draggable;
+    switch (elemDragged) {
+        case 1:
+            e.currentTarget.classList.remove('drag-over');
+            SetDragClasses(e, null);
+        
+            // drop element and data
+            id = e.dataTransfer.getData('text/plain');
+            draggable = document.getElementById(id);
+        
+            var val = GetPositionInElement(e);
+        
+        
+            if (e.currentTarget == draggable && (val == 4 || val == 2)) return;
+            SetCategoryPositionAndGroup(e.currentTarget, draggable, val);
+            ModifyGroupPositionJSON(e.currentTarget, draggable, val);
 
-    // drop element and data
-    const id = e.dataTransfer.getData('text/plain');
-    const draggable = document.getElementById(id);
+            SavePlayground();
+            break;
+        case 2:
+            e.currentTarget.classList.remove('drag-over');
+            e.currentTarget.classList.remove('drag-item');
+            SetDragClasses(e, null);
+            
+            id = e.dataTransfer.getData('text/plain');
+            draggable = document.getElementById(id);
 
-    var val = GetPositionInElement(e);
-
-    SetDragClasses(e, null);
-
-    if (e.currentTarget == draggable && (val == 4 || val == 2)) return;
-    SetCategoryPositionAndGroup(e.currentTarget, draggable, val);
-    ModifyGroupPositionJSON(e.currentTarget, draggable, val);
-
-    SavePlayground();
+            e.currentTarget.append(draggable);
+            break;
+        default:
+            return;
+    }
+    elemDragged = 0;
 }
 
 /** Modify the position of an element in the DOM, here a category inside or outside a group
