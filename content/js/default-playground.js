@@ -12,20 +12,24 @@ var defaultPlayground = {
                 {
                     "categories": [
                         {
-                            "name": "empty-box",
+                            "name": "icon-list",
                             "uuid": "2bf7a657-72c3-4832-b56c-fa8fd5de7a48",
                             "theme":"",
-                            "customcss": "min-height:40px;"
+                            "customcss": "min-height:40px;",
+                            "target": true,
+                            "links": []
                         }
                     ]
                 },
                 {
                     "categories": [
                         {
-                            "name": "empty-box",
+                            "name": "sub-list",
                             "uuid": "68b7483f-767f-4d27-8588-4bf2f1060198",
                             "theme":"",
-                            "customcss": "min-height:80px;"
+                            "customcss": "min-height:80px;",
+                            "target": true,
+                            "links": []
                         }
                     ]
                 },
@@ -135,10 +139,12 @@ var defaultPlayground = {
                 {
                     "categories": [
                         {
-                            "name": "empty-box",
+                            "name": "sub-list",
                             "uuid": "d7686260-13b2-4f03-88e1-d5f2427dd59c",
                             "theme":"",
-                            "customcss": "min-height:55vh;"
+                            "customcss": "min-height:55vh;",
+                            "target": true,
+                            "links": []
                         }
                     ]
                 }
