@@ -203,7 +203,7 @@ function GetItemPerId(id, idList) {
 
 //#region Drag Categories
 /** Set the playground to be editable */
-var elemDragged = 0;
+var elemDragged = 0; // what kind of element is dragged, a category, an item ?
 function SetEdit() {
     if (isDeletable) {
         isDeletable = false;
@@ -249,8 +249,8 @@ function DragStartCategories(e) {
 
 /** Listen when dragged element enter another appropriate element and add css class to target */
 function DragEnterCategories(e) {
+    console.log("enter Categories");
     e.preventDefault();
-    console.log("datatransfer", e.dataTransfer);
     switch (elemDragged) {
         case 1:
             e.currentTarget.classList.add('drag-over'); // 
@@ -265,7 +265,6 @@ function DragEnterCategories(e) {
 
 /** Listen when dragged element goes over another appropriate element and add css class to target depending of the position of the dragged element to it */
 function DragOverCategories(e) {
-    // console.log(e);
     e.preventDefault();
     e.currentTarget.classList.add('drag-over');
     
@@ -310,12 +309,16 @@ function DragOverCategories(e) {
 
 /** Listen when dragged element leave another appropriate element and remove css class to target */
 function DragLeaveCategories(e) {
+    console.log(e.target);
+    // if ((e.target.parentNode.classList.contains('category') && e.target.parentNode.classList.contains('drag-over')) || (e.target.parentNode.parentNode.classList.contains('category') && e.target.parentNode.classList.contains('drag-over'))) {
+    //     console.log("item is in category highlighted");
+    // }
+    console.log("exit Categories");
+    e.currentTarget.classList.remove('drag-over');
     switch (elemDragged) {
         case 1:
-            e.currentTarget.classList.remove('drag-over');
             break;
         case 2:
-            e.currentTarget.classList.remove('drag-over');
             e.currentTarget.classList.remove('drag-item');
             break;
         default:
@@ -328,11 +331,11 @@ function DragLeaveCategories(e) {
 function DropCategories(e) {
     let id;
     let draggable;
+    e.currentTarget.classList.remove('drag-over');
+    SetDragClasses(e, null);
+
     switch (elemDragged) {
         case 1:
-            e.currentTarget.classList.remove('drag-over');
-            SetDragClasses(e, null);
-        
             // drop element and data
             id = e.dataTransfer.getData('text/plain');
             draggable = document.getElementById(id);
@@ -347,9 +350,9 @@ function DropCategories(e) {
             SavePlayground();
             break;
         case 2:
-            e.currentTarget.classList.remove('drag-over');
             e.currentTarget.classList.remove('drag-item');
-            SetDragClasses(e, null);
+
+            console.log(GetPositionInElement(e));
             
             id = e.dataTransfer.getData('text/plain');
             draggable = document.getElementById(id);
@@ -465,12 +468,21 @@ function DraggableItems(val) {
         it.setAttribute('draggable', val);
         if (val) {
             it.addEventListener('dragstart', DragStartItems);
-            // hover
-            // leave
+            it.addEventListener('dragenter', DragEnterItems);
+            it.addEventListener('dragover', DragOverItems);
+            it.addEventListener('dragleave', DragLeaveItems);
             // drop
+            /*
+            cat.addEventListener('dragenter', DragEnterCategories);
+            cat.addEventListener('dragover', DragOverCategories);
+            cat.addEventListener('dragleave', DragLeaveCategories);
+            cat.addEventListener('drop', DropCategories); */
         }
         else {
             it.removeEventListener('dragstart', DragStartItems);
+            it.removeEventListener('dragenter', DragEnterItems);
+            it.removeEventListener('dragover', DragOverItems);
+            it.removeEventListener('dragleave', DragLeaveItems);
         }        
     });
 }
@@ -478,6 +490,41 @@ function DraggableItems(val) {
 function DragStartItems(e) {
     elemDragged = 2;
     e.dataTransfer.setData('text/plain', e.currentTarget.id);
+}
+
+function DragEnterItems(e) {
+    console.log("enter Items");
+    switch (elemDragged) {
+        case 1:
+            e.currentTarget.parentNode.classList.add('drag-over');
+            break;
+        case 2:
+            e.currentTarget.parentNode.classList.add('drag-item');
+            // target parent element to add drag-item
+            // target element to add drag-left, right, etc
+            break;
+        default:
+            break;
+    }
+}
+
+function DragOverItems(e) {
+    e.preventDefault();
+    e.currentTarget.parentNode.classList.add('drag-over');
+    e.currentTarget.parentNode.classList.add('drag-item');
+
+
+}
+
+function DragLeaveItems(e) {
+    console.log("exit Items");
+    e.currentTarget.parentNode.classList.remove('drag-over');
+    e.currentTarget.parentNode.classList.remove('drag-item');
+}
+
+function DropItems(e) {
+
+    elemDragged = 0;
 }
 /// AAAAAA
 //#endregion Drag Items
