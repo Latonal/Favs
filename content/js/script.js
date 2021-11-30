@@ -143,23 +143,23 @@ function ModifyGroupPositionJSON(target, toMove, val) {
     var targetJSONPos = GetGroupPerId(target.id.substring(4));
 
     switch (val) {
-        case 1: // bottom
-            var cat = { "categories": [data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]] };
-            data.playground[targetJSONPos[0]].content.splice(targetJSONPos[1] + 1, 0, cat);
-            toMoveJSONPos[1] = (targetJSONPos[1] < toMoveJSONPos[1]) ? toMoveJSONPos[1] + 1 : toMoveJSONPos[1];
-            break;
-        case 2: // left
-            data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories.splice(targetJSONPos[2], 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]);
-            if (toMoveJSONPos[1] == targetJSONPos[1] && toMoveJSONPos[2] > targetJSONPos[2]) toMoveJSONPos[2] += 1;
-            break;
-        case 3: // top
+        case 1: // top
             var cat = { "categories": [data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]] };
             toMoveJSONPos[1] = (targetJSONPos[1] <= toMoveJSONPos[1]) ? toMoveJSONPos[1] + 1 : toMoveJSONPos[1];
             data.playground[targetJSONPos[0]].content.splice(targetJSONPos[1], 0, cat);
             console.log(data);
             break;
-        case 4: // right
+        case 2: // right
             data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories.splice(targetJSONPos[2] + 1, 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]);
+            break;
+        case 3: // bottom
+            var cat = { "categories": [data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]] };
+            data.playground[targetJSONPos[0]].content.splice(targetJSONPos[1] + 1, 0, cat);
+            toMoveJSONPos[1] = (targetJSONPos[1] < toMoveJSONPos[1]) ? toMoveJSONPos[1] + 1 : toMoveJSONPos[1];
+            break;
+        case 4: // left
+            data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories.splice(targetJSONPos[2], 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]);
+            if (toMoveJSONPos[1] == targetJSONPos[1] && toMoveJSONPos[2] > targetJSONPos[2]) toMoveJSONPos[2] += 1;
             break;
         default: // drag cancel
             return;
@@ -249,7 +249,6 @@ function DragStartCategories(e) {
 
 /** Listen when dragged element enter another appropriate element and add css class to target */
 function DragEnterCategories(e) {
-    console.log("enter Categories");
     e.preventDefault();
     switch (elemDragged) {
         case 1:
@@ -267,22 +266,27 @@ function DragEnterCategories(e) {
 function DragOverCategories(e) {
     e.preventDefault();
     e.currentTarget.classList.add('drag-over');
+
+    if (e.currentTarget.classList.contains('category')) ;
+    else if (e.target.classList.contains('item')) e = e.target.parentNode;
+    else e = e.target.parentNode.parentNode;
     
     var val = GetPositionInElement(e);
+    // console.log(val);
     switch (elemDragged) {
         case 1:
             switch (val) {
-                case 1: // bottom
-                    SetDragClasses(e, 'drag-bottom');
-                    break;
-                case 2: // left
-                    SetDragClasses(e, 'drag-left');
-                    break;
-                case 3: // top
+                case 1: // top
                     SetDragClasses(e, 'drag-top');
                     break;
-                case 4: // right
+                case 2: // right
                     SetDragClasses(e, 'drag-right');
+                    break;
+                case 3: // bottom
+                    SetDragClasses(e, 'drag-bottom');
+                    break;
+                case 4: // left
+                    SetDragClasses(e, 'drag-left');
                     break;
                 default:
                     SetDragClasses(e, null);
@@ -309,11 +313,13 @@ function DragOverCategories(e) {
 
 /** Listen when dragged element leave another appropriate element and remove css class to target */
 function DragLeaveCategories(e) {
-    console.log(e.target);
-    // if ((e.target.parentNode.classList.contains('category') && e.target.parentNode.classList.contains('drag-over')) || (e.target.parentNode.parentNode.classList.contains('category') && e.target.parentNode.classList.contains('drag-over'))) {
-    //     console.log("item is in category highlighted");
-    // }
-    console.log("exit Categories");
+    // console.log("category 1: " + e.target.parentNode.classList.contains('category') + " \n item 1: " + e.target.parentNode.classList.contains('drag-over') + " \n category 2: " + e.target.parentNode.parentNode.classList.contains('category') + " \n item 2: " + e.target.parentNode.parentNode.classList.contains('drag-over'));
+    if (e.target != e.currentTarget && (e.target.parentNode.classList.contains('category') || e.target.parentNode.parentNode.classList.contains('category')) && (e.target.parentNode.classList.contains('drag-over') || e.target.parentNode.parentNode.classList.contains('drag-over'))) {
+        // console.log("is still in category________________________");
+        e.currentTarget.classList.add('drag-over');
+        return;
+    } 
+    // console.log("_____________________________remove drag-over");
     e.currentTarget.classList.remove('drag-over');
     switch (elemDragged) {
         case 1:
@@ -393,19 +399,19 @@ function SetCategoryPositionAndGroup(target, toMove, val) {
     }
     // move
     switch (val) {
-        case 1: // bottom
-            if (targetHasParent) target = target.parentNode;
-            target.after(toMove);
-            break;
-        case 2: // left
-            target.before(toMove);
-            break;
-        case 3: // top
+        case 1: // top
             if (targetHasParent) target = target.parentNode;
             target.before(toMove);
             break;
-        case 4: // right
+        case 2: // right
             target.after(toMove);
+            break;
+        case 3: // bottom
+            if (targetHasParent) target = target.parentNode;
+            target.after(toMove);
+            break;
+        case 4: // left
+            target.before(toMove);
             break;
         default: // Drag cancel
             return;
@@ -428,18 +434,31 @@ function SetCategoryPositionAndGroup(target, toMove, val) {
  * @returns {1 | 2 | 3 | 4} return a number between 1 and 4 */
 function GetPositionInElement(e, offsetX = 15, offsetY = 35, vertical = true, horizontal = true) {
     // get size of element
-    var x = e.currentTarget.offsetWidth;
-    var y = e.currentTarget.offsetHeight;
+    var sizeX = e.currentTarget.offsetWidth;
+    var sizeY = e.currentTarget.offsetHeight;
 
     // position to place
-    var mouseX = e.offsetX;
-    var mouseY = e.offsetY;
+    var mousePos = GetMousePositionInElement(e);
+    var mouseX = mousePos[0];
+    var mouseY = mousePos[1];
 
     // assign value
-    if (vertical && mouseY >= y / 100 * (100 - offsetY) && (mouseX > x / 100 * offsetX && mouseX < x / 100 * (100 - offsetX))) return 1; // bottom
-    if (horizontal && mouseX <= x / 100 * offsetX) return 2; // left
-    if (vertical && mouseY < y / 100 * offsetY && (mouseX > x / 100 * offsetX && mouseX < x / 100 * (100 - offsetX))) return 3; // top
-    if (horizontal && mouseX >= x / 100 * (100 - offsetX)) return 4; // right
+    calcX = mouseX / sizeX * 100;
+    calcY = mouseY / sizeY * 100;
+
+    if (vertical && calcY < offsetY && calcX > offsetX && calcX < (100 - offsetX)) return 1; // top
+    else if (horizontal && calcX > (100 - offsetX)) return 2; // right
+    else if (vertical && calcY >= (100 - offsetY) && calcX > offsetX && calcX < (100 - offsetX)) return 3; // bottom
+    else if (horizontal && calcX < offsetX) return 4; // left
+    else return 0;
+}
+
+function GetMousePositionInElement(e) {
+    // https://stackoverflow.com/a/42111623
+    var rect = e.currentTarget.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
+    return [x,y];
 }
 
 /** Add and remove class depending of class asked to add to element
@@ -457,6 +476,7 @@ function SetDragClasses(e, c) {
     if (c !== null) e.currentTarget.classList.add(c);
     if (c == null) e.currentTarget.classList.remove('is-dragged');
 }
+// TODO : is-dragged is set on the hovered component, not the dragged one
 //#endregion Drag Categories
 
 
@@ -464,7 +484,7 @@ function SetDragClasses(e, c) {
 function DraggableItems(val) {
     var items = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'item');
     Array.from(items).forEach(it => {
-        console.log(it);
+        // console.log(it);
         it.setAttribute('draggable', val);
         if (val) {
             it.addEventListener('dragstart', DragStartItems);
@@ -493,33 +513,31 @@ function DragStartItems(e) {
 }
 
 function DragEnterItems(e) {
-    console.log("enter Items");
-    switch (elemDragged) {
-        case 1:
-            e.currentTarget.parentNode.classList.add('drag-over');
-            break;
-        case 2:
-            e.currentTarget.parentNode.classList.add('drag-item');
-            // target parent element to add drag-item
-            // target element to add drag-left, right, etc
-            break;
-        default:
-            break;
-    }
+    // switch (elemDragged) {
+    //     case 1:
+    //         e.currentTarget.parentNode.classList.add('drag-over');
+    //         break;
+    //     case 2:
+    //         e.currentTarget.parentNode.classList.add('drag-item');
+    //         // target parent element to add drag-item
+    //         // target element to add drag-left, right, etc
+    //         break;
+    //     default:
+    //         break;
+    // }
 }
 
 function DragOverItems(e) {
-    e.preventDefault();
-    e.currentTarget.parentNode.classList.add('drag-over');
-    e.currentTarget.parentNode.classList.add('drag-item');
+    // e.preventDefault();
+    // e.currentTarget.parentNode.classList.add('drag-over');
+    // e.currentTarget.parentNode.classList.add('drag-item');
 
 
 }
 
 function DragLeaveItems(e) {
-    console.log("exit Items");
-    e.currentTarget.parentNode.classList.remove('drag-over');
-    e.currentTarget.parentNode.classList.remove('drag-item');
+    // e.currentTarget.parentNode.classList.remove('drag-over');
+    // e.currentTarget.parentNode.classList.remove('drag-item');
 }
 
 function DropItems(e) {
