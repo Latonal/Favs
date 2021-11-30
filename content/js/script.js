@@ -79,6 +79,18 @@ function ValidURL(url) {
         '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
     return !!pattern.test(url);
 }
+
+function GetCategoryParent(e) {
+    if (e.currentTarget.classList.contains('category')) return e;
+    else if (e.target.classList.contains('item')) return e.target.parentNode;
+    else return e.target.parentNode.parentNode;
+
+}
+
+function GetItemParent(e) {
+    if (e.currentTarget.classList.contains('item')) return e;
+    else return e.target.parentNode;
+}
 //#endregion General Use
 
 
@@ -139,8 +151,8 @@ function PlaygroundParser(page = 0) {
  * @param {HTMLElement} toMove main element to move
  * @param {number} val position (top, bottom...) of mouse inside targeted element */
 function ModifyGroupPositionJSON(target, toMove, val) {
-    var toMoveJSONPos = GetGroupPerId(toMove.id.substring(4));
     var targetJSONPos = GetGroupPerId(target.id.substring(4));
+    var toMoveJSONPos = GetGroupPerId(toMove.id.substring(4));
 
     switch (val) {
         case 1: // top
@@ -195,6 +207,30 @@ function GetGroupPerId(id) {
 function GetItemPerId(id, idList) {
     for (let i = 0; i < data.playground[idList[0]].content[idList[1]].categories[idList[2]].links.length; i++) {
         if (data.playground[idList[0]].content[idList[1]].categories[idList[2]].links[i].uuid == id) return [idList[0], idList[1], idList[2], i];
+    }
+}
+
+function ModifyItemPositionJSON(target, toMove, val) {
+    console.log(target);
+    var targetJSONPos = (val == 0) ? GetGroupPerId(target.id.substring(4)) : GetItemPerId(target.id.substring(3), GetGroupPerId(target.parentNode.id.substring(4)));
+    var toMoveJSONPos = GetItemPerId(toMove.id.substring(3), GetGroupPerId(toMove.parentNode.id.substring(4)));
+    console.log("target: " + targetJSONPos + " | " + GetGroupPerId(target.id.substring(3)));
+
+    switch (val) {
+        case 0: // last position
+            data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories[targetJSONPos[2]].links.push(data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]].links[toMoveJSONPos[3]]);
+            data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]].links.splice(toMoveJSONPos[3], 1);
+            break;
+        case 1: // top
+        case 4:
+            // put before [target]
+            break;
+        case 3: // bottom
+        case 2:
+            // put after [target]
+            break;
+        default: 
+            break;
     }
 }
 
@@ -266,45 +302,16 @@ function DragEnterCategories(e) {
 function DragOverCategories(e) {
     e.preventDefault();
     e.currentTarget.classList.add('drag-over');
-
-    if (e.currentTarget.classList.contains('category')) ;
-    else if (e.target.classList.contains('item')) e = e.target.parentNode;
-    else e = e.target.parentNode.parentNode;
     
-    var val = GetPositionInElement(e);
+    e = GetCategoryParent(e);    
     // console.log(val);
     switch (elemDragged) {
         case 1:
-            switch (val) {
-                case 1: // top
-                    SetDragClasses(e, 'drag-top');
-                    break;
-                case 2: // right
-                    SetDragClasses(e, 'drag-right');
-                    break;
-                case 3: // bottom
-                    SetDragClasses(e, 'drag-bottom');
-                    break;
-                case 4: // left
-                    SetDragClasses(e, 'drag-left');
-                    break;
-                default:
-                    SetDragClasses(e, null);
-                    break;
-            }
+            var val = GetPositionInElement(e);
+            SetDragClass(e, val);
             break;
         case 2:
-            switch (val) {
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                    SetDragClasses(e, 'drag-item');
-                    break;
-                default:
-                    SetDragClasses(e, null);
-                    break;
-            }
+            e.currentTarget.classList.add('drag-item');
             break;
         default:
             break;
@@ -313,13 +320,8 @@ function DragOverCategories(e) {
 
 /** Listen when dragged element leave another appropriate element and remove css class to target */
 function DragLeaveCategories(e) {
-    // console.log("category 1: " + e.target.parentNode.classList.contains('category') + " \n item 1: " + e.target.parentNode.classList.contains('drag-over') + " \n category 2: " + e.target.parentNode.parentNode.classList.contains('category') + " \n item 2: " + e.target.parentNode.parentNode.classList.contains('drag-over'));
-    if (e.target != e.currentTarget && (e.target.parentNode.classList.contains('category') || e.target.parentNode.parentNode.classList.contains('category')) && (e.target.parentNode.classList.contains('drag-over') || e.target.parentNode.parentNode.classList.contains('drag-over'))) {
-        // console.log("is still in category________________________");
-        e.currentTarget.classList.add('drag-over');
-        return;
-    } 
-    // console.log("_____________________________remove drag-over");
+    e = GetCategoryParent(e);
+
     e.currentTarget.classList.remove('drag-over');
     switch (elemDragged) {
         case 1:
@@ -348,7 +350,6 @@ function DropCategories(e) {
         
             var val = GetPositionInElement(e);
         
-        
             if (e.currentTarget == draggable && (val == 4 || val == 2)) return;
             SetCategoryPositionAndGroup(e.currentTarget, draggable, val);
             ModifyGroupPositionJSON(e.currentTarget, draggable, val);
@@ -363,7 +364,12 @@ function DropCategories(e) {
             id = e.dataTransfer.getData('text/plain');
             draggable = document.getElementById(id);
 
+            // Set item on last position of the json
+            ModifyItemPositionJSON(e.currentTarget, draggable, 0);
+
+            // Modify DOM
             e.currentTarget.append(draggable);
+            SavePlayground();
             break;
         default:
             return;
@@ -461,6 +467,26 @@ function GetMousePositionInElement(e) {
     return [x,y];
 }
 
+function SetDragClass(e, val) {
+    switch (val) {
+        case 1: // top
+            SetDragClasses(e, 'drag-top');
+            break;
+        case 2: // right
+            SetDragClasses(e, 'drag-right');
+            break;
+        case 3: // bottom
+            SetDragClasses(e, 'drag-bottom');
+            break;
+        case 4: // left
+            SetDragClasses(e, 'drag-left');
+            break;
+        default:
+            SetDragClasses(e, null);
+            break;
+    }
+}
+
 /** Add and remove class depending of class asked to add to element
  * @param {HTMLElement} e element to add classes
  * @param {string} c class to add
@@ -491,6 +517,7 @@ function DraggableItems(val) {
             it.addEventListener('dragenter', DragEnterItems);
             it.addEventListener('dragover', DragOverItems);
             it.addEventListener('dragleave', DragLeaveItems);
+            it.addEventListener('drop', DropItems);
             // drop
             /*
             cat.addEventListener('dragenter', DragEnterCategories);
@@ -503,6 +530,7 @@ function DraggableItems(val) {
             it.removeEventListener('dragenter', DragEnterItems);
             it.removeEventListener('dragover', DragOverItems);
             it.removeEventListener('dragleave', DragLeaveItems);
+            it.removeEventListener('drop', DropItems);
         }        
     });
 }
@@ -513,22 +541,33 @@ function DragStartItems(e) {
 }
 
 function DragEnterItems(e) {
-    // switch (elemDragged) {
-    //     case 1:
-    //         e.currentTarget.parentNode.classList.add('drag-over');
-    //         break;
-    //     case 2:
-    //         e.currentTarget.parentNode.classList.add('drag-item');
-    //         // target parent element to add drag-item
-    //         // target element to add drag-left, right, etc
-    //         break;
-    //     default:
-    //         break;
-    // }
+    switch (elemDragged) {
+        case 1:
+            // e.currentTarget.parentNode.classList.add('drag-over');
+            break;
+        case 2:
+            // e.currentTarget.parentNode.classList.add('drag-item');
+            // target parent element to add drag-item
+            // target element to add drag-left, right, etc
+            break;
+        default:
+            break;
+    }
 }
 
 function DragOverItems(e) {
-    // e.preventDefault();
+    e.preventDefault();
+    switch (elemDragged) {
+        case 1:
+            break;
+        case 2:
+            e = GetItemParent(e);
+            var val = GetPositionInElement(e, 0, 50, true, false);
+            SetDragClass(e, val);
+            break;
+        default:
+            break;
+    }
     // e.currentTarget.parentNode.classList.add('drag-over');
     // e.currentTarget.parentNode.classList.add('drag-item');
 
@@ -538,10 +577,32 @@ function DragOverItems(e) {
 function DragLeaveItems(e) {
     // e.currentTarget.parentNode.classList.remove('drag-over');
     // e.currentTarget.parentNode.classList.remove('drag-item');
+    switch (elemDragged) {
+        case 1:
+            break;
+        case 2: 
+            e = GetItemParent(e);
+            SetDragClasses(e, null);
+            break;
+        default:
+            break;
+    }
 }
 
 function DropItems(e) {
+    switch (elemDragged) {
+        case 1:
+            break;
+        case 2: 
+            e = GetItemParent(e);
+            SetDragClasses(e, null);
+            e.currentTarget.parentNode.classList.remove('drag-item');
 
+            // set item corresponding to its place in the json
+            break;
+        default:
+            break;
+    }
     elemDragged = 0;
 }
 /// AAAAAA
