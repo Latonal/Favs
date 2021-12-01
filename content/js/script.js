@@ -211,10 +211,8 @@ function GetItemPerId(id, idList) {
 }
 
 function ModifyItemPositionJSON(target, toMove, val) {
-    console.log(target);
     var targetJSONPos = (val == 0) ? GetGroupPerId(target.id.substring(4)) : GetItemPerId(target.id.substring(3), GetGroupPerId(target.parentNode.id.substring(4)));
     var toMoveJSONPos = GetItemPerId(toMove.id.substring(3), GetGroupPerId(toMove.parentNode.id.substring(4)));
-    console.log("target: " + targetJSONPos + " | " + GetGroupPerId(target.id.substring(3)));
 
     switch (val) {
         case 0: // last position
@@ -222,18 +220,21 @@ function ModifyItemPositionJSON(target, toMove, val) {
             data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]].links.splice(toMoveJSONPos[3], 1);
             break;
         case 1: // top
-        case 4:
-            // put before [target]
+        case 4: // put before [target]
+            data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories[targetJSONPos[2]].links.splice(targetJSONPos[3], 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]].links[toMoveJSONPos[3]]);
+            if (data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories[targetJSONPos[2]].uuid == data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]].uuid && toMoveJSONPos[3] > targetJSONPos[3]) toMoveJSONPos[3] += 1;
+            data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]].links.splice(toMoveJSONPos[3], 1);
             break;
         case 3: // bottom
-        case 2:
-            // put after [target]
+        case 2: // put after [target]
+            data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories[targetJSONPos[2]].links.splice(targetJSONPos[3] + 1, 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]].links[toMoveJSONPos[3]]);
+            if (data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories[targetJSONPos[2]].uuid == data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]].uuid && toMoveJSONPos[3] > targetJSONPos[3]) toMoveJSONPos[3] += 1;
+            data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]].links.splice(toMoveJSONPos[3], 1);
             break;
         default: 
             break;
     }
 }
-
 //#endregion JSON Changes
 
 
@@ -351,8 +352,8 @@ function DropCategories(e) {
             var val = GetPositionInElement(e);
         
             if (e.currentTarget == draggable && (val == 4 || val == 2)) return;
-            SetCategoryPositionAndGroup(e.currentTarget, draggable, val);
             ModifyGroupPositionJSON(e.currentTarget, draggable, val);
+            SetCategoryPositionAndGroup(e.currentTarget, draggable, val);
 
             SavePlayground();
             break;
@@ -598,7 +599,25 @@ function DropItems(e) {
             SetDragClasses(e, null);
             e.currentTarget.parentNode.classList.remove('drag-item');
 
+            id = e.dataTransfer.getData('text/plain');
+            draggable = document.getElementById(id);
+
             // set item corresponding to its place in the json
+            var val = GetPositionInElement(e, 0, 50, true, false);
+            ModifyItemPositionJSON(e.currentTarget, draggable, val);
+            switch (val) {
+                case 1:
+                case 4:
+                    e.currentTarget.before(draggable);
+                    break;
+                case 2:
+                case 3:
+                    e.currentTarget.after(draggable);
+                    break;
+                default:
+                    break;
+            }
+            SavePlayground();
             break;
         default:
             break;
