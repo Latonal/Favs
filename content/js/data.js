@@ -56,7 +56,6 @@ function InstantiateDB() {
 
 /** Save into the navigator the data JSON object */
 async function SavePlaygroundData() {
-    console.log("aaaaaaaaa");
     db = openRequest.result;
     let transaction = db.transaction("data", "readwrite");
     let store = transaction.objectStore("data");

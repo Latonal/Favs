@@ -198,6 +198,9 @@ input[type=checkbox]:disabled {
 }
 
 /************************* Create menu *************************/
+#generating {
+    display:none;
+}
 #create-menu {
     width:100vw;
     height:100vh;
@@ -357,18 +360,27 @@ input[type=checkbox]:disabled {
 #playground .add-element div {
     margin:0 2px 0 2px;
 }
-#playground .add-element div:nth-child(2) {
+/* #playground .add-element div:nth-child(2) {
     font-family:sans-serif;
-}
+} */
 #playground .is-draggable .add-element {
     display:flex;
     min-width:20px;
     min-height:20px;
     justify-content: center;
     align-items: center;
-}
-#playground .is-draggable .add-element {
+    font-size: 14px;
     cursor:pointer;
+    color: color-contrast(currentColor vs #eee, #111);
+    text-shadow: 0px 0px 5px #eee;
+    z-index:1;
+}
+#playground .is-draggable .item .add-element {
+    cursor:pointer;
+    position:absolute;
+    top: 0;
+    right: 0;
+    box-shadow: azure;
 }
 #playground .category.is-dragged .add-element {
     display:none;
@@ -409,6 +421,9 @@ input[type=checkbox]:disabled {
     color:var(--text-color);
 }
 /*.category > *:nth-child(2n+1) *//* warning : touche aussi les boutons en haut à droite */
+.category .item {
+    position: relative;
+}
 /* Icon List Only */
 .category.icon-list {
     flex-direction:var(--flex-direction-icon-list);
@@ -422,7 +437,6 @@ input[type=checkbox]:disabled {
     margin: var(--margin-icon-list-link);
     border:var(--border-icon-list-link);
     border-radius:var(--border-radius-icon-list-link);
-    position: relative;
 }
 .category.icon-list a .icon {
     width:var(--max-width-icon-list-img);
