@@ -1,7 +1,6 @@
 /** @type {Boolean} */
 var currentPage = 0;
 var isDraggable = false;
-var isDeletable = false;
 
 //#region General Use
 document.documentElement.setAttribute('lang', navigator.language); // set language depending of navigator's language
@@ -115,7 +114,7 @@ function PlaygroundParser(page = 0) {
         e1.content.forEach(e2 => {
             var v3 = '';
             e2.categories.forEach(e3 => {
-                var v4 = '<span class="special-character add-element"><div>&#57621;</div><div class="bold" onclick="CreateNewContentMenu(this)";>&plus;</div></span>';
+                var v4 = '<span class="special-character add-element"><div class="bold" onclick="CreateNewContentMenu(this);">&plus;</div><div onclick="DeleteCategory(this);">&#57569;</div></span>';
                 if (e3.links) {
                     e3.links.forEach(e4 => {
                         // console.log(e4);
@@ -124,7 +123,7 @@ function PlaygroundParser(page = 0) {
                         var target4 = (e4.target) ? 'target="_blank"' : '';
                         var icon4 = (ValidURL(e4.icon)) ? './content/img/logo/' + e4.icon : e4.icon;
                         /* TODO : Url display href if content url */
-                        v4 += '<a href="' + e4.url + '" class="item' + theme4 + '" id="it-' + e4.uuid + '" data-url="' + e4.url + '" ' + css4 + ' ' + target4 + '><div class="icon"><img src="' + icon4 + '"></div><p>' + e4.text + '</p></a>'
+                        v4 += '<a href="' + e4.url + '" class="item' + theme4 + '" id="it-' + e4.uuid + '" data-url="' + e4.url + '" ' + css4 + ' ' + target4 + '><span class="special-character add-element"><div onclick="DeleteItem(this);">&#57569;</div></span><div class="icon"><img src="' + icon4 + '"></div><p>' + e4.text + '</p></a>'
                     });
                 };
                 var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
@@ -242,14 +241,9 @@ function ModifyItemPositionJSON(target, toMove, val) {
 /** Set the playground to be editable */
 var elemDragged = 0; // what kind of element is dragged, a category, an item ?
 function SetEdit() {
-    if (isDeletable) {
-        isDeletable = false;
-        DeletableElements(false);
-    }
     isDraggable = !isDraggable;
     DraggableCategories(isDraggable);
     DraggableItems(isDraggable);
-    EditItem(isDraggable);
 }
 
 /** Set every Categories to be draggable
@@ -514,19 +508,17 @@ function DraggableItems(val) {
         // console.log(it);
         it.setAttribute('draggable', val);
         if (val) {
+            it.removeAttribute("href");
+            it.addEventListener('click', OpenEditMenu);
             it.addEventListener('dragstart', DragStartItems);
             it.addEventListener('dragenter', DragEnterItems);
             it.addEventListener('dragover', DragOverItems);
             it.addEventListener('dragleave', DragLeaveItems);
             it.addEventListener('drop', DropItems);
-            // drop
-            /*
-            cat.addEventListener('dragenter', DragEnterCategories);
-            cat.addEventListener('dragover', DragOverCategories);
-            cat.addEventListener('dragleave', DragLeaveCategories);
-            cat.addEventListener('drop', DropCategories); */
         }
         else {
+            it.setAttribute("href", it.dataset.url)
+            it.removeEventListener('click', OpenEditMenu);
             it.removeEventListener('dragstart', DragStartItems);
             it.removeEventListener('dragenter', DragEnterItems);
             it.removeEventListener('dragover', DragOverItems);
@@ -624,102 +616,54 @@ function DropItems(e) {
     }
     elemDragged = 0;
 }
-/// AAAAAA
 //#endregion Drag Items
 
 
 //#region Delete Item and Categories
-function SetDelete() {
-    isDeletable = !isDeletable;
-    if (isDraggable) {
-        isDraggable = false
-        DraggableCategories(false);
-    }
-    else SetEveryLinks(isDeletable);
-    DeletableElements(isDeletable);
-}
-
-function DeletableElements(val) {
-    var categories = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'category');
-    Array.from(categories).forEach(cat => {
-        cat.classList.toggle("is-deletable");
-        if (val) {
-            cat.addEventListener('click', DeleteCategory);
-        }
-        else {
-            cat.removeEventListener('click', DeleteCategory);
-        }
-    });
-    var items = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'item');
-    Array.from(items).forEach(it => {
-        if (val) {
-            it.addEventListener('click', DeleteItem);
-        }
-        else {
-            it.removeEventListener('click', DeleteItem);
-        }
-    });
-}
-
 function DeleteCategory(e) {
-    if (e.target.classList.contains("category")) {
-        var parentJSONPos = GetGroupPerId(e.currentTarget.id.substring(4));
-        if (e.currentTarget.parentNode.classList.contains("group")) {
+    if (e.parentNode.parentNode.classList.contains("category")) {
+        var parentJSONPos = GetGroupPerId(e.parentNode.parentNode.id.substring(4));
+        if (e.parentNode.parentNode.parentNode.classList.contains("group")) {
             data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories.splice(parentJSONPos[2], 1);
             if (data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories.length <= 1) {
-                divParent = e.currentTarget.parentNode;
-                e.currentTarget.remove();
+                divParent = e.parentNode.parentNode.parentNode;
+                e.parentNode.parentNode.remove();
                 divParent.before(divParent.childNodes[0]);
                 divParent.remove();
             }
-            else e.currentTarget.remove();
-        } 
+            else e.parentNode.parentNode.remove();
+        }
         else {
-            e.currentTarget.remove();
+            e.parentNode.parentNode.remove();
             data.playground[parentJSONPos[0]].content.splice(parentJSONPos[1], 1);
-        } 
+        }
         SavePlayground();
     }
 }
 
 function DeleteItem(e) {
-    console.log(e.currentTarget.id);
-    console.log(e.currentTarget.parentNode.id);
-    itemJSONPos = GetItemPerId(e.currentTarget.id.substring(3), GetGroupPerId(e.currentTarget.parentNode.id.substring(4)));
-    e.currentTarget.remove();
+    itemJSONPos = GetItemPerId(e.parentNode.parentNode.id.substring(3), GetGroupPerId(e.parentNode.parentNode.parentNode.id.substring(4)));
     data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links.splice(itemJSONPos[3], 1);
+    e.parentNode.parentNode.remove();
     SavePlayground();
 }
 //#endregion Delete Item and Categories
 
 //#region Edit Items
-/** Set every item to be editable
- * @param {Boolean} val true (enable) or false (disable) */
-function EditItem(val) {
-    var items = GetPlaygroundElementsByPageAndClass(GetCurrentPage(), 'item');
-    Array.from(items).forEach(it => {
-        if (val) {
-            it.removeAttribute("href");
-            InstantiateItemEvents(it);
-        }
-        else {
-            it.setAttribute("href", it.dataset.url)
-            it.removeEventListener('click', OpenEditMenu);
-            // it.removeEventListener('dragstart', DragStartItems);
-        }
-    });
-}
-
 /** Put event on element to answer to click and drag
  * @param {HTMLElement} it element to put event on */
 function InstantiateItemEvents(it) {
     it.addEventListener('click', OpenEditMenu);
-    // it.addEventListener('dragstart', DragStartItems);
+    it.addEventListener('dragstart', DragStartItems);
+    it.addEventListener('dragenter', DragEnterItems);
+    it.addEventListener('dragover', DragOverItems);
+    it.addEventListener('dragleave', DragLeaveItems);
+    it.addEventListener('drop', DropItems);
 }
-/// AAAAAA
 
 /** Open edit menu and set inner element to correspond to element clicked on */
-function OpenEditMenu() {
+function OpenEditMenu(e) {
+    if (e.target.parentNode.classList.contains("add-element")) return;
     SetElement(true, 'edit-menu');
     currentItemId = this.id;
     currentGroupId = this.parentNode.id;
@@ -880,10 +824,10 @@ function CreateNewContentMenu(e) {
 
 /** Create a new empty item, both in the DOM and JSON playground */
 function CreateNewItem() {
-    console.log(currentGroupId);
     // TODO : if parent has target enabled, set target="_blank"
     var uuid = GetRandomUUID("it-");
-    document.getElementById(currentGroupId).innerHTML += '<a href="#" class="item" id="it-' + uuid + '"><div class="icon"><img src=""></div><p>NEW!</p></a>';
+    document.getElementById('generating').innerHTML += '<a class="item" id="it-' + uuid + '" data-url="#" draggable="true"><span class="special-character add-element"><div onclick="DeleteItem(this);">&#57569;</div></span><div class="icon"><img src=""></div><p>NEW!</p></a>';
+    document.getElementById(currentGroupId).lastChild.after(document.getElementById("it-" + uuid));
     InstantiateItemEvents(document.getElementById("it-" + uuid));
     var parentJSONPos = GetGroupPerId(currentGroupId.substring(4));
     data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[[parentJSONPos[2]]].links.push({ text: "NEW!", url: "#", icon: "", uuid: uuid, theme: "", customcss: "", target: "" });
