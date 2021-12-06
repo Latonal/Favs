@@ -250,7 +250,7 @@ input[type=checkbox]:disabled {
 }
 
 /************************* Edit menu *************************/
-#edit-menu #edit-item {
+#edit-menu #edit-element {
     height:100vh;
     position:fixed;
     background-color:#808080;
@@ -293,8 +293,54 @@ input[type=checkbox]:disabled {
 #edit-menu fieldset>div>label>input[type=checkbox] {
     height: 19px;
 }
-#edit-menu #edit-item p {
+#edit-menu #edit-element p {
     cursor:pointer;
+}
+
+/************************* Edit Image *************************/
+#edit-image {
+    width:300px;
+    height:300px;
+    background-color:gray;
+    display:flex;
+    flex-direction: column;
+    border-radius:var(--border-radius);
+}
+#edit-image .top {
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding:5px;
+}
+#edit-image .separator {
+    border-bottom: 2px solid #2e2e2e;
+}
+#edit-image .content {
+    display:flex;
+    flex-direction:row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    overflow-x:hidden;
+    overflow-y:auto;
+}
+#edit-image .content .item {
+    width:50px;
+    display:flex;
+    flex: 1 0 26%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin:5px;
+}
+#edit-image .content .item .icon img {
+    width: 50px;
+    height: 50px;
+}
+#edit-image .content .item p {
+    font-size:1vw;
+    width:50px;
+    word-wrap: break-word;
+    text-align: center;
 }
 
 /************************* Group *************************/

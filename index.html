@@ -41,19 +41,69 @@
         <!-- Edit menu -->
         <div id="edit-menu">
             <div class="depop-menu" onclick="SetElement(false, 'edit-menu');"></div>
-            <div id="edit-item">
+            <div id="edit-element">
                 <fieldset>
                     <legend>Text</legend>
-                    <input type="text" placeholder="Text" id="edit-item-text" oninput="EditChangeText(this.value);" onchange="EditAddTextToJson(this.value);">
+                    <input type="text" placeholder="Text" id="edit-element-text" oninput="EditChangeText(this.value);" onchange="EditAddTextToJson(this.value);">
                 </fieldset>
                 <fieldset>
                     <legend>Url</legend>
                     <div>
-                        <input type="url" placeholder="Text" id="edit-item-url" oninput="EditChangeUrl(this.value);" onchange="EditAddUrlToJson(this.value);">
-                        <label onchange="EditAddTargetToJson(this.checked)">Open in new window <input type="checkbox" id="edit-item-target"></label>
+                        <input type="url" placeholder="Text" id="edit-element-url" oninput="EditChangeUrl(this.value);" onchange="EditAddUrlToJson(this.value);">
+                        <label onchange="EditAddTargetToJson(this.checked)">Open in new window <input type="checkbox" id="edit-element-target"></label>
                     </div>
                 </fieldset>
                 <p onclick="OpenChooseImageMenu();">Modify image --&gt;</p><!-- TODO Change for hexa -->
+            </div>
+        </div>
+        <div id="edit-image">
+            <div class="top">
+                <span class="special-character">&#57513;</span>
+                <input type="text" placeholder="Search...">
+                <span class="special-character">&#57624;</span>
+            </div>
+            <div class="separator"></div>
+            <div class="content">
+                <div class="item">
+                    <div class="icon"><img src="./content/img/logo/GoogleTranslate.svg"></div>
+                    <p>GTrad</p>
+                </div>
+                <div class="item">
+                    <div class="icon"><img src="./content/img/logo/GoogleTranslate.svg"></div>
+                    <p>GTrad</p>
+                </div>
+                <div class="item">
+                    <div class="icon"><img src="./content/img/logo/GoogleTranslate.svg"></div>
+                    <p>GTrad</p>
+                </div>
+                <div class="item">
+                    <div class="icon"><img src="./content/img/logo/GoogleTranslate.svg"></div>
+                    <p>GTradasaaaaaaaaaa</p>
+                </div>
+                <div class="item">
+                    <div class="icon"><img src="./content/img/logo/GoogleTranslate.svg"></div>
+                    <p>GTrad</p>
+                </div>
+                <div class="item">
+                    <div class="icon"><img src="./content/img/logo/GoogleTranslate.svg"></div>
+                    <p>GTrad</p>
+                </div>
+                <div class="item">
+                    <div class="icon"><img src="./content/img/logo/GoogleTranslate.svg"></div>
+                    <p>GTrad</p>
+                </div>
+                <div class="item">
+                    <div class="icon"><img src="./content/img/logo/GoogleTranslate.svg"></div>
+                    <p>GTrad</p>
+                </div>
+                <div class="item">
+                    <div class="icon"><img src="./content/img/logo/GoogleTranslate.svg"></div>
+                    <p>GTrad</p>
+                </div>
+                <div class="item">
+                    <div class="icon"><img src="./content/img/logo/GoogleTranslate.svg"></div>
+                    <p>GTrad</p>
+                </div>
             </div>
         </div>
 

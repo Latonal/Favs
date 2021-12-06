@@ -667,9 +667,9 @@ function OpenEditMenu(e) {
     SetElement(true, 'edit-menu');
     currentItemId = this.id;
     currentGroupId = this.parentNode.id;
-    document.getElementById("edit-item-text").value = document.getElementById(currentItemId).getElementsByTagName("p")[0].innerText;
-    document.getElementById("edit-item-url").value = document.getElementById(currentItemId).dataset.url;
-    document.getElementById("edit-item-target").checked = (document.getElementById(currentItemId).attributes.target) ? true : false;
+    document.getElementById("edit-element-text").value = document.getElementById(currentItemId).getElementsByTagName("p")[0].innerText;
+    document.getElementById("edit-element-url").value = document.getElementById(currentItemId).dataset.url;
+    document.getElementById("edit-element-target").checked = (document.getElementById(currentItemId).attributes.target) ? true : false;
 
 
     /* SANITIZE !!! Replace special characters */
