@@ -6,7 +6,8 @@ var icon = {
             "YouTube": "YouTube.svg",
             "Soundcloud": "Soundcloud.svg",
             "Google Translate": "GoogleTranslate.svg",
-            "Bing": "Bing.svg"
+            "Bing": "Bing.svg",
+            "x": "x.svg"
         },
         "custom": {
             

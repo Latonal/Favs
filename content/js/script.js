@@ -509,7 +509,7 @@ function DraggableItems(val) {
         it.setAttribute('draggable', val);
         if (val) {
             it.removeAttribute("href");
-            it.addEventListener('click', OpenEditMenu);
+            it.addEventListener('click', OpenEditMenuItems);
             it.addEventListener('dragstart', DragStartItems);
             it.addEventListener('dragenter', DragEnterItems);
             it.addEventListener('dragover', DragOverItems);
@@ -518,7 +518,7 @@ function DraggableItems(val) {
         }
         else {
             it.setAttribute("href", it.dataset.url)
-            it.removeEventListener('click', OpenEditMenu);
+            it.removeEventListener('click', OpenEditMenuItems);
             it.removeEventListener('dragstart', DragStartItems);
             it.removeEventListener('dragenter', DragEnterItems);
             it.removeEventListener('dragover', DragOverItems);
@@ -653,7 +653,7 @@ function DeleteItem(e) {
 /** Put event on element to answer to click and drag
  * @param {HTMLElement} it element to put event on */
 function InstantiateItemEvents(it) {
-    it.addEventListener('click', OpenEditMenu);
+    it.addEventListener('click', OpenEditMenuItems);
     it.addEventListener('dragstart', DragStartItems);
     it.addEventListener('dragenter', DragEnterItems);
     it.addEventListener('dragover', DragOverItems);
@@ -662,7 +662,7 @@ function InstantiateItemEvents(it) {
 }
 
 /** Open edit menu and set inner element to correspond to element clicked on */
-function OpenEditMenu(e) {
+function OpenEditMenuItems(e) {
     if (e.target.parentNode.classList.contains("add-element")) return;
     SetElement(true, 'edit-menu');
     currentItemId = this.id;
@@ -673,6 +673,11 @@ function OpenEditMenu(e) {
 
 
     /* SANITIZE !!! Replace special characters */
+}
+
+function CloseEditMenu() {
+    SetElement(false, 'edit-menu');
+    if (document.getElementById('edit-image').classList.contains("active")) SetElement(false, 'edit-image');
 }
 
 /** Put text into the DOM element calling the function
@@ -836,7 +841,31 @@ function CreateNewItem() {
 }
 /** Show Choose Image menu */
 function OpenChooseImageMenu() {
-    console.log("open choose image menu");
+    SetElement(true, 'edit-image');
+    // for (i = 0; i < icon.playground.original.length; i++) {
+    //     console.log(icon.playground.original[i]);
+    // }
+    let generating = document.getElementById('generating');
+    let edit = document.getElementById('edit-image').getElementsByClassName('content')[0];
+    for(i in icon.playground.original) {
+        let id = i.replace(' ', '-');
+        console.log(id);
+        generating.innerHTML += '<div id="o-' + id + '" class="item" data-image="' + icon.playground.original[i] + '" onclick="ChooseImage(this);"><div class="icon"><img src="./content/img/logo/' + icon.playground.original[i] + '" alt="' + i + ' icon"></div><p>' + i + '</p></div>';
+        edit.lastChild.after(document.getElementById('o-'+id));
+        console.log(i);
+        console.log(icon.playground.original[i]);
+        
+    }
+}
+
+function ChooseImage(e) {
+    console.log(e.dataset.image);
+    console.log(currentGroupId)
+    console.log(currentItemId);
+    var icon = (ValidURL(e.dataset.image)) ? './content/img/logo/' + e.dataset.image : e.dataset.image;
+    console.log(document.getElementById(currentItemId).getElementsByTagName('img')[0]);
+    // if dataset.image == null
+    document.getElementById(currentItemId).getElementsByTagName('img')[0].src = icon;
 }
 
 

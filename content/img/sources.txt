@@ -6,5 +6,6 @@ YouTube : 	https://commons.wikimedia.org/wiki/File:YouTube_full-color_icon_(2017
 Soundcloud : 	https://www.svgrepo.com/svg/35013/soundcloud
 Google Translate :	https://commons.wikimedia.org/wiki/File:Google_Translate_logo.svg
 Bing :		https://logos.fandom.com/wiki/Microsoft_Bing/Icons
+X :		https://www.onlinewebfonts.com/icon/143760
 
 SVG software : https://inkscape.org/fr/
