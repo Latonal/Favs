@@ -102,6 +102,8 @@ function PlaygroundParser(page = 0) {
     var html = '';
     var pageId = 0;
     var pg = document.getElementById('playground');
+    // const sanitizer = new Sanitizer();
+    // console.log(sanitizer.sanitize("<div class='test'>test</div>"))
     if (data.toolbarposition[0] != -1 && data.toolbarposition[0] != -1) {
         tb = document.getElementById("toolbar");
         tb.style["right"] = data.toolbarposition[0] + "%";
@@ -110,32 +112,33 @@ function PlaygroundParser(page = 0) {
     // console.log(data.playground.length);
     data.playground.forEach(e1 => {
         // Page : content / name
-        var v2 = '';
+        var v2 = ``;
         e1.content.forEach(e2 => {
-            var v3 = '';
+            var v3 = ``;
             e2.categories.forEach(e3 => {
-                var v4 = '<span class="special-character add-element"><div class="bold" onclick="CreateNewContentMenu(this);">&plus;</div><div onclick="DeleteCategory(this);">&#57569;</div></span>';
+                var v4 = `<span class="special-character add-element"><div class="bold" onclick="CreateNewContentMenu(this);">&plus;</div><div onclick="DeleteCategory(this);">&#57569;</div></span>`;
                 if (e3.links) {
                     e3.links.forEach(e4 => {
                         // console.log(e4);
-                        var theme4 = (e4.theme) ? ' ' + e4.theme : '';
-                        var css4 = (e4.customcss) ? 'style="' + e4.customcss + '"' : '';
-                        var target4 = (e4.target) ? 'target="_blank"' : '';
-                        var icon4 = (ValidURL(e4.icon)) ? './content/img/logo/' + e4.icon : e4.icon;
+                        var theme4 = (e4.theme) ? e4.theme : ``;
+                        var css4 = (e4.customcss) ? `style="${e4.customcss}"` : ``;
+                        var target4 = (e4.target) ? `target="blank"` : ``;
+                        var icon4 = (ValidURL(e4.icon)) ? `./content/img/logo/${e4.icon}` : e4.icon;
                         /* TODO : Url display href if content url */
-                        v4 += '<a href="' + e4.url + '" class="item' + theme4 + '" id="it-' + e4.uuid + '" data-url="' + e4.url + '" ' + css4 + ' ' + target4 + '><span class="special-character add-element"><div onclick="DeleteItem(this);">&#57569;</div></span><div class="icon"><img src="' + icon4 + '"></div><p>' + e4.text + '</p></a>'
+                        v4 += `<a href="${e4.url}" class="item ${theme4}" id="it-${e4.uuid}" data-url="${e4.url}" ${css4} ${target4}><span class="special-character add-element"><div onclick="DeleteItem(this);">&#57569;</div></span><div class="icon"><img src="${icon4}"></div><p>${e4.text}</p></a>`;
                     });
                 };
-                var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
-                v3 += '<div class="category ' + e3.name + ' ' + e3.theme + '" id="cat-' + e3.uuid + '" ' + css3 + '>' + v4 + '</div>';
+                // var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
+                var css3 = (e3.customcss) ? `style="${e3.customcss}"` : ``;
+                v3 += `<div class="category ${e3.name} ${e3.theme}" id="cat-${e3.uuid}" ${css3}>${v4}</div>`
             });
             if (e2.categories.length > 1) {
-                v3 = '<div class="group">' + v3 + "</div>";
+                v3 = `<div class="group">${v3}</div>`;
             }
             v2 += v3;
         });
-        var theme1 = (e1.theme) ? 'class="' + e1.theme + '"' : '';
-        html += '<div id="page-' + pageId + '" ' + theme1 + '>' + v2 + "</div>";
+        var theme1 = (e1.theme) ? `class="${e1.theme}"` : ``;
+        html += `<div id="page-${pageId}" ${theme1}>${v2}</div>`;
         pageId++;
     });
 
@@ -678,6 +681,7 @@ function OpenEditMenuItems(e) {
 function CloseEditMenu() {
     SetElement(false, 'edit-menu');
     if (document.getElementById('edit-image').classList.contains("active")) SetElement(false, 'edit-image');
+    SavePlayground();
 }
 
 /** Put text into the DOM element calling the function
@@ -691,7 +695,6 @@ function EditChangeText(val) {
 function EditAddTextToJson(val) { // TODO : SANITIZE INPUT
     itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
     data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].text = val;
-    SavePlayground();
 }
 
 /** Put url into the DOM element calling the function
@@ -705,7 +708,6 @@ function EditChangeUrl(val) {
 function EditAddUrlToJson(val) { // TODO : SANITIZE INPUT
     itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
     data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].url = val;
-    SavePlayground();
 }
 
 /** Put checkbox value into a JSON object
@@ -715,7 +717,6 @@ function EditAddTargetToJson(val) {
     (val) ? document.getElementById(currentItemId).target = "_blank" : document.getElementById(currentItemId).target = "";
     itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
     data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].target = val;
-    SavePlayground();
 }
 //#endregion Edit Items
 
@@ -852,20 +853,13 @@ function OpenChooseImageMenu() {
         console.log(id);
         generating.innerHTML += '<div id="o-' + id + '" class="item" data-image="' + icon.playground.original[i] + '" onclick="ChooseImage(this);"><div class="icon"><img src="./content/img/logo/' + icon.playground.original[i] + '" alt="' + i + ' icon"></div><p>' + i + '</p></div>';
         edit.lastChild.after(document.getElementById('o-'+id));
-        console.log(i);
-        console.log(icon.playground.original[i]);
-        
     }
 }
 
 function ChooseImage(e) {
-    console.log(e.dataset.image);
-    console.log(currentGroupId)
-    console.log(currentItemId);
-    var icon = (ValidURL(e.dataset.image)) ? './content/img/logo/' + e.dataset.image : e.dataset.image;
-    console.log(document.getElementById(currentItemId).getElementsByTagName('img')[0]);
-    // if dataset.image == null
-    document.getElementById(currentItemId).getElementsByTagName('img')[0].src = icon;
+    document.getElementById(currentItemId).getElementsByTagName('img')[0].src = (ValidURL(e.dataset.image)) ? './content/img/logo/' + e.dataset.image : e.dataset.image;
+    itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
+    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].icon = e.dataset.image;
 }
 
 

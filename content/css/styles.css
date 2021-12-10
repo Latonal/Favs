@@ -261,6 +261,12 @@ input[type=checkbox]:disabled {
 #edit-menu.active {
     right:0;
 }
+#edit-element p.save-infos {
+    word-wrap: break-word;
+    max-width: fit-content;
+    font-size:14px;
+    text-align: center;
+}
 #edit-menu fieldset {
     border-width:2px 0 0;
     border-color:#fff;
