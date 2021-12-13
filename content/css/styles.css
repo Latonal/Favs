@@ -307,16 +307,30 @@ input[type=checkbox]:disabled {
     align-items: center;
     text-align: center;
 }
-#edit-menu #edit-element #edit-element-image img {
-    cursor:pointer;
+#edit-menu #edit-element #edit-element-image .icon {
     height:50px;
     width:50px;
     border: 1px solid #2e2e2e;
     border-radius:5px;
-    padding:10px;
+    margin: 10px;
+    cursor:pointer;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
+#edit-menu #edit-element #edit-element-image .icon img {
+    cursor:pointer;
+    height:fit-content;
+    width:40px;
 }
 #edit-menu #edit-element #edit-element-image p {
     word-wrap: break-word;
+}
+
+#edit-menu.type-cat #edit-element:nth-child(2n){
+    /* display:none;
+    pointer-events: none; */
+    color:red;
 }
 
 /************************* Edit Image *************************/
@@ -324,6 +338,7 @@ input[type=checkbox]:disabled {
     width:300px;
     height:300px;
     background-color:gray;
+    left:217px;
     border-radius:var(--border-radius);
 }
 #edit-image.active {

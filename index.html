@@ -56,8 +56,10 @@
                 </fieldset>
                 <fieldset>
                     <legend>Edit image</legend>
-                    <div id="edit-element-image"> 
-                        <img src="./content/img/logo/x.svg" onclick="OpenChooseImageMenu();">
+                    <div id="edit-element-image">
+                        <div class="icon">
+                            <img src="./content/img/logo/x.svg" alt="default icon - no image" onclick="OpenChooseImageMenu();">
+                        </div>
                         <p>No image selected</p>
                     </div>
                 </fieldset>
@@ -73,7 +75,7 @@
             <div class="separator"></div>
             <div class="content">
                 <div class="item" data-image="null" onclick="ChooseImage(this);">
-                    <div id="o-null" class="icon"><img src="./content/img/logo/x.svg" alt="x icon"></div>
+                    <div id="o-null" class="icon"><img src="./content/img/logo/x.svg" alt="default icon - no image"></div>
                     <p>No image</p>
                 </div>
             </div>

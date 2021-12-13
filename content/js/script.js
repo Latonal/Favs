@@ -39,7 +39,10 @@ function SetEveryLinks(bool) {
     });
 }
 
-
+const escapeHtml = (unsafe) => {
+    // https://stackoverflow.com/a/6234804
+    return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+}
 
 /** Set {animation} to play on {idElem} during {setTime}
  * @param {HTMLElement} idElem id of the element
@@ -102,8 +105,6 @@ function PlaygroundParser(page = 0) {
     var html = '';
     var pageId = 0;
     var pg = document.getElementById('playground');
-    // const sanitizer = new Sanitizer();
-    // console.log(sanitizer.sanitize("<div class='test'>test</div>"))
     if (data.toolbarposition[0] != -1 && data.toolbarposition[0] != -1) {
         tb = document.getElementById("toolbar");
         tb.style["right"] = data.toolbarposition[0] + "%";
@@ -125,7 +126,7 @@ function PlaygroundParser(page = 0) {
                         var target4 = (e4.target) ? `target="blank"` : ``;
                         var icon4 = (ValidURL(e4.icon)) ? `./content/img/logo/${e4.icon}` : e4.icon;
                         /* TODO : Url display href if content url */
-                        v4 += `<a href="${e4.url}" class="item ${theme4}" id="it-${e4.uuid}" data-url="${e4.url}" ${css4} ${target4}><span class="special-character add-element"><div onclick="DeleteItem(this);">&#57569;</div></span><div class="icon"><img src="${icon4}"></div><p>${e4.text}</p></a>`;
+                        v4 += `<a href="${e4.url}" class="item ${theme4}" id="it-${e4.uuid}" data-url="${e4.url}" ${css4} ${target4}><span class="special-character add-element"><div onclick="DeleteItem(this);">&#57569;</div></span><div class="icon"><img src="${icon4}" alt="${e4.icon}"></div><p>${e4.text}</p></a>`;
                     });
                 };
                 // var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
@@ -257,6 +258,7 @@ function DraggableCategories(val) {
         cat.setAttribute('draggable', val);
         cat.classList.toggle("is-draggable");
         if (val) {
+            cat.addEventListener('click', OpenEditMenuCategories);
             cat.addEventListener('dragstart', DragStartCategories);
             cat.addEventListener('dragenter', DragEnterCategories);
             cat.addEventListener('dragover', DragOverCategories);
@@ -264,6 +266,7 @@ function DraggableCategories(val) {
             cat.addEventListener('drop', DropCategories);
         }
         else {
+            cat.removeEventListener('click', OpenEditMenuCategories);
             cat.removeEventListener('dragstart', DragStartCategories);
             cat.removeEventListener('dragenter', DragEnterCategories);
             cat.removeEventListener('dragover', DragOverCategories);
@@ -501,6 +504,13 @@ function SetDragClasses(e, c) {
     if (c == null) e.currentTarget.classList.remove('is-dragged');
 }
 // TODO : is-dragged is set on the hovered component, not the dragged one
+
+function OpenEditMenuCategories(e) {
+    if (e.currentTarget !== e.target) return;
+    console.log("edit menu categories");
+    SetElement(true, 'edit-menu');
+    document.getElementById("edit-menu").classList.add("type-cat");
+}
 //#endregion Drag Categories
 
 
@@ -673,14 +683,14 @@ function OpenEditMenuItems(e) {
     document.getElementById("edit-element-text").value = document.getElementById(currentItemId).getElementsByTagName("p")[0].innerText;
     document.getElementById("edit-element-url").value = document.getElementById(currentItemId).dataset.url;
     document.getElementById("edit-element-target").checked = (document.getElementById(currentItemId).attributes.target) ? true : false;
-
-
-    /* SANITIZE !!! Replace special characters */
+    document.getElementById("edit-element-image").getElementsByTagName("img")[0].src = document.getElementById(currentItemId).getElementsByTagName("img")[0].src;
+    document.getElementById("edit-element-image").getElementsByTagName("img")[0].alt = document.getElementById(currentItemId).getElementsByTagName("img")[0].alt;
 }
 
 function CloseEditMenu() {
     SetElement(false, 'edit-menu');
     if (document.getElementById('edit-image').classList.contains("active")) SetElement(false, 'edit-image');
+    document.getElementById("edit-menu").classList.remove("type-cat");
     SavePlayground();
 }
 
@@ -692,9 +702,9 @@ function EditChangeText(val) {
 
 /** Put text into a JSON Object
  * @param {String} val text to put */
-function EditAddTextToJson(val) { // TODO : SANITIZE INPUT
+function EditAddTextToJson(val) {
     itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
-    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].text = val;
+    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].text = escapeHtml(val);
 }
 
 /** Put url into the DOM element calling the function
@@ -705,9 +715,9 @@ function EditChangeUrl(val) {
 
 /** Put url into a JSON object
  * @param {String} val url to put */
-function EditAddUrlToJson(val) { // TODO : SANITIZE INPUT
+function EditAddUrlToJson(val) {
     itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
-    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].url = val;
+    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].url = escapeHtml(val);
 }
 
 /** Put checkbox value into a JSON object
@@ -716,7 +726,7 @@ function EditAddTargetToJson(val) {
     console.log("target: " + val);
     (val) ? document.getElementById(currentItemId).target = "_blank" : document.getElementById(currentItemId).target = "";
     itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
-    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].target = val;
+    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].target = escapeHtml(val);
 }
 //#endregion Edit Items
 
@@ -857,9 +867,14 @@ function OpenChooseImageMenu() {
 }
 
 function ChooseImage(e) {
+    if (e.dataset.image == "null") e.dataset.image = "";
     document.getElementById(currentItemId).getElementsByTagName('img')[0].src = (ValidURL(e.dataset.image)) ? './content/img/logo/' + e.dataset.image : e.dataset.image;
     itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
     data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].icon = e.dataset.image;
+    document.getElementById("edit-element-image").getElementsByTagName("img")[0].src = (ValidURL(e.dataset.image)) ? './content/img/logo/' + e.dataset.image : e.dataset.image;
+    document.getElementById("edit-element-image").getElementsByTagName("img")[0].alt = e.dataset.image;
+    document.getElementById(currentItemId).getElementsByTagName('img')[0].alt = e.dataset.image;
+    document.getElementById("edit-element-image").getElementsByTagName("p")[0].innerText = (!!e.dataset.image) ? e.dataset.image : "No image";
 }
 
 
