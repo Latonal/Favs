@@ -507,9 +507,14 @@ function SetDragClasses(e, c) {
 
 function OpenEditMenuCategories(e) {
     if (e.currentTarget !== e.target) return;
-    console.log("edit menu categories");
+    currentGroupId = e.currentTarget.id;
     SetElement(true, 'edit-menu');
     document.getElementById("edit-menu").classList.add("type-cat");
+    document.getElementById("edit-element-css").getElementsByTagName("textarea")[0].value = document.getElementById(currentGroupId).style.cssText;
+}
+function EditCSS(e) {
+    id = (!!currentItemId) ? currentItemId : currentGroupId;
+    document.getElementById(id).style.cssText = document.getElementById("edit-element-css").getElementsByTagName("textarea")[0].value;
 }
 //#endregion Drag Categories
 
@@ -677,6 +682,7 @@ function InstantiateItemEvents(it) {
 /** Open edit menu and set inner element to correspond to element clicked on */
 function OpenEditMenuItems(e) {
     if (e.target.parentNode.classList.contains("add-element")) return;
+    document.getElementById("edit-menu").classList.remove("type-cat");
     SetElement(true, 'edit-menu');
     currentItemId = this.id;
     currentGroupId = this.parentNode.id;
@@ -685,12 +691,25 @@ function OpenEditMenuItems(e) {
     document.getElementById("edit-element-target").checked = (document.getElementById(currentItemId).attributes.target) ? true : false;
     document.getElementById("edit-element-image").getElementsByTagName("img")[0].src = document.getElementById(currentItemId).getElementsByTagName("img")[0].src;
     document.getElementById("edit-element-image").getElementsByTagName("img")[0].alt = document.getElementById(currentItemId).getElementsByTagName("img")[0].alt;
+    document.getElementById("edit-element-css").getElementsByTagName("textarea")[0].value = document.getElementById(currentItemId).style.cssText;
 }
 
 function CloseEditMenu() {
     SetElement(false, 'edit-menu');
     if (document.getElementById('edit-image').classList.contains("active")) SetElement(false, 'edit-image');
-    document.getElementById("edit-menu").classList.remove("type-cat");
+    
+    elementJSONPos = (!!currentItemId) ? GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4))) : GetGroupPerId(currentGroupId.substring(4));
+    id = (!!currentItemId) ? currentItemId : currentGroupId;
+
+    if (!!currentItemId) {
+        data.playground[elementJSONPos[0]].content[elementJSONPos[1]].categories[elementJSONPos[2]].links[elementJSONPos[3]].customcss =escapeHtml(document.getElementById(id).style.cssText);
+    }
+    else {
+        data.playground[elementJSONPos[0]].content[elementJSONPos[1]].categories[elementJSONPos[2]].customcss = escapeHtml(document.getElementById(id).style.cssText);
+    }
+
+    currentItemId = "";
+    currentGroupId = "";
     SavePlayground();
 }
 
