@@ -326,11 +326,15 @@ input[type=checkbox]:disabled {
 #edit-menu #edit-element #edit-element-image p {
     word-wrap: break-word;
 }
+#edit-menu #edit-element #edit-element-css textarea {
+    resize:vertical;
+}
 
-#edit-menu.type-cat #edit-element:nth-child(2n){
-    /* display:none;
-    pointer-events: none; */
-    color:red;
+#edit-menu.type-cat #edit-element fieldset:nth-child(2),
+#edit-menu.type-cat #edit-element fieldset:nth-child(3),
+#edit-menu.type-cat #edit-element fieldset:nth-child(4){
+    display:none;
+    pointer-events: none;
 }
 
 /************************* Edit Image *************************/
