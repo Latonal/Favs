@@ -197,59 +197,51 @@ input[type=checkbox]:disabled {
     max-height:24px;
 }
 
-/************************* Create menu *************************/
+/************************* Generate menu *************************/
 #generating {
     display:none;
 }
-#create-menu {
-    width:100vw;
-    height:100vh;
+#create-category {
+    border:5px solid #a6caffff;
+    color:#a6caffff;
+    border-radius:5px;
+    min-height:120px;
+    min-width:10px;
+    transition: var(--transition-time);
+    cursor:pointer;
+    display:none;
+    justify-content: center;
+    align-items: center;
+    font-size:26px;
 }
-#create-menu, #edit-menu, #edit-image {
+#create-category.active {
+    display:flex;
+    border:5px solid #a6caff;
+    color:#a6caff;
+}
+#create-category:hover {
+    border:5px solid #fff5b9;
+    color:#fff5b9;
+}
+
+/************************* Edit menu *************************/
+#edit-menu, #edit-image {
     display:none;
     position:absolute;
     z-index:3;
 }
-#create-menu .depop-menu, #edit-menu .depop-menu {
+#edit-menu .depop-menu {
     position:fixed;
     top:0;
     width:100%;
     height:100%;
     z-index:2;
 }
-#create-menu.active {
-    right:0;
-}
-#create-menu.active, #edit-menu.active {
+#edit-menu.active {
     display:block;
     top:0;
     left:0;
 }
-#create-menu #create-content {
-    position:absolute;
-    background-color:darkcyan;
-    z-index:3;
-    display:flex;
-    border-radius:10px;
-    border:1px solid #000;
-}
-#create-menu #create-content > div {
-    width:100px;
-    height:100px;
-    padding:5px;
-    display:flex;
-    justify-content: center;
-    align-items: center;
-    text-align:center;
-}
-#create-menu #create-content > div:hover {
-    background-color: aquamarine;
-    cursor:pointer;
-    border-right:none;
-    border-radius:10px;
-}
-
-/************************* Edit menu *************************/
 #edit-menu #edit-element {
     height:100vh;
     position:fixed;
@@ -442,8 +434,8 @@ input[type=checkbox]:disabled {
     border:var(--hidden-border-color);
     border-radius:var(--border-radius);
     transition:var(--transition-time);
-    min-width:10px;
-    min-height:10px;
+    min-width:60px;
+    min-height:40px;
     position:relative;
 }
 .category.is-draggable {
