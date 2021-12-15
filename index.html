@@ -21,23 +21,10 @@
 
         <!-- Toolbar -->
         <div id="toolbar" class="special-character fade-in">
-            <!-- <div onmousedown="StartDragToolbar(this.parentNode.id);" onmouseup="EndDragToolbar(this.parentNode.id);">&#57539;</div> -->
             <div id="move-toolbar">&#57539;</div>
             <div onclick="SetEdit();">&#57604;</div>
         </div>
 
-        <!-- Create menu -->
-        <div id="create-menu">
-            <div class="depop-menu" onclick="SetElement(false, 'create-menu');"></div>
-            <div id="create-content">
-                <div id="create-item" onclick="CreateNewItem();">
-                    Create a new item mayB
-                </div>
-                <div>
-                    Create something else
-                </div>
-            </div>
-        </div>
         <!-- Edit menu -->
         <div id="edit-menu">
             <div class="depop-menu" onclick="CloseEditMenu();"></div>
@@ -66,7 +53,7 @@
                 <fieldset>
                     <legend>Edit CSS</legend>
                     <div id="edit-element-css">
-                        <textarea rows="4" cols="30" placeholder="Your css changes here" onchange="EditCSS(this.value);"></textarea>
+                        <textarea rows="4" cols="20" placeholder="Your css changes here" onchange="EditCSS(this.value);"></textarea>
                     </div>
                 </fieldset>
             </div>
@@ -90,6 +77,7 @@
         <!-- <main> ?-->
         <!-- <nav> pages - utiliser flex pour changer la position -->
         <section id="playground"></section>
+        <section id="create-category" class="special-character" onclick="CreateCategory();">&#57541;</section>
         <section id="generating"></section>
         <!-- <footer></footer> -->
 

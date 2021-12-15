@@ -117,7 +117,7 @@ function PlaygroundParser(page = 0) {
         e1.content.forEach(e2 => {
             var v3 = ``;
             e2.categories.forEach(e3 => {
-                var v4 = `<span class="special-character add-element"><div class="bold" onclick="CreateNewContentMenu(this);">&plus;</div><div onclick="DeleteCategory(this);">&#57569;</div></span>`;
+                var v4 = `<span class="special-character add-element"><div class="bold" onclick="CreateNewItem(this);">&plus;</div><div onclick="DeleteCategory(this);">&#57569;</div></span>`;
                 if (e3.links) {
                     e3.links.forEach(e4 => {
                         // console.log(e4);
@@ -129,9 +129,8 @@ function PlaygroundParser(page = 0) {
                         v4 += `<a href="${e4.url}" class="item ${theme4}" id="it-${e4.uuid}" data-url="${e4.url}" ${css4} ${target4}><span class="special-character add-element"><div onclick="DeleteItem(this);">&#57569;</div></span><div class="icon"><img src="${icon4}" alt="${e4.icon}"></div><p>${e4.text}</p></a>`;
                     });
                 };
-                // var css3 = (e3.customcss) ? 'style="' + e3.customcss + '"' : '';
                 var css3 = (e3.customcss) ? `style="${e3.customcss}"` : ``;
-                v3 += `<div class="category ${e3.name} ${e3.theme}" id="cat-${e3.uuid}" ${css3}>${v4}</div>`
+                v3 += `<div class="category ${e3.name} ${e3.theme}" id="cat-${e3.uuid}" ${css3}>${v4}</div>`;
             });
             if (e2.categories.length > 1) {
                 v3 = `<div class="group">${v3}</div>`;
@@ -248,6 +247,8 @@ function SetEdit() {
     isDraggable = !isDraggable;
     DraggableCategories(isDraggable);
     DraggableItems(isDraggable);
+    document.getElementById("create-category").classList.toggle("active");
+    Fade(document.getElementById("create-category"), (isDraggable) ? "fade-in" : "fade-out");
 }
 
 /** Set every Categories to be draggable
@@ -258,12 +259,7 @@ function DraggableCategories(val) {
         cat.setAttribute('draggable', val);
         cat.classList.toggle("is-draggable");
         if (val) {
-            cat.addEventListener('click', OpenEditMenuCategories);
-            cat.addEventListener('dragstart', DragStartCategories);
-            cat.addEventListener('dragenter', DragEnterCategories);
-            cat.addEventListener('dragover', DragOverCategories);
-            cat.addEventListener('dragleave', DragLeaveCategories);
-            cat.addEventListener('drop', DropCategories);
+            InstantiateCategoryEvents(cat);
         }
         else {
             cat.removeEventListener('click', OpenEditMenuCategories);
@@ -274,6 +270,15 @@ function DraggableCategories(val) {
             cat.removeEventListener('drop', DropCategories);
         }
     });
+}
+
+function InstantiateCategoryEvents(cat) {
+    cat.addEventListener('click', OpenEditMenuCategories);
+    cat.addEventListener('dragstart', DragStartCategories);
+    cat.addEventListener('dragenter', DragEnterCategories);
+    cat.addEventListener('dragover', DragOverCategories);
+    cat.addEventListener('dragleave', DragLeaveCategories);
+    cat.addEventListener('drop', DropCategories);
 }
 
 /** Set dragged element id to be saved in dataTransfer for later use
@@ -512,6 +517,7 @@ function OpenEditMenuCategories(e) {
     document.getElementById("edit-menu").classList.add("type-cat");
     document.getElementById("edit-element-css").getElementsByTagName("textarea")[0].value = document.getElementById(currentGroupId).style.cssText;
 }
+
 function EditCSS(e) {
     id = (!!currentItemId) ? currentItemId : currentGroupId;
     document.getElementById(id).style.cssText = document.getElementById("edit-element-css").getElementsByTagName("textarea")[0].value;
@@ -526,13 +532,7 @@ function DraggableItems(val) {
         // console.log(it);
         it.setAttribute('draggable', val);
         if (val) {
-            it.removeAttribute("href");
-            it.addEventListener('click', OpenEditMenuItems);
-            it.addEventListener('dragstart', DragStartItems);
-            it.addEventListener('dragenter', DragEnterItems);
-            it.addEventListener('dragover', DragOverItems);
-            it.addEventListener('dragleave', DragLeaveItems);
-            it.addEventListener('drop', DropItems);
+            InstantiateItemEvents(it);
         }
         else {
             it.setAttribute("href", it.dataset.url)
@@ -544,6 +544,18 @@ function DraggableItems(val) {
             it.removeEventListener('drop', DropItems);
         }        
     });
+}
+
+/** Put event on element to answer to click and drag
+ * @param {HTMLElement} it element to put event on */
+ function InstantiateItemEvents(it) {
+    it.removeAttribute("href");
+    it.addEventListener('click', OpenEditMenuItems);
+    it.addEventListener('dragstart', DragStartItems);
+    it.addEventListener('dragenter', DragEnterItems);
+    it.addEventListener('dragover', DragOverItems);
+    it.addEventListener('dragleave', DragLeaveItems);
+    it.addEventListener('drop', DropItems);
 }
 
 function DragStartItems(e) {
@@ -668,17 +680,6 @@ function DeleteItem(e) {
 //#endregion Delete Item and Categories
 
 //#region Edit Items
-/** Put event on element to answer to click and drag
- * @param {HTMLElement} it element to put event on */
-function InstantiateItemEvents(it) {
-    it.addEventListener('click', OpenEditMenuItems);
-    it.addEventListener('dragstart', DragStartItems);
-    it.addEventListener('dragenter', DragEnterItems);
-    it.addEventListener('dragover', DragOverItems);
-    it.addEventListener('dragleave', DragLeaveItems);
-    it.addEventListener('drop', DropItems);
-}
-
 /** Open edit menu and set inner element to correspond to element clicked on */
 function OpenEditMenuItems(e) {
     if (e.target.parentNode.classList.contains("add-element")) return;
@@ -847,27 +848,18 @@ function SetElement(bool, c) {
     Fade(document.getElementById(c), (bool) ? "fade-in" : "fade-out");
 }
 
-/** Create a menu where clicked
- * @param {HTMLElement} e element on which we click */
-function CreateNewContentMenu(e) {
-    currentGroupId = e.parentNode.parentNode.id;
-    SetElement(true, 'create-menu');
-    var mousePosition = GetPositionOfMouseAndSetPlace(200, 100, 1);
-    document.getElementById('create-content').style["right"] = mousePosition[0] + "%";
-    document.getElementById('create-content').style["top"] = mousePosition[1] + "%";
-}
-
 /** Create a new empty item, both in the DOM and JSON playground */
-function CreateNewItem() {
+function CreateNewItem(e) {
     // TODO : if parent has target enabled, set target="_blank"
+    currentGroupId = e.parentNode.parentNode.id;
     var uuid = GetRandomUUID("it-");
-    document.getElementById('generating').innerHTML += '<a class="item" id="it-' + uuid + '" data-url="#" draggable="true"><span class="special-character add-element"><div onclick="DeleteItem(this);">&#57569;</div></span><div class="icon"><img src=""></div><p>NEW!</p></a>';
+    document.getElementById('generating').innerHTML += `<a class="item" id="it-${uuid}" href="#" data-url="#" draggable="true"><span class="special-character add-element"><div onclick="DeleteItem(this);">&#57569;</div></span><div class="icon"><img src=""></div><p>NEW!</p></a>`;
     document.getElementById(currentGroupId).lastChild.after(document.getElementById("it-" + uuid));
     InstantiateItemEvents(document.getElementById("it-" + uuid));
     var parentJSONPos = GetGroupPerId(currentGroupId.substring(4));
     data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[[parentJSONPos[2]]].links.push({ text: "NEW!", url: "#", icon: "", uuid: uuid, theme: "", customcss: "", target: "" });
-    SetElement(false, 'create-menu');
     SavePlayground();
+    currentGroupId = "";
 }
 /** Show Choose Image menu */
 function OpenChooseImageMenu() {
@@ -896,6 +888,18 @@ function ChooseImage(e) {
     document.getElementById("edit-element-image").getElementsByTagName("p")[0].innerText = (!!e.dataset.image) ? e.dataset.image : "No image";
 }
 
+function CreateCategory() {
+    var uuid = GetRandomUUID("cat-");
+    document.getElementById('generating').innerHTML += `<div class="category icon-list is-draggable" id="cat-${uuid}" draggable="true"><span class="special-character add-element"><div class="bold" onclick="CreateNewItem(this);">&plus;</div><div onclick="DeleteCategory(this);">&#57569;</div></span></div>`;
+    document.getElementById("page-"+GetCurrentPage()).lastChild.after(document.getElementById("cat-"+uuid));
+    InstantiateCategoryEvents(document.getElementById("cat-"+uuid));
+    data.playground[GetCurrentPage()].content.push({categories: [{"name":"icon-list", "uuid":uuid, "theme":"", "customcss":"", "target":true,"links":[]}]});
+    SavePlayground();
+}
+
+function ChooseCategory() {
+    // choose category type, icon-list or sub-list
+}
 
 /************************* CREATE TODO *************************/
 function ChangePage(page) {
