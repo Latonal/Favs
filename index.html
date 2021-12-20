@@ -51,6 +51,13 @@
                     </div>
                 </fieldset>
                 <fieldset>
+                    <legend>Type of category</legend>
+                    <select id="edit-element-category-type" onchange="ChangeCategoryType(this.value);">
+                        <option value="icon-list">Icon list</option>
+                        <option value="sub-list">Sub list</option>
+                    </select>
+                </fieldset>
+                <fieldset>
                     <legend>Edit CSS</legend>
                     <div id="edit-element-css">
                         <textarea rows="4" cols="20" placeholder="Your css changes here" onchange="EditCSS(this.value);"></textarea>

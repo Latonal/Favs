@@ -392,16 +392,13 @@ function SetCategoryPositionAndGroup(target, toMove, val) {
     // // if parent has less or equal to 1 child (2 at this moment)
     // // // want to delete group later
     var draggableHadParent = toMove.parentNode.classList.contains("group");
-    // console.log((draggableHadParent) ? "toMove had group parent : " + toMove.parentNode.childNodes.length : "toMove does not have group parent");
     var groupToRemove = null;
     if (draggableHadParent && toMove.parentNode.childNodes.length <= 2) {
-        // console.log("DESTROY");
         groupToRemove = toMove.parentNode;
     }
     // if TARGET does not have group
     // // create group
     var targetHasParent = target.parentNode.classList.contains("group");
-    // console.log((targetHasParent) ? "Target has group parent : " + target.parentNode.childNodes.length : "Target does not have group parent");
     // if target does not have group parent
     if (!targetHasParent && (val == 2 || val == 4)) {
         var group = document.createElement('div');
@@ -515,7 +512,10 @@ function OpenEditMenuCategories(e) {
     currentGroupId = e.currentTarget.id;
     SetElement(true, 'edit-menu');
     document.getElementById("edit-menu").classList.add("type-cat");
+    document.getElementById("edit-menu").classList.remove("type-it");
     document.getElementById("edit-element-css").getElementsByTagName("textarea")[0].value = document.getElementById(currentGroupId).style.cssText;
+    if (document.getElementById(currentGroupId).classList.contains("icon-list")) document.getElementById("edit-element-category-type").value = "icon-list";
+    else if (document.getElementById(currentGroupId).classList.contains("sub-list")) document.getElementById("edit-element-category-type").value = "sub-list";
 }
 
 function EditCSS(e) {
@@ -648,6 +648,14 @@ function DropItems(e) {
 }
 //#endregion Drag Items
 
+function ChangeCategoryType(val) {
+    console.log(val);
+    document.getElementById(currentGroupId).classList.remove("icon-list");
+    document.getElementById(currentGroupId).classList.remove("sub-list");
+    document.getElementById(currentGroupId).classList.add(val);
+    var parentJSONPos = GetGroupPerId(currentGroupId.substring(4));
+    data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[parentJSONPos[2]].name = val;
+}
 
 //#region Delete Item and Categories
 function DeleteCategory(e) {
@@ -683,6 +691,7 @@ function DeleteItem(e) {
 /** Open edit menu and set inner element to correspond to element clicked on */
 function OpenEditMenuItems(e) {
     if (e.target.parentNode.classList.contains("add-element")) return;
+    document.getElementById("edit-menu").classList.add("type-it");
     document.getElementById("edit-menu").classList.remove("type-cat");
     SetElement(true, 'edit-menu');
     currentItemId = this.id;
@@ -705,7 +714,7 @@ function CloseEditMenu() {
     if (!!currentItemId) {
         data.playground[elementJSONPos[0]].content[elementJSONPos[1]].categories[elementJSONPos[2]].links[elementJSONPos[3]].customcss =escapeHtml(document.getElementById(id).style.cssText);
     }
-    else {
+    else if (!!currentGroupId) {
         data.playground[elementJSONPos[0]].content[elementJSONPos[1]].categories[elementJSONPos[2]].customcss = escapeHtml(document.getElementById(id).style.cssText);
     }
 

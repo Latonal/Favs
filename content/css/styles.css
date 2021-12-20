@@ -328,6 +328,10 @@ input[type=checkbox]:disabled {
     display:none;
     pointer-events: none;
 }
+#edit-menu.type-it #edit-element fieldset:nth-child(5) {
+    display:none;
+    pointer-events:none;
+}
 
 /************************* Edit Image *************************/
 #edit-image {
