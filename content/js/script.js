@@ -593,9 +593,8 @@ function DragOverItems(e) {
     }
     // e.currentTarget.parentNode.classList.add('drag-over');
     // e.currentTarget.parentNode.classList.add('drag-item');
-
-
 }
+var madeByLatonal = true;
 
 function DragLeaveItems(e) {
     // e.currentTarget.parentNode.classList.remove('drag-over');
@@ -887,7 +886,7 @@ function OpenChooseImageMenu() {
 }
 
 function ChooseImage(e) {
-    if (e.dataset.image == "null") e.dataset.image = "";
+    // if (e.dataset.image == "null") e.dataset.image = "";
     document.getElementById(currentItemId).getElementsByTagName('img')[0].src = (ValidURL(e.dataset.image)) ? './content/img/logo/' + e.dataset.image : e.dataset.image;
     itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
     data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].icon = e.dataset.image;

@@ -9,12 +9,12 @@
     <link rel="stylesheet" type="text/css" href="content/css/themes.css">
 </head>
 
-<body> <!-- style -->
+<body>
     <div id="template">
-        <div class="debug" onclick="SavePlaygroundData();">SavePlayground</div>
+        <!-- <div class="debug" onclick="SavePlaygroundData();">SavePlayground</div>
         <div class="debug" onclick="DeleteDB();">DeleteDB</div>
         <div class="debug" onclick="console.log(data);">ShowData</div>
-        <div class="debug" onclick="console.log(navigator.storage.estimate());">GetStorage <span class="special-character">&#57621;</span> &#xE115;</div>
+        <div class="debug" onclick="console.log(navigator.storage.estimate());">GetStorage <span class="special-character">&#57621;</span> &#xE115;</div> -->
 
         <!-- Popup -->
         <div id="popup"></div>
@@ -69,12 +69,12 @@
         <div id="edit-image">
             <div class="head">
                 <span class="special-character"  onclick="SetElement(false, 'edit-image');">&#57513;</span>
-                <input type="text" placeholder="Search...">
-                <span class="special-character">&#57624;</span>
+                <input type="text" placeholder="Search..." class="todo">
+                <span class="special-character todo">&#57624;</span>
             </div>
             <div class="separator"></div>
             <div class="content">
-                <div class="item" data-image="null" onclick="ChooseImage(this);">
+                <div class="item" data-image="" onclick="ChooseImage(this);">
                     <div id="o-null" class="icon"><img src="./content/img/logo/x.svg" alt="default icon - no image"></div>
                     <p>No image</p>
                 </div>
