@@ -89,6 +89,9 @@ html {
 .hide {
     display:none;
 }
+.todo {
+    display:none;
+}
 .link-disabled a, a.link-disabled {
     pointer-events: none;
 }
@@ -549,10 +552,21 @@ input[type=checkbox]:disabled {
     margin:var(--margin-icon-list-icon);
     display:flex;
 }
+/* .category.icon-list a img:before {
+    width:var(--max-width-icon-list-img);
+    height:var(--max-height-icon-list-img);
+    margin:var(--margin-icon-list-icon);
+    display:flex;
+} */
 .category.icon-list a img {
     max-width:var(--max-width-icon-list-img);
     max-height:var(--max-height-icon-list-img);
     margin:auto;
+}
+.category.icon-list a img[src=""] {
+    width:0px;
+    height:0px;
+    display:none;
 }
 .category.icon-list p {
     color:var(--text-color-icon-list);
@@ -574,9 +588,19 @@ input[type=checkbox]:disabled {
     height:var(--max-height-sub-list-img);
     margin:var(--margin-sub-list-icon);
 }
+/* .category.sub-list a img:before {
+    width:var(--max-width-sub-list-img);
+    height:var(--max-height-sub-list-img);
+    margin:var(--margin-sub-list-icon);
+} */
 .category.sub-list a img {
     max-width:var(--max-width-sub-list-img);
     max-height:var(--max-height-sub-list-img);
+}
+.category.sub-list a img[src=""] {
+    width:0px;
+    height:0px;
+    display:none;
 }
 .category.sub-list p {
     color:var(--text-color-sub-list);
