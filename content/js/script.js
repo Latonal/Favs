@@ -123,7 +123,7 @@ function PlaygroundParser(page = 0) {
                         // console.log(e4);
                         var theme4 = (e4.theme) ? e4.theme : ``;
                         var css4 = (e4.customcss) ? `style="${e4.customcss}"` : ``;
-                        var target4 = (e4.target) ? `target="blank"` : ``;
+                        var target4 = (e4.target) ? `target="_blank"` : ``;
                         var icon4 = (ValidURL(e4.icon)) ? `./content/img/logo/${e4.icon}` : e4.icon;
                         /* TODO : Url display href if content url */
                         v4 += `<a href="${e4.url}" class="item ${theme4}" id="it-${e4.uuid}" data-url="${e4.url}" ${css4} ${target4}><span class="special-character add-element"><div onclick="DeleteItem(this);">&#57569;</div></span><div class="icon"><img src="${icon4}" alt="${e4.icon}"></div><p>${e4.text}</p></a>`;
@@ -161,7 +161,7 @@ function ModifyGroupPositionJSON(target, toMove, val) {
             var cat = { "categories": [data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]] };
             toMoveJSONPos[1] = (targetJSONPos[1] <= toMoveJSONPos[1]) ? toMoveJSONPos[1] + 1 : toMoveJSONPos[1];
             data.playground[targetJSONPos[0]].content.splice(targetJSONPos[1], 0, cat);
-            console.log(data);
+            // console.log(data);
             break;
         case 2: // right
             data.playground[targetJSONPos[0]].content[targetJSONPos[1]].categories.splice(targetJSONPos[2] + 1, 0, data.playground[toMoveJSONPos[0]].content[toMoveJSONPos[1]].categories[toMoveJSONPos[2]]);
@@ -365,7 +365,7 @@ function DropCategories(e) {
         case 2:
             e.currentTarget.classList.remove('drag-item');
 
-            console.log(GetPositionInElement(e));
+            // console.log(GetPositionInElement(e));
             
             id = e.dataTransfer.getData('text/plain');
             draggable = document.getElementById(id);
@@ -648,7 +648,7 @@ function DropItems(e) {
 //#endregion Drag Items
 
 function ChangeCategoryType(val) {
-    console.log(val);
+    // console.log(val);
     document.getElementById(currentGroupId).classList.remove("icon-list");
     document.getElementById(currentGroupId).classList.remove("sub-list");
     document.getElementById(currentGroupId).classList.add(val);
@@ -751,10 +751,9 @@ function EditAddUrlToJson(val) {
 /** Put checkbox value into a JSON object
  * @param {*} val value to put */
 function EditAddTargetToJson(val) {
-    console.log("target: " + val);
     (val) ? document.getElementById(currentItemId).target = "_blank" : document.getElementById(currentItemId).target = "";
     itemJSONPos = GetItemPerId(currentItemId.substring(3), GetGroupPerId(currentGroupId.substring(4)));
-    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].target = escapeHtml(val);
+    data.playground[itemJSONPos[0]].content[itemJSONPos[1]].categories[itemJSONPos[2]].links[itemJSONPos[3]].target = val;
 }
 //#endregion Edit Items
 
@@ -865,7 +864,7 @@ function CreateNewItem(e) {
     document.getElementById(currentGroupId).lastChild.after(document.getElementById("it-" + uuid));
     InstantiateItemEvents(document.getElementById("it-" + uuid));
     var parentJSONPos = GetGroupPerId(currentGroupId.substring(4));
-    data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[[parentJSONPos[2]]].links.push({ text: "NEW!", url: "#", icon: "", uuid: uuid, theme: "", customcss: "", target: "" });
+    data.playground[parentJSONPos[0]].content[parentJSONPos[1]].categories[[parentJSONPos[2]]].links.push({ text: "NEW!", url: "#", icon: "", uuid: uuid, theme: "", customcss: "", target: false });
     SavePlayground();
     currentGroupId = "";
 }
@@ -879,7 +878,7 @@ function OpenChooseImageMenu() {
     let edit = document.getElementById('edit-image').getElementsByClassName('content')[0];
     for(i in icon.playground.original) {
         let id = i.replace(' ', '-');
-        console.log(id);
+        // console.log(id);
         generating.innerHTML += '<div id="o-' + id + '" class="item" data-image="' + icon.playground.original[i] + '" onclick="ChooseImage(this);"><div class="icon"><img src="./content/img/logo/' + icon.playground.original[i] + '" alt="' + i + ' icon"></div><p>' + i + '</p></div>';
         edit.lastChild.after(document.getElementById('o-'+id));
     }

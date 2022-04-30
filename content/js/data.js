@@ -8,7 +8,7 @@ function DeleteDB() {
     let deleteReq = indexedDB.deleteDatabase(DB_NAME);
     deleteReq.onsuccess = function () { console.log("Successfully deleted db"); }
     deleteReq.onerror = function () { console.log("Couldn't delete db"); }
-    console.log("Deleted DB");
+    // console.log("Deleted DB");
 }
 
 let openRequest = indexedDB.open(DB_NAME, DB_VERSION);
@@ -31,7 +31,7 @@ function InstantiateDB() {
     
     openRequest.onsuccess = function () {
         db = openRequest.result;
-        console.log("Opened db", db);
+        // console.log("Opened db", db);
     
         let transaction = db.transaction("data", "readonly");
         let store = transaction.objectStore("data");
@@ -42,7 +42,7 @@ function InstantiateDB() {
                 // let key = cursor.key;
                 let value = cursor.value;
                 data = value.data;
-                console.log("value", data);
+                // console.log("value", data);
                 cursor.continue;
                 PlaygroundParser(GetCurrentPage());
             }
@@ -50,7 +50,7 @@ function InstantiateDB() {
                 console.log("No cursor");
             }
         }
-        console.log("store:", store);
+        // console.log("store:", store);
     }
 }
 

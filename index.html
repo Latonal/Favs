@@ -39,7 +39,7 @@
                     <legend>Edit url</legend>
                     <div>
                         <input type="url" placeholder="Text" id="edit-element-url" oninput="EditChangeUrl(this.value);" onchange="EditAddUrlToJson(this.value);">
-                        <label onchange="EditAddTargetToJson(this.checked)">Open in new window <input type="checkbox" id="edit-element-target"></label>
+                        <label>Open in new window <input type="checkbox" id="edit-element-target" onchange="EditAddTargetToJson(this.checked)"></label>
                     </div>
                 </fieldset>
                 <fieldset>
