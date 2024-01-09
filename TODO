@@ -1,0 +1,38 @@
+# Pages
+- When moving a sticker to another page, the group/sticker should be put in a "bubble" available only on this page. Put parent as "-x" (page minus page number we tried to move them in) ? Or an information "in_bubble" and change the "position" information accordingly
+
+# Tutorial
+- Select language
+- Select default theme
+    - Display Default Theme of browser at the start
+- Create a cute mascot (based on a star)
+
+# Generate Playground
+- The function should have a page parameter so only one page is loaded depending of the settings (ie: at the start of the application to avoid too many elements loaded, or when loading another page)
+- Assign a theme through css rather than attribute ? Todo later ?
+
+# Tools / Security
+- Encrypt, decrypt function -> use a localstorage to store and get the key
+- Simulate error in the code and format them properly
+- Create a reminder every X (100) modifications and after Y (a month) times without saving (import/export)
+
+# Tips
+- Create tips through the application
+- Images
+    - "You can use images directly stored on your computer by using their link, and even .svg files by copying their content!"
+
+# More infos (?)
+
+# Resources
+- Custom tags/elements : https://matthewjamestaylor.com/custom-tags?utm_content=cmp-true
+    - Must contains an hyphen (\<my-element>)
+    - Cannot be self closed (like \<img \/>) but can be empty (like \<p>\<\/p>)
+    - Can contains custom attributes not relying on "data-" prefix, and can contains boolean attributes
+- IDB docs :
+    - https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
+    - https://www.w3docs.com/learn-javascript/javascript-indexeddb.html
+    - https://www.w3.org/TR/IndexedDB/
+    - https://javascript.info/indexeddb
+- Custom class :
+    - https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
+    - https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-conformance
