@@ -5,96 +5,32 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Favs</title>
-    <link rel="stylesheet" type="text/css" href="content/css/styles.css">
-    <link rel="stylesheet" type="text/css" href="content/css/themes.css">
-    <link rel="icon" href="content/img/icon/star.png">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link rel="stylesheet" type="text/css" href="css/playground.css">
+    <link rel="stylesheet" type="text/css" href="css/themes.css">
+    <link rel="icon" href="img/icon/star.png">
 </head>
 
 <body>
-    <div id="template">
-        <!-- <div class="debug" onclick="SavePlaygroundData();">SavePlayground</div>
-        <div class="debug" onclick="DeleteDB();">DeleteDB</div>
-        <div class="debug" onclick="console.log(data);">ShowData</div>
-        <div class="debug" onclick="console.log(navigator.storage.estimate());">GetStorage <span class="special-character">&#57621;</span> &#xE115;</div> -->
-
-        <!-- Popup -->
-        <div id="popup"></div>
-
-        <!-- Toolbar -->
-        <div id="toolbar" class="special-character fade-in">
-            <div id="move-toolbar">&#57539;</div>
-            <div onclick="SetEdit();">&#57604;</div>
-        </div>
-
-        <!-- Edit menu -->
-        <div id="edit-menu">
-            <div class="depop-menu" onclick="CloseEditMenu();"></div>
-            <div id="edit-element">
-                <p class="save-infos">Changes are saved when this menu is closed</p>
-                <fieldset>
-                    <legend>Edit text</legend>
-                    <input type="text" placeholder="Text" id="edit-element-text" oninput="EditChangeText(this.value);" onchange="EditAddTextToJson(this.value);">
-                </fieldset>
-                <fieldset>
-                    <legend>Edit url</legend>
-                    <div>
-                        <input type="url" placeholder="Text" id="edit-element-url" oninput="EditChangeUrl(this.value);" onchange="EditAddUrlToJson(this.value);">
-                        <label>Open in new window <input type="checkbox" id="edit-element-target" onchange="EditAddTargetToJson(this.checked)"></label>
-                    </div>
-                </fieldset>
-                <fieldset>
-                    <legend>Edit image</legend>
-                    <div id="edit-element-image">
-                        <div class="icon">
-                            <img src="./content/img/logo/x.svg" alt="default icon - no image" onclick="OpenChooseImageMenu();">
-                        </div>
-                        <p>No image selected</p>
-                    </div>
-                </fieldset>
-                <fieldset>
-                    <legend>Type of category</legend>
-                    <select id="edit-element-category-type" onchange="ChangeCategoryType(this.value);">
-                        <option value="icon-list">Icon list</option>
-                        <option value="sub-list">Sub list</option>
-                    </select>
-                </fieldset>
-                <fieldset>
-                    <legend>Edit CSS</legend>
-                    <div id="edit-element-css">
-                        <textarea rows="4" cols="20" placeholder="Your css changes here" onchange="EditCSS(this.value);"></textarea>
-                    </div>
-                </fieldset>
-            </div>
-        </div>
-        <!-- Edit image -->
-        <div id="edit-image">
-            <div class="head">
-                <span class="special-character"  onclick="SetElement(false, 'edit-image');">&#57513;</span>
-                <input type="text" placeholder="Search..." class="todo">
-                <span class="special-character todo">&#57624;</span>
-            </div>
-            <div class="separator"></div>
-            <div class="content">
-                <div class="item" data-image="" onclick="ChooseImage(this);">
-                    <div id="o-null" class="icon"><img src="./content/img/logo/x.svg" alt="default icon - no image"></div>
-                    <p>No image</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- <main> ?-->
-        <!-- <nav> pages - utiliser flex pour changer la position -->
-        <section id="playground"></section>
-        <section id="create-category" class="special-character" onclick="CreateCategory();">&#57541;</section>
-        <section id="generating"></section>
-        <!-- <footer></footer> -->
-
+    <div class="admin-tools">
+        <button onclick="deleteDB();">Reset db</button>
     </div>
-    <!-- Javascript -->
-    <script type="text/javascript" src="content/js/default-playground.js"></script>
-    <script type="text/javascript" src="content/js/icon.js"></script>
-    <script type="text/javascript" src="content/js/data.js"></script>
-    <script type="text/javascript" src="content/js/script.js"></script>
+    <div class="app">
+        <header class="side">
+            <my-album-list>
+                
+            </my-album-list>
+            <img src="img/options.svg" style="width:50px;"/>
+        </header>
+        <section id="playground"></section>
+        <footer>footer</footer>
+    </div>
+    <script type="text/javascript" src="js/tools.js"></script>
+    <script type="text/javascript" src="js/data.js"></script>
+    <script type="text/javascript" src="js/generate-playground.js"></script>
+    <script type="text/javascript" src="js/script.js"></script>
 </body>
-
+    semantics html tags
+    custom tags - element-uuid
+    album/stickers
 </html>
