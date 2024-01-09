@@ -1,0 +1,25 @@
+/* Light Theme */
+my-album[theme=light] {
+    box-sizing: border-box;
+    /* ^to avoid warning^ */
+}
+
+my-album[theme=light] my-group,
+my-group[theme=light] {
+    background-color:bisque;
+}
+
+my-album[theme=light] my-sticker,
+my-group[theme=light] my-sticker,
+my-sticker[theme=light] {
+    background-color:chocolate;
+}
+
+/* my-album[theme=light] my-sticker:empty,
+my-group[theme=light] my-sticker:empty,
+my-sticker[theme=light]:empty {
+    display:none;
+} */
+
+/* ajouter du css dans la balise style du html,
+créer du css dynamique ? */

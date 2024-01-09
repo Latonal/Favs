@@ -1,0 +1,46 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    height: 50px;
+    background-color: gray;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+}
+
+#playground {
+    min-height: calc(100vh - 100px);
+    background-color: azure;
+}
+
+footer {
+    height: 50px;
+    background-color: brown;
+}
+
+/* header.side {
+
+}
+
+header.side~footer {} */
+
+
+
+
+
+
+/** Dev **/
+.admin-tools {
+    position:absolute;
+    left:75%;
+    top:15%;
+}
+
+.admin-tools button {
+    width:50px;
+    height:35px;
+}
