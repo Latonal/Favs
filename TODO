@@ -10,6 +10,7 @@
 # Generate Playground
 - The function should have a page parameter so only one page is loaded depending of the settings (ie: at the start of the application to avoid too many elements loaded, or when loading another page)
 - Assign a theme through css rather than attribute ? Todo later ?
+- Alt to links in my-sticker tags
 
 # Tools / Security
 - Encrypt, decrypt function -> use a localstorage to store and get the key
@@ -36,3 +37,5 @@
 - Custom class :
     - https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
     - https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-conformance
+- Events :
+    - https://developer.mozilla.org/en-US/docs/Web/Events
