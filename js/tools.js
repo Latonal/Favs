@@ -1,3 +1,4 @@
+//#region PROTOTYPES
 // TODO : ENCRYPT
 String.prototype.encrypt/*, Number.prototype.encrypt */ = function () {
     if (isEmpty(this)) return this;
@@ -9,7 +10,13 @@ String.prototype.decrypt = function () {
     return this;
 }
 console.log(String.prototype);
+//#endregion PROTOTYPES
 
+
+
+
+
+//#region "ENUMS"
 const FavsCustomElementsName = {
     tags: {
         ALBUM: "my-album",
@@ -17,15 +24,55 @@ const FavsCustomElementsName = {
         STICKER: "my-sticker",
     }
 };
+//#endregion "ENUMS"
 
+
+
+
+
+//#region CLASSES
 class Sticker extends HTMLElement {
-    connectedCallback() {
+    constructor() {
+        super();
+        this.addEventListener('click', this.handleClick.bind(this));
+    }
+
+    connectedCallback() { // Added to the DOM
         console.log(this);
         // this.firstChild.remove();
+    }
+
+    disconnectedCallback() { // Removed from the DOM
+
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) { // An attribute has been changed
+
+    }
+
+    handleClick() { // Element has been clicked on
+        handleStickerRedirection(this);
     }
 }
 customElements.define(FavsCustomElementsName.tags.STICKER, Sticker);
 
+function handleStickerRedirection(element) {
+    const href = element.getAttribute("href");
+    const target = element.getAttribute("target");
+    
+    if (!editing) {
+        if (href) {
+            window.open(href, target || '_self');
+        }
+    }
+}
+//#endregion CLASSES
+
+
+
+
+
+//#region TOOLS
 /** Generate a uuidv4 */
 function uuidv4() {
     return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
@@ -110,3 +157,4 @@ function associateCss(...args) {
     });
     return css;
 }
+//#endregion TOOLS

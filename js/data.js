@@ -102,29 +102,29 @@ function defaultGeneration(elementsStore, iconsStore, informationsStore) {
     // ELEMENTS
     // Page 1
     elementsStore.put({ parent: 0, uuid: 1 });
-        elementsStore.put({ parent: 1, uuid: 2 });
-            elementsStore.put({ parent: 2, uuid: 3 });
-                elementsStore.put({ parent: 3, uuid: 4 });
-                elementsStore.put({ parent: 3, uuid: 19 });
-                elementsStore.put({ parent: 3, uuid: 20 });
-                elementsStore.put({ parent: 3, uuid: 21 });
-            elementsStore.put({ parent: 2, uuid: 5 });
-                elementsStore.put({ parent: 5, uuid: 6 });
-            elementsStore.put({ parent: 2, uuid: 7 });
-                elementsStore.put({ parent: 7, uuid: 8 });
-        elementsStore.put({ parent: 1, uuid: 9 });
-            elementsStore.put({ parent: 9, uuid: 10 });
-        elementsStore.put({ parent: 1, uuid: 11 });
-            elementsStore.put({ parent: 11, uuid: 12 });
+    elementsStore.put({ parent: 1, uuid: 2 });
+    elementsStore.put({ parent: 2, uuid: 3 });
+    elementsStore.put({ parent: 3, uuid: 4 });
+    elementsStore.put({ parent: 3, uuid: 19 });
+    elementsStore.put({ parent: 3, uuid: 20 });
+    elementsStore.put({ parent: 3, uuid: 21 });
+    elementsStore.put({ parent: 2, uuid: 5 });
+    elementsStore.put({ parent: 5, uuid: 6 });
+    elementsStore.put({ parent: 2, uuid: 7 });
+    elementsStore.put({ parent: 7, uuid: 8 });
+    elementsStore.put({ parent: 1, uuid: 9 });
+    elementsStore.put({ parent: 9, uuid: 10 });
+    elementsStore.put({ parent: 1, uuid: 11 });
+    elementsStore.put({ parent: 11, uuid: 12 });
 
     // Page 2
     elementsStore.put({ parent: 0, uuid: 13 });
-        elementsStore.put({ parent: 13, uuid: 14 });
-            elementsStore.put({ parent: 14, uuid: 15 });
+    elementsStore.put({ parent: 13, uuid: 14 });
+    elementsStore.put({ parent: 14, uuid: 15 });
     // Page 3
     elementsStore.put({ parent: 0, uuid: 16 });
-        elementsStore.put({ parent: 16, uuid: 17 });
-            elementsStore.put({ parent: 17, uuid: 18 });
+    elementsStore.put({ parent: 16, uuid: 17 });
+    elementsStore.put({ parent: 17, uuid: 18 });
 
     // ICONS
     iconsStore.put({ name: "options", link: "./img/options.svg", uuid: 1 });
@@ -135,9 +135,9 @@ function defaultGeneration(elementsStore, iconsStore, informationsStore) {
     informationsStore.put({ parent: 2, order: 0 });
     informationsStore.put({ parent: 3, order: 1 });
     informationsStore.put({ parent: 4, order: 0, text: "middle element", img_uuid: 1 });
-    informationsStore.put({ parent: 19, order: 1, text: "element 1", img_uuid: 1 });
-    informationsStore.put({ parent: 20, order: 2, text: "number 2", img_uuid: 1 });
-    informationsStore.put({ parent: 21, order: 3, text: "element numéro 3", img_uuid: 1 });
+    informationsStore.put({ parent: 19, order: 1, text: "new tab", img_uuid: 1, href: "https://www.youtube.com/", target: "_blank" });
+    informationsStore.put({ parent: 20, order: 2, text: "same tab - no target", img_uuid: 1, href: "https://www.youtube.com/" });
+    informationsStore.put({ parent: 21, order: 3, text: "same tab - with target", img_uuid: 1, href: "https://www.youtube.com/", target: "_self" });
     informationsStore.put({ parent: 5, order: 0 });
     informationsStore.put({ parent: 6, order: 0, text: "left element" });
     informationsStore.put({ parent: 7, order: 2 });

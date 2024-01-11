@@ -152,16 +152,16 @@ async function formatElements(iconsStore, cursorValues, element) {
             }
 
             // text
-            const my_text = (isDefined(cursorValues.text)) ? cursorValues.text.decrypt() : null;
+            const my_text = getDefinedContent(cursorValues.text, { decrypt: true });
             // theme
-            const my_theme = (isDefined(cursorValues.theme)) ? cursorValues.theme.decrypt() : null;
+            const my_theme = getDefinedContent(cursorValues.theme, {decrypt: true});
 
             // customcss
-            const my_customcss = (isDefined(cursorValues.customcss)) ? cursorValues.customcss.decrypt() : null;
+            const my_customcss = getDefinedContent(cursorValues.customcss, {decrypt: true});
             // order
-            const my_order = (isDefined(cursorValues.order)) ? cursorValues.order : null;
+            const my_order = getDefinedContent(cursorValues.order, {decrypt: true});
             // color
-            const my_color = (isDefined(cursorValues.color)) ? cursorValues.color.decrypt() : null;
+            const my_color = getDefinedContent(cursorValues.color, {decrypt: true});
 
             const my_css = associateCss(
                 { order: my_order },
@@ -189,6 +189,11 @@ async function formatElements(iconsStore, cursorValues, element) {
                         my_element.append(p_tag);
                     }
                     if (my_css) my_element.style = my_css;
+
+                    const my_href = getDefinedContent(cursorValues.href, {decrypt: true});
+                    if (my_href) my_element.setAttribute("href", my_href);
+                    const my_target = getDefinedContent(cursorValues.target, {decrypt: true});
+                    if (my_target) my_element.setAttribute("target", my_target);
                     break;
                 default:
                     break;
@@ -200,6 +205,15 @@ async function formatElements(iconsStore, cursorValues, element) {
             reject;
         }
     });
+}
+
+function getDefinedContent(content, { encrypt, decrypt }) {
+    if (!isDefined(content)) return null;
+    if (typeof (content) == "string") {
+        if (encrypt) return content.encrypt();
+        if (decrypt) return content.decrypt();
+    }
+    return content;
 }
 
 function retrieveChildrenRecursively(store, currentId, search) {

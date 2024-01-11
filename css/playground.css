@@ -32,6 +32,10 @@ my-sticker {
     align-items: center;
 }
 
+my-sticker[href]:not([href=""]) {
+    cursor:pointer;
+}
+
 my-sticker+my-sticker {
     margin-top:2px;
 }
