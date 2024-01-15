@@ -1,7 +1,6 @@
 // import { instantiateDB, openDatabase, deleteDB } from "./data";
 
 Start();
-editing = false;
 
 async function Start() {
     if (!window.indexedDB) {
