@@ -1,19 +1,33 @@
-my-album {
-    display: block;
+:root {
+    --album-border-color: salmon;
+    --group-bg-color: transparent;
+    --sticker-bg-color: transparent;
 }
 
 my-album {
-    border: 3px solid salmon;
+    display: block;
+    border: 3px solid var(--album-border-color);
     padding: 3px;
+
 }
 
 my-group {
-    border: 2px solid saddlebrown;
-    padding: 2px;
     display: flex;
     justify-content: space-evenly;
-    align-items: center;
+    align-items: stretch;
     width: 100%;
+    flex: 1;
+
+    background-color: var(--group-bg-color);
+
+    border: 2px solid saddlebrown;
+    padding: 2px;
+    /* TODO : delete? */
+}
+
+my-group:not(:has(>my-sticker)):not(:empty) {
+    border: none;
+    padding: 0;
 }
 
 my-group[layer-level=odd] {
@@ -30,14 +44,22 @@ my-sticker {
     display: flex;
     flex-direction: row;
     align-items: center;
+    margin: auto;
+
+    background-color: var(--sticker-bg-color);
 }
 
 my-sticker[href]:not([href=""]) {
-    cursor:pointer;
+    cursor: pointer;
 }
 
-my-sticker+my-sticker {
-    margin-top:2px;
+my-group[layer-level=even]>my-sticker+my-sticker {
+    margin-top: 2px;
+}
+
+my-group:empty {
+    min-height: 20px;
+    min-width: 20px;
 }
 
 my-sticker img {
@@ -55,4 +77,9 @@ my-group {
 my-sticker {
     order: var(--order);
     color: var(--color);
+}
+
+#app[edit=true] my-sticker {
+    cursor: pointer;
+    user-select: none;
 }
