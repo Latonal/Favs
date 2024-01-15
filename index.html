@@ -14,8 +14,9 @@
 <body>
     <div class="admin-tools">
         <button onclick="deleteDB();">Reset db</button>
+        <button onclick="setEditing(editing ? true : false);">Inverse editing</button>
     </div>
-    <div class="app">
+    <div id="app">
         <header class="side">
             <my-album-list>
                 
@@ -25,9 +26,11 @@
         <section id="playground"></section>
         <footer>footer</footer>
     </div>
+    <script type="text/javascript" src="js/utility.js"></script>
     <script type="text/javascript" src="js/tools.js"></script>
     <script type="text/javascript" src="js/data.js"></script>
     <script type="text/javascript" src="js/generate-playground.js"></script>
+    <script type="text/javascript" src="js/interact-playground.js"></script>
     <script type="text/javascript" src="js/script.js"></script>
 </body>
     semantics html tags

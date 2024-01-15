@@ -1,6 +1,13 @@
 # Pages
 - When moving a sticker to another page, the group/sticker should be put in a "bubble" available only on this page. Put parent as "-x" (page minus page number we tried to move them in) ? Or an information "in_bubble" and change the "position" information accordingly
 
+# Group type
+- Music/Video : https://developer.mozilla.org/en-US/docs/Web/CSS/:buffering
+
+# Edit window
+- To retrieve a style/theme : https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle
+- If a sticker become empty when closing the window, delete it
+
 # Tutorial
 - Select language
 - Select default theme
@@ -11,6 +18,7 @@
 - The function should have a page parameter so only one page is loaded depending of the settings (ie: at the start of the application to avoid too many elements loaded, or when loading another page)
 - Assign a theme through css rather than attribute ? Todo later ?
 - Alt to links in my-sticker tags
+- When selecting if a group should be row or column (other than with even or odd), add margin-top:2px or margin-left:2px depending of it
 
 # Tools / Security
 - Encrypt, decrypt function -> use a localstorage to store and get the key
