@@ -216,7 +216,7 @@ function getDefinedContent(content, { encrypt, decrypt }) {
     return content;
 }
 
-function retrieveChildrenRecursively(store, currentId, search) {
+async function retrieveChildrenRecursively(store, currentId, search) {
     return new Promise((resolve, reject) => {
         const childsCursor = store.index("by_parent").openCursor(currentId);
 
