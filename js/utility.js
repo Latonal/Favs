@@ -24,6 +24,13 @@ const FavsCustomElementsName = {
         STICKER: "my-sticker",
     }
 };
+
+const Positions = {
+    TOP: 1,
+    RIGHT: 2,
+    BOTTOM: 3,
+    LEFT: 4,
+}
 //#endregion "ENUMS"
 
 
@@ -131,6 +138,57 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
     // assignOrderToSiblingsRecursively((iterateToNextSibling) ? nextElement : prevElement, iterateToNextSibling);
 }
 
+/**
+ * Return closest edge
+ * @param {HTMLElement} element 
+ * @param {Boolean} verticalOutput Should we return vertical output (top, bottom)
+ * @param {Boolean} horizontalOutput Should we return horizontal ouput (right, left)
+ * @returns 
+ */
+function getClosestEdge(element, verticalOutput = true, horizontalOutput = true) {
+    targetElement = closestAlbumCustomElement(element);
+    if (!verticalOutput && !horizontalOutput) return console.error("ERROR Utility-2:\nThe parameters verticalOutput and horizontalOutput must not be both set to false.");
+
+    var x = null, y = null, distFromRight = null, distFromBottom = null;
+    var values = [];
+    // dist from top
+    if (verticalOutput) {
+        y = element.clientY - targetElement.getBoundingClientRect().top;
+        const height = targetElement.offsetHeight;
+        distFromBottom = height - y;
+        values.push(y, distFromBottom);
+    }
+
+    // dist from left
+    if (horizontalOutput) {
+        x = element.clientX - targetElement.getBoundingClientRect().left;
+        const width = targetElement.offsetWidth;
+        distFromRight = width - x;
+        values.push(x, distFromRight);
+    }
+
+    values = values.filter(element => {
+        return element !== null;
+    });
+
+    // const minDist = Math.min(x, y, distFromRight, distFromBottom);
+    const minDist = Math.min.apply(this, values);
+
+    switch (minDist) {
+        case x:
+            return Positions.LEFT;
+        case y:
+            return Positions.TOP;
+        case distFromRight:
+            return Positions.RIGHT;
+        case distFromBottom:
+            return Positions.BOTTOM;
+        default:
+            console.error("ERROR Utility-1:\nAn error happened while retrieving position in targeted element.", minDist);
+            break;
+    }
+}
+
 class Groups extends HTMLElement {
     constructor() {
         super();
@@ -216,7 +274,10 @@ function handleStickerDragStart(element) {
 }
 
 function handleStickerDragOver(element) {
+    if (document.getElementById(element.dataTransfer.getData("element")).tagName.toLowerCase() != FavsCustomElementsName.tags.STICKER) return;
     element.preventDefault();
+    const closestEdge = getClosestEdge(element);
+    console.log("closest edge: " +  closestEdge);
     // add css and update it depending of position of cursor
 }
 
@@ -225,14 +286,24 @@ function handleStickerDragLeave(element) {
 }
 
 function handleStickerDrop(element) {
+    const data = element.dataTransfer.getData("element");
+    const elementToMove = document.getElementById(data);
+    if (elementToMove.tagName.toLowerCase() != FavsCustomElementsName.tags.STICKER) return;
+
     element.preventDefault();
     element.stopPropagation();
 
-    const data = element.dataTransfer.getData("element");
     const realTarget = closestAlbumCustomElement(element);
-    const elementToMove = document.getElementById(data);
-    realTarget.closest(FavsCustomElementsName.tags.STICKER).after(elementToMove);
-    setOrderToFitSiblings(elementToMove);
+
+    const closestEdge = getClosestEdge(element);
+    if (closestEdge === 1 || closestEdge === 4) {
+        realTarget.closest(FavsCustomElementsName.tags.STICKER).before(elementToMove);
+        setOrderToFitSiblings(elementToMove);
+    } else {
+        realTarget.closest(FavsCustomElementsName.tags.STICKER).after(elementToMove);
+        setOrderToFitSiblings(elementToMove);
+    }
+
 
 
     // drop item, either set it back to position or change it
