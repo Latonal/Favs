@@ -19,6 +19,7 @@ function instantiateDB() {
             if (event.oldVersion < 1) { // Initialize db
                 const elementsStore = db.createObjectStore("elements", { keyPath: "uuid" })
                 elementsStore.createIndex("by_parent", "parent", { unique: false });
+                elementsStore.createIndex("by_order", "order", { unique: false });
 
                 const iconsStore = db.createObjectStore("icons", { keyPath: "uuid" });
                 iconsStore.createIndex("by_name", "name", { unique: false });
@@ -101,69 +102,65 @@ function deleteDB() {
 function defaultGeneration(elementsStore, iconsStore, informationsStore) {
     // ELEMENTS
     // Page 1
-    elementsStore.put({ parent: 0, uuid: 1 });
-        elementsStore.put({ parent: 1, uuid: 2 });
-            elementsStore.put({ parent: 2, uuid: 3 });
-                elementsStore.put({ parent: 3, uuid: 4 });
-                elementsStore.put({ parent: 3, uuid: 19 });
-                elementsStore.put({ parent: 3, uuid: 20 });
-                elementsStore.put({ parent: 3, uuid: 21 });
-            elementsStore.put({ parent: 2, uuid: 5 });
-                elementsStore.put({ parent: 5, uuid: 6 });
-            elementsStore.put({ parent: 2, uuid: 7 });
-                elementsStore.put({ parent: 7, uuid: 22 });
-                    elementsStore.put({ parent: 22, uuid: 8 });
-                    elementsStore.put({ parent: 22, uuid: 25 });
-                elementsStore.put({ parent: 7, uuid: 23 });
-                    elementsStore.put({ parent: 23, uuid: 24 });
-        elementsStore.put({ parent: 1, uuid: 9 });
-            elementsStore.put({ parent: 9, uuid: 10 });
-        elementsStore.put({ parent: 1, uuid: 11 });
-            elementsStore.put({ parent: 11, uuid: 12 });
+    elementsStore.put({ parent: 0, order: 0, uuid: 1 });
+        elementsStore.put({ parent: 1, order: 0, uuid: 2 });
+            elementsStore.put({ parent: 2, order: 1, uuid: 3 });
+                elementsStore.put({ parent: 3, order: 0, uuid: 4 });
+                elementsStore.put({ parent: 3, order: 1, uuid: 19 });
+                elementsStore.put({ parent: 3, order: 3, uuid: 20 });
+                elementsStore.put({ parent: 3, order: 2, uuid: 21 });
+            elementsStore.put({ parent: 2, order: 0, uuid: 5 });
+                elementsStore.put({ parent: 5, order: 0, uuid: 6 });
+            elementsStore.put({ parent: 2, order: 2, uuid: 7 });
+                elementsStore.put({ parent: 7, order: 2, uuid: 22 });
+                    elementsStore.put({ parent: 22, order: 1, uuid: 8 });
+                    elementsStore.put({ parent: 22, order: 0, uuid: 25 });
+                elementsStore.put({ parent: 7, order: 0, uuid: 23 });
+                    elementsStore.put({ parent: 23, order: 2, uuid: 24 });
+        elementsStore.put({ parent: 1, order: 1, uuid: 9 });
+            elementsStore.put({ parent: 9, order: 0, uuid: 10 });
+        elementsStore.put({ parent: 1, order: 2, uuid: 11 });
+            elementsStore.put({ parent: 11, order: 0, uuid: 12 });
 
     // Page 2
-    elementsStore.put({ parent: 0, uuid: 13 });
-        elementsStore.put({ parent: 13, uuid: 14 });
-            elementsStore.put({ parent: 14, uuid: 15 });
+    elementsStore.put({ parent: 0, order: 1, uuid: 13 });
+        elementsStore.put({ parent: 13, order: 0, uuid: 14 });
+            elementsStore.put({ parent: 14, order: 0, uuid: 15 });
     // Page 3
-    elementsStore.put({ parent: 0, uuid: 16 });
-        elementsStore.put({ parent: 16, uuid: 17 });
-            elementsStore.put({ parent: 17, uuid: 18 });
+    elementsStore.put({ parent: 0, order: 2, uuid: 16 });
+        elementsStore.put({ parent: 16, order: 0, uuid: 17 });
+            elementsStore.put({ parent: 17, order: 0, uuid: 18 });
 
     // ICONS
     iconsStore.put({ name: "options", link: "./img/options.svg", uuid: 1 });
     iconsStore.put({ name: "blah blah", link: "./img/blahblah", uuid: 2 });
 
     // INFORMATIONS
-    informationsStore.put({ parent: 1, order: 0, theme: "light" });
-    informationsStore.put({ parent: 2, order: 0 });
-    informationsStore.put({ parent: 3, order: 1 });
-    informationsStore.put({ parent: 4, order: 0, text: "middle element", img_uuid: 1 });
-    informationsStore.put({ parent: 19, order: 1, text: "new tab", img_uuid: 1, href: "https://www.youtube.com/", target: "_blank" });
-    informationsStore.put({ parent: 20, order: 2, text: "same tab - no target", img_uuid: 1, href: "https://www.youtube.com/" });
-    informationsStore.put({ parent: 21, order: 3, text: "same tab - with target", img_uuid: 1, href: "https://www.youtube.com/", target: "_self" });
-    informationsStore.put({ parent: 5, order: 0 });
-    informationsStore.put({ parent: 6, order: 0, text: "left element" });
-    informationsStore.put({ parent: 7, order: 2 });
-    informationsStore.put({ parent: 22, order: 2 });
-    informationsStore.put({ parent: 8, order: 1, text: "right element" });
-    informationsStore.put({ parent: 25, order: 0, text: "column right" });
-    informationsStore.put({ parent: 23, order: 0 });
-    informationsStore.put({ parent: 24, order: 2, text: "some text below right element" });
-    informationsStore.put({ parent: 9, order: 1 });
-    informationsStore.put({ parent: 10, order: 0, text: "sticker below" });
-    informationsStore.put({ parent: 11, order: 2 });
-    informationsStore.put({ parent: 12, order: 0, text: "another sticker below" });
-    informationsStore.put({ parent: 19, order: 1 });
+    informationsStore.put({ parent: 1, theme: "light" });
+    informationsStore.put({ parent: 2 });
+    informationsStore.put({ parent: 3, customcss: "background-color:cadetblue;" });
+    informationsStore.put({ parent: 4, text: "middle element", img_uuid: 1 });
+    informationsStore.put({ parent: 19, text: "new tab", img_uuid: 1, href: "https://www.youtube.com/", target: "_blank", customcss: "background-color:green;font-style:oblique;" });
+    informationsStore.put({ parent: 20, text: "same tab - no target", img_uuid: 1, href: "https://www.youtube.com/" });
+    informationsStore.put({ parent: 21, text: "same tab - with target", img_uuid: 1, href: "https://www.youtube.com/", target: "_self" });
+    informationsStore.put({ parent: 5 });
+    informationsStore.put({ parent: 6, text: "left element" });
+    informationsStore.put({ parent: 7 });
+    informationsStore.put({ parent: 22 });
+    informationsStore.put({ parent: 8, text: "right element" });
+    informationsStore.put({ parent: 25, text: "column right" });
+    informationsStore.put({ parent: 23 });
+    informationsStore.put({ parent: 24, text: "some text below right element" });
+    informationsStore.put({ parent: 9 });
+    informationsStore.put({ parent: 10, text: "sticker below" });
+    informationsStore.put({ parent: 11 });
+    informationsStore.put({ parent: 12, text: "another sticker below" });
+    informationsStore.put({ parent: 19 }); // debugging
 
-    informationsStore.put({ parent: 13, order: 1, customcss: "background-color:green;" });
-    informationsStore.put({ parent: 14, order: 0 });
-    informationsStore.put({ parent: 15, order: 0, text: "some text on the second page" });
-    informationsStore.put({ parent: 16, order: 2, customcss: "background-color:blue;" });
-    informationsStore.put({ parent: 17, order: 0 });
-    informationsStore.put({ parent: 18, order: 0, text: "some text on the third page" });
-
-    // informationsStore.put({ parent: 12, img_uuid: 1, text: "some text", order: 2, color: "#3e3e3e" });
-    // informationsStore.put({ parent: 13, img_uuid: 2, order: 1, color: "blue", customcss: "font-size:16px;font-weight:bold;" });
-    // informationsStore.put({ parent: 11 });
+    informationsStore.put({ parent: 13, customcss: "background-color:green;" });
+    informationsStore.put({ parent: 14 });
+    informationsStore.put({ parent: 15, text: "some text on the second page" });
+    informationsStore.put({ parent: 16, customcss: "background-color:blue;" });
+    informationsStore.put({ parent: 17 });
+    informationsStore.put({ parent: 18, text: "some text on the third page" });
 }

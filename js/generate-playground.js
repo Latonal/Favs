@@ -29,6 +29,8 @@ async function generatePlayground() {
     }
 }
 
+// Todo: add a paramater to define if we must open a certain page
+// (for perfomances) or all of them.
 async function generateAlbum(db) {
     playground = document.getElementById("playground");
 
@@ -46,11 +48,11 @@ async function generateAlbum(db) {
                     // Create new album
                     const album = document.createElement(FavsCustomElementsName.tags.ALBUM);
                     album.id = cursor.value.uuid;
-                    // album.innerText = cursor.value.uuid;
 
                     // Search any other element inside the album
                     const search = [cursor.value];
-                    const children = await retrieveChildrenRecursively(elementsStore, cursor.value.uuid, search);
+                    const children = await retrieveElementChildrenRecursively(elementsStore, cursor.value.uuid, search);
+                    children.sort(compareElements)
 
                     // Append results
                     playground.appendChild(album);
@@ -67,6 +69,7 @@ async function generateAlbum(db) {
                         }
                         const elem = document.createElement(tag_name);
                         elem.id = element.uuid;
+                        elem.style.setProperty("--order", element.order);
                         // elem.innerText = element.uuid;
                         if (typeof layer_order !== "undefined") elem.setAttribute("layer-level", layer_order);
                         parent.appendChild(elem);
@@ -82,6 +85,34 @@ async function generateAlbum(db) {
             reject;
         }
     });
+}
+
+async function retrieveElementChildrenRecursively(store, currentId, search) {
+    return new Promise((resolve, reject) => {
+        const childsCursor = store.index("by_parent").openCursor(currentId);
+
+        childsCursor.onerror = function () {
+            reject(childsCursor.error);
+        }
+
+        childsCursor.onsuccess = function () {
+            const cursor = childsCursor.result;
+            if (cursor && !search.find(s => s.uuid === cursor.value.uuid)) {
+                search.push(cursor.value);
+                retrieveElementChildrenRecursively(store, cursor.value.uuid, search)
+                    .then(() => cursor.continue())
+                    .catch(reject);
+            } else {
+                resolve(search);
+            }
+        };
+    });
+}
+
+function compareElements(e1, e2) {
+    if (e1.parent === e2.parent) {
+        return e1.order - e2.order;
+    }
 }
 
 async function setInformations(db, elementsId) {
@@ -158,26 +189,24 @@ async function formatElements(iconsStore, cursorValues, element) {
 
             // customcss
             const my_customcss = getDefinedContent(cursorValues.customcss, {decrypt: true});
-            // order
-            const my_order = getDefinedContent(cursorValues.order, {decrypt: true});
             // color
             const my_color = getDefinedContent(cursorValues.color, {decrypt: true});
 
-            const my_css = associateCss(
-                { order: my_order },
-                { color: my_color },
-                { customcss: my_customcss },
-            );
+            let my_css = [
+                { color: my_color }
+            ];
+            
+            my_css = my_css.concat(cssStringAsObj(my_customcss));
 
             switch (my_tag.toLowerCase()) {
                 case FavsCustomElementsName.tags.ALBUM:
                     if (my_theme) my_element.setAttribute("theme", my_theme);
                     break;
                 case FavsCustomElementsName.tags.GROUP:
-                    if (my_css) my_element.style = my_css;
+                    if (my_css) setCss(my_element, my_css);
                     break;
                 case FavsCustomElementsName.tags.STICKER:
-                    // if both img and txt are empty ?...
+                    // Todo: if both img and txt are empty ?...
                     if (my_img) {
                         let img_tag = document.createElement("img");
                         img_tag.setAttribute("src", my_img);
@@ -188,7 +217,10 @@ async function formatElements(iconsStore, cursorValues, element) {
                         p_tag.append(document.createTextNode(my_text));
                         my_element.append(p_tag);
                     }
-                    if (my_css) my_element.style = my_css;
+                    if (my_css != null) {
+                        // my_element.style = my_element.style + my_css;
+                        setCss(my_element, my_css);
+                    }
 
                     const my_href = getDefinedContent(cursorValues.href, {decrypt: true});
                     if (my_href) my_element.setAttribute("href", my_href);
@@ -207,6 +239,16 @@ async function formatElements(iconsStore, cursorValues, element) {
     });
 }
 
+function setCss(element, css) {
+    css.forEach(e => {
+        if (!isDefined(e) || isEmpty(e)) return;
+        const property = Object.getOwnPropertyNames(e);
+        const value = e[property];
+        if (property == null || value == null) return;
+        element.style.setProperty(property, value);
+    });
+}
+
 function getDefinedContent(content, { encrypt, decrypt }) {
     if (!isDefined(content)) return null;
     if (typeof (content) == "string") {
@@ -214,26 +256,4 @@ function getDefinedContent(content, { encrypt, decrypt }) {
         if (decrypt) return content.decrypt();
     }
     return content;
-}
-
-async function retrieveChildrenRecursively(store, currentId, search) {
-    return new Promise((resolve, reject) => {
-        const childsCursor = store.index("by_parent").openCursor(currentId);
-
-        childsCursor.onerror = function () {
-            reject(childsCursor.error);
-        }
-
-        childsCursor.onsuccess = function () {
-            const cursor = childsCursor.result;
-            if (cursor && !search.find(s => s.uuid === cursor.value.uuid)) {
-                search.push(cursor.value);
-                retrieveChildrenRecursively(store, cursor.value.uuid, search)
-                    .then(() => cursor.continue())
-                    .catch(reject);
-            } else {
-                resolve(search);
-            }
-        };
-    });
 }

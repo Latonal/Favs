@@ -1,93 +1,5 @@
 /**
- * Allow to create an empty skeleton at the start when loading
- * the page. It will creates empty groups and order them. It'll
- * be filled thanks to exampleStickersSetup.
- */
-var exampleGroupSetup = {
-    "version": Float32Array,
-    "order": {
-        "album1": {
-            "name": "album1 [string]",
-            "icon": "iconName [string]",
-            "content": [
-                "group-uuid1 [string]",
-                "group-uuid2 [string]",
-                "group-uuid3 [string]",
-                [
-                    "a layer of group/group-uuid4 [string]",
-                    "group-uuid5 [string]",
-                    [
-                        "another layer of group/group-uuid6 [string]",
-                        "group-uuid7 [string]",
-                        [
-                            "another layer of group and so on/group-uuid8 [string]",
-                            "group-uuid9 [string]"
-                        ]
-                    ]
-                ]
-            ]
-        },
-        "album2": {
-            "name": "album2 [string]",
-            "icon": "iconName [string]",
-            "content": [
-                "nothing but album should still exists"
-            ]
-        }
-    }
-}
-
-/**
- * Allow to create an empty skeleton of the stickers in each 
- * group. It'll creates empty stickers and order them. Mainly
- * used as a link table.
- */
-var exampleStickersSetup = [
-    {
-        "parent": "group-uuid1 [string]",
-        "sticker": "sticker-uuid1 [string]",
-        "position": Int8Array
-    },
-    {
-        "parent": "group-uuid1 [string]",
-        "sticker": "sticker-uuid2 [string]",
-        "position": Int8Array
-    }
-]
-
-/**
- * Used to store data about icons.
- */
-var exampleIcons = {
-    "iconName1": "url1 [string]",
-    "iconName2": "url2 [string]",
-    "iconName3": "svg [string]"
-}
-
-/**
- * Contains the data about any element using a uuid.
- */
-var exampleInformations = [
-    {
-        "uuid": "group-uuid1 [string]",
-        "customcss": "css [string]"
-    },
-    {
-        "uuid": "sticker-uuid1 [string]",
-        "text": "text [string]",
-        "icon": "iconName [string]",
-        "url": "url [string]",
-        "target": Boolean,
-        "customcss": "css [string]",
-    }
-]
-
-
-
-
-// OTHER TAKE
-/**
- * Any data used outside the playground
+ * Any data used outside the playground.
  */
 var global = {
     "version": Float32Array, // version is app version not related to db
@@ -101,20 +13,30 @@ var global = {
 }
 
 /**
- * Used to create relation between elements
+ * Used to create relation between elements, and allow to
+ * create an empty skeleton at the start when loading the
+ * page. It will creates empty groups and order them. It'll
+ * be filled thank to the `informations` table.
+ * 
+ * Allow to create an empty skeleton at the start when loading
+ * the page. It will creates empty groups and order them. It'll
+ * be filled thanks to exampleStickersSetup.
  */
 var elements = [
     {
-        "uuid": "album1 [string]",
+        "uuid": Number,
         "parent-uuid": null, // parent is empty, it is an album (main container)
+        "position": Number,
     },
     {
-        "uuid": "group1 [string]", // we'll know it's a group later (informations table)
-        "parent-uuid": "album1 [string]",
+        "uuid": Number, // we'll know it's a group later (informations table)
+        "parent-uuid": Number,
+        "position": Number,
     },
     {
-        "uuid": "sticker1 [string]",
-        "parent-uuid": "group1 [string]",
+        "uuid": Number,
+        "parent-uuid": Number,
+        "position": Number,
     }
 ]
 
@@ -128,48 +50,25 @@ var icons = {
 }
 
 /**
- * Used to store data about the elements
+ * Used to store data about the elements.
  */
 var informations = [
     {
-        "parent-uuid": "album1 [string]",
-        "informations": {
-            "name": "name [string]",
-            "theme": "theme name [string]",
-            "customcss": "css [string]",
-        }
+        "parent-uuid": Number,
+        "name": "name [string]",
+        "theme": "theme name [string]",
+        "customcss": "css [string]",
     },
     {
-        "parent-uuid": "group1 [string]",
-        "informations": {
-            "position": Int8Array,
-            "type": "",
-            "theme": "theme name [string]",
-            "customcss": "css [string]",
-        }
+        "parent-uuid": Number,
+        "type": "",
+        "theme": "theme name [string]",
+        "customcss": "css [string]",
     },
     {
-        "parent-uuid": "sticker1 [string]",
-        "informations": {
-            "text": "text [string]",
-            "icon": "iconName [string]",
-            "position": Int8Array,
-            "customcss": "css [string]",
-        }
+        "parent-uuid": Number,
+        "text": "text [string]",
+        "icon": "iconName [string]",
+        "customcss": "css [string]",
     }
 ]
-// position can be used in flex
-
-// https://www.geeksforgeeks.org/enums-in-javascript/
-const GroupType = (function () {
-    const types = {
-        ICON_LIST: 0,
-        SUB_LIST: 1,
-    };
-    return {
-        get: function (type_name) {
-            return types[type_name];
-        }
-    }
-})();
-console.log("Groupe type number:", GroupType.get("ICON_LIST"));

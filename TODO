@@ -16,9 +16,13 @@
 
 # Generate Playground
 - The function should have a page parameter so only one page is loaded depending of the settings (ie: at the start of the application to avoid too many elements loaded, or when loading another page)
+- Ordering the results by "order" should be done when querying it, not afterward through a sort function, allowing to order albums, groups and stickers and not only stickers
 - Assign a theme through css rather than attribute ? Todo later ?
 - Alt to links in my-sticker tags
 - When selecting if a group should be row or column (other than with even or odd), add margin-top:2px or margin-left:2px depending of it
+
+# Interact Playground
+- When moving an element, a ghost copy item should appear where we over to give a better idea to the user
 
 # Tools / Security
 - Encrypt, decrypt function -> use a localstorage to store and get the key
