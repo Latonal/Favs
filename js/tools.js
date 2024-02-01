@@ -65,6 +65,26 @@ function dissociateCss(str) {
 }
 
 /**
+ * Return a css string as an object
+ * @param {String} str 
+ */
+function cssStringAsObj(str) {
+    if (str === null || isEmpty(str) || !isDefined(str)) return;
+    const rules = str.split(';');
+
+    const values = [];
+
+    rules.forEach(rule => {
+        if (isEmpty(rule)) return;
+        let [property, value] = rule.split(":");
+
+        values.push({ [property]: value });
+    });
+    
+    return values;
+}
+
+/**
  * Associate css rules to fit in the style attribute
  * @param  {...any} args 
  * @returns 

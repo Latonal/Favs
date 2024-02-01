@@ -30,6 +30,10 @@ my-group:not(:has(>my-sticker)):not(:empty) {
     padding: 0;
 }
 
+my-group:has(>my-sticker) {
+    flex-wrap: wrap;
+}
+
 my-group[layer-level=odd] {
     flex-direction: row;
 }
@@ -82,4 +86,10 @@ my-sticker {
 #app[edit=true] my-sticker {
     cursor: pointer;
     user-select: none;
+}
+
+
+/* DEBUGGING */
+my-group my-sticker:last-child {
+    background-color:darkblue;
 }
