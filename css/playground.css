@@ -8,7 +8,6 @@ my-album {
     display: block;
     border: 3px solid var(--album-border-color);
     padding: 3px;
-
 }
 
 my-group {
@@ -83,7 +82,8 @@ my-sticker {
     color: var(--color);
 }
 
-#app[edit=true] my-sticker {
+#app[edit=true] my-sticker,
+#app[edit=true] my-group {
     cursor: pointer;
     user-select: none;
 }
