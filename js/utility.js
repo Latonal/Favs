@@ -22,6 +22,12 @@ const FavsCustomElementsName = {
         ALBUM: "my-album",
         GROUP: "my-group",
         STICKER: "my-sticker",
+    },
+    tags_value: {
+        ALBUM: 1,
+        GROUP: 2,
+        STICKER: 3,
+        HIGH: 3,
     }
 };
 
@@ -40,13 +46,20 @@ const Positions = {
 //#region CLASSES
 /**
  * Get closest custom element part of a standard album (sticker > group > album) or null if none is found
- * @param {HTMLElement} element
- * @returns {any} HTMLElement or null
+ * @param {HTMLElement} element element to start searching at
+ * @param {Number} importance importance of the elements to allow
+ * @param {Boolean} ascending should the search made by ascending order
+ * @returns {HTMLElement || null}
  */
-function closestAlbumCustomElement(element) {
-    return element.target.closest(FavsCustomElementsName.tags.STICKER) ||
-        element.target.closest(FavsCustomElementsName.tags.GROUP) ||
-        element.target.closest(FavsCustomElementsName.tags.ALBUM) ||
+function closestAlbumCustomElement(event, importance = 10, ascending = true) {
+    // ternary operator on the + 1 depending of ascending ? : 0
+    if (!ascending) importance = FavsCustomElementsName.tags_value.HIGH - importance + 1;
+    return (importance >= FavsCustomElementsName.tags_value.STICKER &&
+        event.target.closest(FavsCustomElementsName.tags.STICKER)) ||
+        (importance >= FavsCustomElementsName.tags_value.GROUP &&
+            event.target.closest(FavsCustomElementsName.tags.GROUP)) ||
+        (importance >= FavsCustomElementsName.tags_value.ALBUM &&
+            event.target.closest(FavsCustomElementsName.tags.ALBUM)) ||
         null;
 }
 
@@ -140,20 +153,20 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
 
 /**
  * Return closest edge
- * @param {HTMLElement} element 
+ * @param {HTMLElement} event 
  * @param {Boolean} verticalOutput Should we return vertical output (top, bottom)
  * @param {Boolean} horizontalOutput Should we return horizontal ouput (right, left)
  * @returns 
  */
-function getClosestEdge(element, verticalOutput = true, horizontalOutput = true) {
-    targetElement = closestAlbumCustomElement(element);
+function getClosestEdge(event, verticalOutput = true, horizontalOutput = true) {
+    targetElement = closestAlbumCustomElement(event);
     if (!verticalOutput && !horizontalOutput) return console.error("ERROR Utility-2:\nThe parameters verticalOutput and horizontalOutput must not be both set to false.");
 
     var x = null, y = null, distFromRight = null, distFromBottom = null;
     var values = [];
     // dist from top
     if (verticalOutput) {
-        y = element.clientY - targetElement.getBoundingClientRect().top;
+        y = event.clientY - targetElement.getBoundingClientRect().top;
         const height = targetElement.offsetHeight;
         distFromBottom = height - y;
         values.push(y, distFromBottom);
@@ -161,7 +174,7 @@ function getClosestEdge(element, verticalOutput = true, horizontalOutput = true)
 
     // dist from left
     if (horizontalOutput) {
-        x = element.clientX - targetElement.getBoundingClientRect().left;
+        x = event.clientX - targetElement.getBoundingClientRect().left;
         const width = targetElement.offsetWidth;
         distFromRight = width - x;
         values.push(x, distFromRight);
@@ -192,25 +205,78 @@ function getClosestEdge(element, verticalOutput = true, horizontalOutput = true)
 class Groups extends HTMLElement {
     constructor() {
         super();
+        this.addEventListener('click', this.handleClick.bind(this));
+        this.addEventListener('dragstart', handleGroupDragStart);
         this.addEventListener('dragover', handleGroupDragOver);
         this.addEventListener('drop', handleGroupDrop);
+
+        this.addEventListener('mouseover', function () {
+            this.setAttribute('draggable', editing);
+        });
+    }
+
+    handleClick() {
+        handleGroupEdit(this);
     }
 }
 customElements.define(FavsCustomElementsName.tags.GROUP, Groups);
 
-function handleGroupDragOver(element) {
-    element.preventDefault();
+function handleGroupEdit(event) {
+    if (editing) {
+        // Todo: Open edit menu
+
+        // const compStyle = getComputedStyle(prevElement);
+        // prevOrder = compStyle.getPropertyValue("--value");
+    }
 }
 
-function handleGroupDrop(element) {
-    element.preventDefault();
-    element.stopPropagation();
+function handleGroupDragStart(event) {
+    event.dataTransfer.clearData();
+    event.dataTransfer.setData("element", event.currentTarget.id);
 
-    const data = element.dataTransfer.getData("element");
-    const realTarget = closestAlbumCustomElement(element);
+    event.stopPropagation();
+}
+
+function handleGroupDragOver(event) {
+    const closest = closestAlbumCustomElement(event, FavsCustomElementsName.tags_value.GROUP, false);
+    if (event.currentTarget !== closest) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const closestEdge = getClosestEdge(event);
+    // Todo: add css and update it depending of position of cursor
+}
+
+function handleGroupDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const data = event.dataTransfer.getData("element");
+    console.log(data);
     const elementToMove = document.getElementById(data);
-    realTarget.closest(FavsCustomElementsName.tags.GROUP).appendChild(elementToMove);
-    setOrderToFitSiblings(elementToMove);
+    
+    switch (elementToMove.tagName.toLowerCase()) {
+        case FavsCustomElementsName.tags.STICKER:
+            const realTarget = closestAlbumCustomElement(event);
+            console.log(realTarget);
+            realTarget.closest(FavsCustomElementsName.tags.GROUP).appendChild(elementToMove);
+            setOrderToFitSiblings(elementToMove);
+            break;
+        case FavsCustomElementsName.tags.GROUP:
+            console.log("tried to push a group into a group");
+            break;
+        default:
+            console.error("ERROR Utility-2:\nAn error happened while putting element in group.", minDist);
+            break;
+    }
+
+    if (elementToMove.tagName.toLowerCase() == FavsCustomElementsName.tags.STICKER) {
+        const realTarget = closestAlbumCustomElement(event);
+        console.log(realTarget);
+        realTarget.closest(FavsCustomElementsName.tags.GROUP).appendChild(elementToMove);
+        setOrderToFitSiblings(elementToMove);
+    }
 
     // append correctly depending of wether or not it is targeting a group or a sticker - or even an album
     // remove css ?
@@ -239,7 +305,7 @@ class Sticker extends HTMLElement {
     }
 
     attributeChangedCallback(name, oldValue, newValue) { // An attribute has been changed
-
+        // change in style: save
     }
 
     handleClick() { // Element has been clicked on
@@ -249,9 +315,9 @@ class Sticker extends HTMLElement {
 }
 customElements.define(FavsCustomElementsName.tags.STICKER, Sticker);
 
-function handleStickerRedirection(element) {
-    const href = element.getAttribute("href");
-    const target = element.getAttribute("target");
+function handleStickerRedirection(event) {
+    const href = event.getAttribute("href");
+    const target = event.getAttribute("target");
 
     if (!editing) {
         if (href) {
@@ -260,42 +326,50 @@ function handleStickerRedirection(element) {
     }
 }
 
-// Open edit menu
-function handleStickerEdit(element) {
+function handleStickerEdit(event) {
     if (editing) {
-        const compStyle = getComputedStyle(prevElement);
-        prevOrder = compStyle.getPropertyValue("--value");
+        // Todo: Open edit menu
+
+        // const compStyle = getComputedStyle(prevElement);
+        // prevOrder = compStyle.getPropertyValue("--value");
     }
 }
 
 // Allow to drag element
-function handleStickerDragStart(element) {
-    element.dataTransfer.setData("element", element.currentTarget.id)
+function handleStickerDragStart(event) {
+    event.dataTransfer.clearData();
+    event.dataTransfer.setData("element", event.currentTarget.id);
+
+    event.stopPropagation();
 }
 
-function handleStickerDragOver(element) {
-    if (document.getElementById(element.dataTransfer.getData("element")).tagName.toLowerCase() != FavsCustomElementsName.tags.STICKER) return;
-    element.preventDefault();
-    const closestEdge = getClosestEdge(element);
-    console.log("closest edge: " +  closestEdge);
-    // add css and update it depending of position of cursor
+function handleStickerDragOver(event) {
+    const closest = closestAlbumCustomElement(event, FavsCustomElementsName.tags_value.STICKER, true);
+    if (event.currentTarget !== closest) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const closestEdge = getClosestEdge(event);
+    // Todo: add css and update it depending of position of cursor
 }
 
-function handleStickerDragLeave(element) {
+function handleStickerDragLeave(event) {
     // remove css
 }
 
-function handleStickerDrop(element) {
-    const data = element.dataTransfer.getData("element");
+function handleStickerDrop(event) {
+    const data = event.dataTransfer.getData("element");
     const elementToMove = document.getElementById(data);
     if (elementToMove.tagName.toLowerCase() != FavsCustomElementsName.tags.STICKER) return;
 
-    element.preventDefault();
-    element.stopPropagation();
+    event.preventDefault();
+    event.stopPropagation();
 
-    const realTarget = closestAlbumCustomElement(element);
+    const realTarget = closestAlbumCustomElement(event, FavsCustomElementsName.tags_value.STICKER, true);
+    console.log("realtarget", realTarget);
 
-    const closestEdge = getClosestEdge(element);
+    const closestEdge = getClosestEdge(event);
     if (closestEdge === 1 || closestEdge === 4) {
         realTarget.closest(FavsCustomElementsName.tags.STICKER).before(elementToMove);
         setOrderToFitSiblings(elementToMove);
