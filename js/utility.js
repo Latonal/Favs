@@ -1,12 +1,12 @@
 //#region PROTOTYPES
 // TODO : ENCRYPT
 String.prototype.encrypt/*, Number.prototype.encrypt */ = function () {
-    if (isEmpty(this)) return this;
+    if (isTruthy(this)) return this;
     return this;
 }
 // TODO : DECRYPT
 String.prototype.decrypt = function () {
-    if (isEmpty(this)) return this;
+    if (isTruthy(this)) return this;
     return this;
 }
 console.log(String.prototype);
@@ -159,6 +159,7 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
  * @returns 
  */
 function getClosestEdge(event, verticalOutput = true, horizontalOutput = true) {
+    // Todo: change how this closest is handled
     targetElement = closestAlbumCustomElement(event);
     if (!verticalOutput && !horizontalOutput) return console.error("ERROR Utility-2:\nThe parameters verticalOutput and horizontalOutput must not be both set to false.");
 
