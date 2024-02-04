@@ -238,7 +238,7 @@ function handleGroupDragStart(event) {
 }
 
 function handleGroupDragOver(event) {
-    const closest = closestAlbumCustomElement(event, FavsCustomElementsName.tags_value.GROUP, false);
+    const closest = event.target.closest(FavsCustomElementsName.tags.GROUP);
     if (event.currentTarget !== closest) return;
 
     event.preventDefault();
@@ -258,9 +258,7 @@ function handleGroupDrop(event) {
     
     switch (elementToMove.tagName.toLowerCase()) {
         case FavsCustomElementsName.tags.STICKER:
-            const realTarget = closestAlbumCustomElement(event);
-            console.log(realTarget);
-            realTarget.closest(FavsCustomElementsName.tags.GROUP).appendChild(elementToMove);
+            event.target.closest(FavsCustomElementsName.tags.GROUP).appendChild(elementToMove);
             setOrderToFitSiblings(elementToMove);
             break;
         case FavsCustomElementsName.tags.GROUP:
@@ -269,13 +267,6 @@ function handleGroupDrop(event) {
         default:
             console.error("ERROR Utility-2:\nAn error happened while putting element in group.", minDist);
             break;
-    }
-
-    if (elementToMove.tagName.toLowerCase() == FavsCustomElementsName.tags.STICKER) {
-        const realTarget = closestAlbumCustomElement(event);
-        console.log(realTarget);
-        realTarget.closest(FavsCustomElementsName.tags.GROUP).appendChild(elementToMove);
-        setOrderToFitSiblings(elementToMove);
     }
 
     // append correctly depending of wether or not it is targeting a group or a sticker - or even an album
@@ -344,7 +335,7 @@ function handleStickerDragStart(event) {
 }
 
 function handleStickerDragOver(event) {
-    const closest = closestAlbumCustomElement(event, FavsCustomElementsName.tags_value.STICKER, true);
+    const closest = event.target.closest(FavsCustomElementsName.tags.STICKER);
     if (event.currentTarget !== closest) return;
 
     event.preventDefault();
@@ -366,7 +357,7 @@ function handleStickerDrop(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    const realTarget = closestAlbumCustomElement(event, FavsCustomElementsName.tags_value.STICKER, true);
+    const realTarget = event.target.closest(FavsCustomElementsName.tags.STICKER);
     console.log("realtarget", realTarget);
 
     const closestEdge = getClosestEdge(event);
