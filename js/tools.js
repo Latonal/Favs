@@ -27,6 +27,11 @@ function isDefined(e) {
     return false;
 }
 
+function isTruthy(e) {
+    if (e) return true;
+    return false;
+}
+
 function cleanArrayOfObjects(arr) {
     return arr.filter(obj => {
         return Object.values(obj).some(value => value !== null && value !== undefined && value != '');
@@ -39,13 +44,13 @@ const cssVariablePrefix = "--";
  * @param {HTMLElement} str
  */
 function dissociateCss(str) {
-    if (isEmpty(str) || !isDefined(str)) return;
+    if (!isTruthy(str)) return;
     const rules = str.split(';');
 
     const values = {};
 
     rules.forEach(rule => {
-        if (isEmpty(rule)) return;
+        if (isTruthy(rule)) return;
 
         let [property, value] = rule.split(":");
         property = property.trim();
@@ -56,7 +61,7 @@ function dissociateCss(str) {
             values[property] = value;
         } else {
             val = property + ":" + value + ";";
-            if (isDefined(values["customcss"])) values["customcss"] += val;
+            if (!isTruthy(values["customcss"])) values["customcss"] += val;
             else values["customcss"] = val;
         }
     });
@@ -69,7 +74,7 @@ function dissociateCss(str) {
  * @param {String} str 
  */
 function cssStringAsObj(str) {
-    if (str === null || isEmpty(str) || !isDefined(str)) return;
+    if (!isTruthy(str)) return;
     const rules = str.split(';');
 
     const values = [];
@@ -91,7 +96,7 @@ function cssStringAsObj(str) {
  */
 function associateCss(...args) {
     args = cleanArrayOfObjects(args);
-    if (isEmpty(args)) return;
+    if (isTruthy(args)) return;
     var css = "";
     args.forEach(element => {
         if (typeof (element) === "object") {
