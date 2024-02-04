@@ -241,7 +241,7 @@ async function formatElements(iconsStore, cursorValues, element) {
 
 function setCss(element, css) {
     css.forEach(e => {
-        if (!isDefined(e) || isEmpty(e)) return;
+        if (!isTruthy(e)) return;
         const property = Object.getOwnPropertyNames(e);
         const value = e[property];
         if (property == null || value == null) return;
@@ -250,7 +250,7 @@ function setCss(element, css) {
 }
 
 function getDefinedContent(content, { encrypt, decrypt }) {
-    if (!isDefined(content)) return null;
+    if (!isTruthy(content)) return null;
     if (typeof (content) == "string") {
         if (encrypt) return content.encrypt();
         if (decrypt) return content.decrypt();
