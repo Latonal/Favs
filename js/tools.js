@@ -16,17 +16,6 @@ function getRandomNonUsedUUID(text) {
     }
 }
 
-function isEmpty(e) {
-    if ((typeof e === "string" || typeof e === "object")
-        && e.length === 0) return true;
-    return false;
-}
-
-function isDefined(e) {
-    if (typeof (e) !== "undefined") return true;
-    return false;
-}
-
 function isTruthy(e) {
     if (e) return true;
     return false;
@@ -50,7 +39,7 @@ function dissociateCss(str) {
     const values = {};
 
     rules.forEach(rule => {
-        if (isTruthy(rule)) return;
+        if (!isTruthy(rule)) return;
 
         let [property, value] = rule.split(":");
         property = property.trim();
@@ -61,7 +50,7 @@ function dissociateCss(str) {
             values[property] = value;
         } else {
             val = property + ":" + value + ";";
-            if (!isTruthy(values["customcss"])) values["customcss"] += val;
+            if (isTruthy(values["customcss"])) values["customcss"] += val;
             else values["customcss"] = val;
         }
     });
@@ -80,7 +69,7 @@ function cssStringAsObj(str) {
     const values = [];
 
     rules.forEach(rule => {
-        if (isEmpty(rule)) return;
+        if (!isTruthy(rule)) return;
         let [property, value] = rule.split(":");
 
         values.push({ [property]: value });
@@ -96,7 +85,7 @@ function cssStringAsObj(str) {
  */
 function associateCss(...args) {
     args = cleanArrayOfObjects(args);
-    if (isTruthy(args)) return;
+    if (!isTruthy(args)) return;
     var css = "";
     args.forEach(element => {
         if (typeof (element) === "object") {

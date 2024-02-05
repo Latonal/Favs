@@ -1,12 +1,12 @@
 //#region PROTOTYPES
 // TODO : ENCRYPT
 String.prototype.encrypt/*, Number.prototype.encrypt */ = function () {
-    if (isTruthy(this)) return this;
+    if (!isTruthy(this)) return this;
     return this;
 }
 // TODO : DECRYPT
 String.prototype.decrypt = function () {
-    if (isTruthy(this)) return this;
+    if (!isTruthy(this)) return this;
     return this;
 }
 console.log(String.prototype);
@@ -128,9 +128,9 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
     //     nextOrder = parseInt(compStyle.getPropertyValue("--order"));
     // }
 
-    // if (prevOrder != null && isEmpty(prevOrder))
+    // if (prevOrder != null && isTruthy(prevOrder))
     //     prevOrder = 0;
-    // if (nextOrder != null && isEmpty(nextOrder))
+    // if (nextOrder != null && isTruthy(nextOrder))
     //     nextOrder = 0;
 
     // if (prevElement == null) {
