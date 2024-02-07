@@ -36,6 +36,7 @@ header.side~footer {} */
 /** Dev **/
 .admin-tools {
     position:absolute;
+    z-index:30;
     left:75%;
     top:15%;
 }
