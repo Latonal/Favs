@@ -34,7 +34,8 @@
 - Images
     - "You can use images directly stored on your computer by using their link, and even .svg files by copying their content!"
 
-# More infos (?)
+# To fix:
+- Mozilla Firefox: (utility.js) When leaving (drag leave) an element (group, sticker...), the drag leave event does not trigger fully and css is not removed
 
 # Resources
 - Custom tags/elements : https://matthewjamestaylor.com/custom-tags?utm_content=cmp-true

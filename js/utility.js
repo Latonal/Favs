@@ -44,23 +44,12 @@ const Positions = {
 
 
 //#region CLASSES
-/**
- * Get closest custom element part of a standard album (sticker > group > album) or null if none is found
- * @param {HTMLElement} element element to start searching at
- * @param {Number} importance importance of the elements to allow
- * @param {Boolean} ascending should the search made by ascending order
- * @returns {HTMLElement || null}
- */
-function closestAlbumCustomElement(event, importance = 10, ascending = true) {
-    // ternary operator on the + 1 depending of ascending ? : 0
-    if (!ascending) importance = FavsCustomElementsName.tags_value.HIGH - importance + 1;
-    return (importance >= FavsCustomElementsName.tags_value.STICKER &&
-        event.target.closest(FavsCustomElementsName.tags.STICKER)) ||
-        (importance >= FavsCustomElementsName.tags_value.GROUP &&
-            event.target.closest(FavsCustomElementsName.tags.GROUP)) ||
-        (importance >= FavsCustomElementsName.tags_value.ALBUM &&
-            event.target.closest(FavsCustomElementsName.tags.ALBUM)) ||
-        null;
+
+function isTargetedElement(event, tagName) {
+    const element = (isTruthy(event.target.tagName)) ? event.target : event.currentTarget;
+    const closest = element.closest(tagName);
+    if (event.currentTarget !== closest) return null;
+    else return closest;
 }
 
 function setOrderToFitSiblings(element) {
@@ -153,30 +142,32 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
 
 /**
  * Return closest edge
- * @param {HTMLElement} event 
+ * @param {Event} event 
+ * @param {HTMLElement} elementToSearch 
  * @param {Boolean} verticalOutput Should we return vertical output (top, bottom)
  * @param {Boolean} horizontalOutput Should we return horizontal ouput (right, left)
  * @returns 
  */
-function getClosestEdge(event, verticalOutput = true, horizontalOutput = true) {
-    // Todo: change how this closest is handled
-    targetElement = closestAlbumCustomElement(event);
+function getClosestEdge(event, elementToSearch, verticalOutput = true, horizontalOutput = true) {
+    // const element = (isTruthy(event.target.tagName)) ? event.target : event.currentTarget;
+    // const closest = element.closest(elementToSearch);
+    const closest = isTargetedElement(event, elementToSearch);
     if (!verticalOutput && !horizontalOutput) return console.error("ERROR Utility-2:\nThe parameters verticalOutput and horizontalOutput must not be both set to false.");
 
     var x = null, y = null, distFromRight = null, distFromBottom = null;
     var values = [];
     // dist from top
     if (verticalOutput) {
-        y = event.clientY - targetElement.getBoundingClientRect().top;
-        const height = targetElement.offsetHeight;
+        y = event.clientY - closest.getBoundingClientRect().top;
+        const height = closest.offsetHeight;
         distFromBottom = height - y;
         values.push(y, distFromBottom);
     }
 
     // dist from left
     if (horizontalOutput) {
-        x = event.clientX - targetElement.getBoundingClientRect().left;
-        const width = targetElement.offsetWidth;
+        x = event.clientX - closest.getBoundingClientRect().left;
+        const width = closest.offsetWidth;
         distFromRight = width - x;
         values.push(x, distFromRight);
     }
@@ -203,12 +194,38 @@ function getClosestEdge(event, verticalOutput = true, horizontalOutput = true) {
     }
 }
 
+function SetDragClass(element, val) {
+    console.log(element, val);
+    switch (val) {
+        case 1: // top
+            element.classList.add("drag-top");
+            element.classList.remove("drag-right", "drag-bottom", "drag-left");
+            break;
+        case 2: // right
+            element.classList.add("drag-right");
+            element.classList.remove("drag-top", "drag-bottom", "drag-left");
+            break;
+        case 3: // bottom
+            element.classList.add("drag-bottom");
+            element.classList.remove("drag-top", "drag-right", "drag-left");
+            break;
+        case 4: // left
+            element.classList.add("drag-left");
+            element.classList.remove("drag-top", "drag-right", "drag-bottom");
+            break;
+        default:
+            element.classList.remove("drag-top", "drag-right", "drag-bottom", "drag-left");
+            break;
+    }
+}
+
 class Groups extends HTMLElement {
     constructor() {
         super();
         this.addEventListener('click', this.handleClick.bind(this));
         this.addEventListener('dragstart', handleGroupDragStart);
         this.addEventListener('dragover', handleGroupDragOver);
+        this.addEventListener('dragleave', handleGroupDragLeave);
         this.addEventListener('drop', handleGroupDrop);
 
         this.addEventListener('mouseover', function () {
@@ -239,14 +256,21 @@ function handleGroupDragStart(event) {
 }
 
 function handleGroupDragOver(event) {
-    const closest = event.target.closest(FavsCustomElementsName.tags.GROUP);
-    if (event.currentTarget !== closest) return;
+    const closest = isTargetedElement(event, FavsCustomElementsName.tags.GROUP);
+    if (!closest) return;
 
     event.preventDefault();
     event.stopPropagation();
 
-    const closestEdge = getClosestEdge(event);
-    // Todo: add css and update it depending of position of cursor
+    const closestEdge = getClosestEdge(event, FavsCustomElementsName.tags.GROUP);
+    if (closest.id !== event.dataTransfer.getData("element")) SetDragClass(closest, closestEdge);
+}
+
+function handleGroupDragLeave(event) {
+    const closest = isTargetedElement(event, FavsCustomElementsName.tags.GROUP);
+    if (!closest) return;
+
+    SetDragClass(closest, 0);
 }
 
 function handleGroupDrop(event) {
@@ -263,7 +287,8 @@ function handleGroupDrop(event) {
             setOrderToFitSiblings(elementToMove);
             break;
         case FavsCustomElementsName.tags.GROUP:
-            console.log("tried to push a group into a group");
+            const closestEdge = getClosestEdge(event, FavsCustomElementsName.tags.GROUP);
+            assignGroup(event, elementToMove, closestEdge);
             break;
         default:
             console.error("ERROR Utility-2:\nAn error happened while putting element in group.", minDist);
@@ -272,6 +297,17 @@ function handleGroupDrop(event) {
 
     // append correctly depending of wether or not it is targeting a group or a sticker - or even an album
     // remove css ?
+}
+
+function assignGroup(event, element, closestEdge) {
+    console.log("tried to push a group into a group");
+    console.log("group closest edge:", closestEdge, "from:", event.target);
+    if (closestEdge === 1 || closestEdge === 4) {
+        event.target.closest(FavsCustomElementsName.tags.GROUP).before(element);
+    } else {
+        event.target.closest(FavsCustomElementsName.tags.GROUP).after(element);
+    }
+    setOrderToFitSiblings(element);
 }
 
 class Sticker extends HTMLElement {
@@ -336,18 +372,22 @@ function handleStickerDragStart(event) {
 }
 
 function handleStickerDragOver(event) {
-    const closest = event.target.closest(FavsCustomElementsName.tags.STICKER);
-    if (event.currentTarget !== closest) return;
+    const closest = isTargetedElement(event, FavsCustomElementsName.tags.STICKER);
+    if (!closest) return;
 
     event.preventDefault();
     event.stopPropagation();
 
-    const closestEdge = getClosestEdge(event);
+    const closestEdge = getClosestEdge(event, FavsCustomElementsName.tags.STICKER);
     // Todo: add css and update it depending of position of cursor
+    if (closest.id !== event.dataTransfer.getData("element")) SetDragClass(closest, closestEdge);
 }
 
 function handleStickerDragLeave(event) {
-    // remove css
+    const closest = isTargetedElement(event, FavsCustomElementsName.tags.STICKER);
+    if (!closest) return;
+
+    SetDragClass(closest, 0);
 }
 
 function handleStickerDrop(event) {
@@ -355,21 +395,20 @@ function handleStickerDrop(event) {
     const elementToMove = document.getElementById(data);
     if (elementToMove.tagName.toLowerCase() != FavsCustomElementsName.tags.STICKER) return;
 
+    const closest = isTargetedElement(event, FavsCustomElementsName.tags.STICKER);
+    if (!closest) return;
+
     event.preventDefault();
     event.stopPropagation();
 
-    const realTarget = event.target.closest(FavsCustomElementsName.tags.STICKER);
-    console.log("realtarget", realTarget);
-
-    const closestEdge = getClosestEdge(event);
+    const closestEdge = getClosestEdge(event, FavsCustomElementsName.tags.STICKER);
     if (closestEdge === 1 || closestEdge === 4) {
-        realTarget.closest(FavsCustomElementsName.tags.STICKER).before(elementToMove);
-        setOrderToFitSiblings(elementToMove);
+        closest.closest(FavsCustomElementsName.tags.STICKER).before(elementToMove);
     } else {
-        realTarget.closest(FavsCustomElementsName.tags.STICKER).after(elementToMove);
-        setOrderToFitSiblings(elementToMove);
+        closest.closest(FavsCustomElementsName.tags.STICKER).after(elementToMove);
     }
-
+    setOrderToFitSiblings(elementToMove);
+    SetDragClass(closest, 0);
 
 
     // drop item, either set it back to position or change it
