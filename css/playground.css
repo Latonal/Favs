@@ -4,6 +4,12 @@
     --sticker-bg-color: transparent;
 }
 
+my-album,
+my-group,
+my-sticker {
+    position: relative;
+}
+
 my-album {
     display: block;
     border: 3px solid var(--album-border-color);
@@ -88,8 +94,42 @@ my-sticker {
     user-select: none;
 }
 
+.drag-top::before,
+.drag-right::after,
+.drag-bottom::after,
+.drag-left::before {
+    content: "";
+    position: absolute;
+    background-color: yellow;
+}
+
+.drag-top::before {
+    width: 100%;
+    height: 2px;
+    top: 0;
+    left: 0;
+}
+
+.drag-right::after {
+    width: 2px;
+    height: 100%;
+    right: 0;
+}
+
+.drag-bottom::after {
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+}
+
+.drag-left::before {
+    width: 2px;
+    height: 100%;
+    left: 0;
+}
 
 /* DEBUGGING */
 my-group my-sticker:last-child {
-    background-color:darkblue;
+    background-color: darkblue;
 }
