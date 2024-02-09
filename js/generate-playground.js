@@ -52,7 +52,8 @@ async function generateAlbum(db) {
                     // Search any other element inside the album
                     const search = [cursor.value];
                     const children = await retrieveElementChildrenRecursively(elementsStore, cursor.value.uuid, search);
-                    children.sort(compareElements)
+
+                    children.sort(compareElements);
 
                     // Append results
                     playground.appendChild(album);
@@ -110,9 +111,11 @@ async function retrieveElementChildrenRecursively(store, currentId, search) {
 }
 
 function compareElements(e1, e2) {
-    if (e1.parent === e2.parent) {
-        return e1.order - e2.order;
+    if (e1.parent !== e2.parent) {
+        return e1.parent - e2.parent;
     }
+
+    return e1.order - e2.order;
 }
 
 async function setInformations(db, elementsId) {

@@ -195,7 +195,6 @@ function getClosestEdge(event, elementToSearch, verticalOutput = true, horizonta
 }
 
 function SetDragClass(element, val) {
-    console.log(element, val);
     switch (val) {
         case 1: // top
             element.classList.add("drag-top");
