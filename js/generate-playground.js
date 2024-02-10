@@ -31,7 +31,7 @@ async function generatePlayground() {
 
 // Todo: add a paramater to define if we must open a certain page
 // (for perfomances) or all of them.
-async function generateAlbum(db) {
+async function generateAlbum(db, page = 0) {
     playground = document.getElementById("playground");
 
     return new Promise(async (resolve, reject) => {
@@ -39,7 +39,7 @@ async function generateAlbum(db) {
             const transactionsRead = db.transaction("elements", "readonly");
             const elementsStore = transactionsRead.objectStore("elements");
 
-            const albumCursor = elementsStore.index("by_parent").openCursor(0);
+            const albumCursor = elementsStore.index("by_parent").openCursor(page);
             let searches = [];
 
             albumCursor.onsuccess = async function () {
@@ -110,12 +110,20 @@ async function retrieveElementChildrenRecursively(store, currentId, search) {
     });
 }
 
-function compareElements(e1, e2) {
-    if (e1.parent !== e2.parent) {
-        return e1.parent - e2.parent;
+function compareElements(a, b) {
+    if (a.parent === b.parent) {
+        return a.order - b.order;
     }
 
-    return e1.order - e2.order;
+    if (a.parent === b.uuid) {
+        return 1;
+    }
+    
+    if (b.parent === a.uuid) {
+        return -1;
+    }
+
+    return a.parent - b.parent;
 }
 
 async function setInformations(db, elementsId) {
@@ -188,17 +196,17 @@ async function formatElements(iconsStore, cursorValues, element) {
             // text
             const my_text = getDefinedContent(cursorValues.text, { decrypt: true });
             // theme
-            const my_theme = getDefinedContent(cursorValues.theme, {decrypt: true});
+            const my_theme = getDefinedContent(cursorValues.theme, { decrypt: true });
 
             // customcss
-            const my_customcss = getDefinedContent(cursorValues.customcss, {decrypt: true});
+            const my_customcss = getDefinedContent(cursorValues.customcss, { decrypt: true });
             // color
-            const my_color = getDefinedContent(cursorValues.color, {decrypt: true});
+            const my_color = getDefinedContent(cursorValues.color, { decrypt: true });
 
             let my_css = [
                 { color: my_color }
             ];
-            
+
             my_css = my_css.concat(cssStringAsObj(my_customcss));
 
             switch (my_tag.toLowerCase()) {
@@ -225,9 +233,9 @@ async function formatElements(iconsStore, cursorValues, element) {
                         setCss(my_element, my_css);
                     }
 
-                    const my_href = getDefinedContent(cursorValues.href, {decrypt: true});
+                    const my_href = getDefinedContent(cursorValues.href, { decrypt: true });
                     if (my_href) my_element.setAttribute("href", my_href);
-                    const my_target = getDefinedContent(cursorValues.target, {decrypt: true});
+                    const my_target = getDefinedContent(cursorValues.target, { decrypt: true });
                     if (my_target) my_element.setAttribute("target", my_target);
                     break;
                 default:
