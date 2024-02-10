@@ -114,6 +114,7 @@ function defaultGeneration(elementsStore, iconsStore, informationsStore) {
             elementsStore.put({ parent: 2, order: 2, uuid: 7 });
                 elementsStore.put({ parent: 7, order: 2, uuid: 22 });
                     elementsStore.put({ parent: 22, order: 1, uuid: 8 });
+                        // elementsStore.put({ parent: 8, order: 1, uuid: 30 }); // debugging
                     elementsStore.put({ parent: 22, order: 0, uuid: 25 });
                 elementsStore.put({ parent: 7, order: 0, uuid: 23 });
                     elementsStore.put({ parent: 23, order: 2, uuid: 24 });
@@ -126,7 +127,7 @@ function defaultGeneration(elementsStore, iconsStore, informationsStore) {
     elementsStore.put({ parent: 0, order: 1, uuid: 13 });
         elementsStore.put({ parent: 13, order: 0, uuid: 14 });
             elementsStore.put({ parent: 14, order: 0, uuid: 15 });
-    // Page 3
+        // Page 3
     elementsStore.put({ parent: 0, order: 2, uuid: 16 });
         elementsStore.put({ parent: 16, order: 0, uuid: 17 });
             elementsStore.put({ parent: 17, order: 0, uuid: 18 });
@@ -142,7 +143,7 @@ function defaultGeneration(elementsStore, iconsStore, informationsStore) {
     informationsStore.put({ parent: 4, text: "middle element", img_uuid: 1 });
     informationsStore.put({ parent: 19, text: "new tab", img_uuid: 1, href: "https://www.youtube.com/", target: "_blank", customcss: "background-color:green;font-style:oblique;" });
     informationsStore.put({ parent: 20, text: "same tab - no target", img_uuid: 1, href: "https://www.youtube.com/" });
-    informationsStore.put({ parent: 21, text: "same tab - with target", img_uuid: 1, href: "https://www.youtube.com/", target: "_self" });
+    informationsStore.put({ parent: 21, text: "same tab - with target", img_uuid: 1, href: "https://www.youtube.com/", target: "_self", customcss: "font-size:25px;font-weight:bold;" });
     informationsStore.put({ parent: 5 });
     informationsStore.put({ parent: 6, text: "left element" });
     informationsStore.put({ parent: 7 });
