@@ -39,7 +39,11 @@ async function generateAlbum(db, page = 0) {
             const transactionsRead = db.transaction("elements", "readonly");
             const elementsStore = transactionsRead.objectStore("elements");
 
-            const albumCursor = elementsStore.index("by_parent").openCursor(page);
+            // const albumCursor = elementsStore.index("by_parent").openCursor(page);
+            let albumCursor = null;
+            if (page === 0) albumCursor = elementsStore.index("by_parent").openCursor(page);
+            else albumCursor = elementsStore.index("by_uuid").openCursor(page);
+
             let searches = [];
 
             albumCursor.onsuccess = async function () {
@@ -60,7 +64,7 @@ async function generateAlbum(db, page = 0) {
                     children.forEach(element => {
                         searches.push(element.uuid);
                         let layer_order;
-                        if (element.parent === 0) return;
+                        if (element.parent === cursor.value.parent) return;
                         parent = document.getElementById(element.parent);
                         if (search.find(s => s.parent === element.uuid)) {
                             tag_name = FavsCustomElementsName.tags.GROUP;
