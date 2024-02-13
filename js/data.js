@@ -19,11 +19,12 @@ function instantiateDB() {
             if (event.oldVersion < 1) { // Initialize db
                 const elementsStore = db.createObjectStore("elements", { keyPath: "uuid" })
                 elementsStore.createIndex("by_parent", "parent", { unique: false });
-                elementsStore.createIndex("by_order", "order", { unique: false });
+                // elementsStore.createIndex("by_order", "order", { unique: false });
+                elementsStore.createIndex("by_uuid", "uuid", { unique: true });
 
                 const iconsStore = db.createObjectStore("icons", { keyPath: "uuid" });
                 iconsStore.createIndex("by_name", "name", { unique: false });
-                iconsStore.createIndex("link", "link", { unique: false });
+                // iconsStore.createIndex("link", "link", { unique: false });
 
                 const informationsStore = db.createObjectStore("informations", { autoIncrement: true });
                 informationsStore.createIndex("by_parent", "parent", { unique: false });
