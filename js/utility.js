@@ -36,6 +36,7 @@ const Positions = {
     RIGHT: 2,
     BOTTOM: 3,
     LEFT: 4,
+    INNER: 5,
 }
 //#endregion "ENUMS"
 
@@ -212,8 +213,11 @@ function SetDragClass(element, val) {
             element.classList.add("drag-left");
             element.classList.remove("drag-top", "drag-right", "drag-bottom");
             break;
+        case 5: // inner
+            element.classList.add("drag-inner");
+            break;
         default:
-            element.classList.remove("drag-top", "drag-right", "drag-bottom", "drag-left");
+            element.classList.remove("drag-top", "drag-right", "drag-bottom", "drag-left", "drag-inner");
             break;
     }
 }
@@ -261,8 +265,21 @@ function handleGroupDragOver(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    const closestEdge = getClosestEdge(event, FavsCustomElementsName.tags.GROUP);
-    if (closest.id !== event.dataTransfer.getData("element")) SetDragClass(closest, closestEdge);
+    const data = event.dataTransfer.getData("element");
+    const elementToMove = document.getElementById(data);
+    switch (elementToMove.tagName.toLowerCase()) {
+        case FavsCustomElementsName.tags.STICKER:
+            console.log('e');
+            SetDragClass(closest, Positions.INNER);
+            break;
+        case FavsCustomElementsName.tags.GROUP:
+            const closestEdge = getClosestEdge(event, FavsCustomElementsName.tags.GROUP);
+            SetDragClass(closest, closestEdge);
+            break;
+        default:
+            console.error("ERROR Utility-3:\nAn error happened while trying to determine what element type your were trying to drag over a group.", minDist);
+            break;
+    }
 }
 
 function handleGroupDragLeave(event) {
@@ -273,24 +290,28 @@ function handleGroupDragLeave(event) {
 }
 
 function handleGroupDrop(event) {
+    const data = event.dataTransfer.getData("element");
+    const elementToMove = document.getElementById(data);
+
+    const closest = isTargetedElement(event, FavsCustomElementsName.tags.GROUP);
+    if (!closest) return;
+
     event.preventDefault();
     event.stopPropagation();
-
-    const data = event.dataTransfer.getData("element");
-    console.log(data);
-    const elementToMove = document.getElementById(data);
     
     switch (elementToMove.tagName.toLowerCase()) {
         case FavsCustomElementsName.tags.STICKER:
-            event.target.closest(FavsCustomElementsName.tags.GROUP).appendChild(elementToMove);
+            closest.appendChild(elementToMove);
             setOrderToFitSiblings(elementToMove);
+            SetDragClass(closest, 0);
             break;
         case FavsCustomElementsName.tags.GROUP:
             const closestEdge = getClosestEdge(event, FavsCustomElementsName.tags.GROUP);
             assignGroup(event, elementToMove, closestEdge);
+            SetDragClass(closest, 0);
             break;
         default:
-            console.error("ERROR Utility-2:\nAn error happened while putting element in group.", minDist);
+            console.error("ERROR Utility-2:\nAn error happened while trying to determine what element type your were trying to drop on a group.", minDist);
             break;
     }
 

@@ -97,7 +97,8 @@ my-sticker {
 .drag-top::before,
 .drag-right::after,
 .drag-bottom::after,
-.drag-left::before {
+.drag-left::before,
+.drag-inner:before {
     content: "";
     position: absolute;
     background-color: yellow;
@@ -127,6 +128,14 @@ my-sticker {
     width: 2px;
     height: 100%;
     left: 0;
+}
+
+.drag-inner::before {
+    background-color: goldenrod !important;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
 }
 
 /* DEBUGGING */
