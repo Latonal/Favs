@@ -93,67 +93,18 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
 
     // Todo : create a case if the previous or next element does not require to change its order
     // (because real order does not change)
-
-
-    /**
-     * ^^ Simplified ^^
-     * vv Previous vv
-     */
-
-    // const prevElement = element.previousSibling;
-    // const nextElement = element.nextSibling;
-    // if (prevElement == null && nextElement == null) {
-    //     element.style.setProperty("--order", 0);
-    //     return;
-    // }
-
-    // let prevOrder = null;
-    // let nextOrder = null;
-    // if (prevElement != null) {
-    //     const compStyle = getComputedStyle(prevElement);
-    //     prevOrder = compStyle.getPropertyValue("--order");
-    // }
-    // if (nextElement != null) {
-    //     const compStyle = getComputedStyle(nextElement);
-    //     nextOrder = parseInt(compStyle.getPropertyValue("--order"));
-    // }
-
-    // if (prevOrder != null && isTruthy(prevOrder))
-    //     prevOrder = 0;
-    // if (nextOrder != null && isTruthy(nextOrder))
-    //     nextOrder = 0;
-
-    // if (prevElement == null) {
-    //     element.style.setProperty("--order", nextOrder - 1);
-    //     return;
-    // }
-    // if (nextElement == null) {
-    //     element.style.setProperty("--order", parseInt(prevOrder, 10) + 1);
-    //     return;
-    // }
-    // if (/*prevOrder && nextOrder &&*/ prevOrder < nextOrder - 1) {
-    //     element.style.setProperty("--order", nextOrder - 1);
-    //     return;
-    // }
-
-    // const newOrder = (iterateToNextSibling) ? parseInt(prevOrder, 10) + 1 : nextOrder - 1;
-    // element.style.setProperty("--order", newOrder);
-    // assignOrderToSiblingsRecursively((iterateToNextSibling) ? nextElement : prevElement, iterateToNextSibling);
 }
 
 /**
  * Return closest edge
  * @param {Event} event 
- * @param {HTMLElement} elementToSearch 
+ * @param {HTMLElement} closest 
  * @param {Boolean} verticalOutput Should we return vertical output (top, bottom)
  * @param {Boolean} horizontalOutput Should we return horizontal ouput (right, left)
  * @returns 
  */
-function getClosestEdge(event, elementToSearch, verticalOutput = true, horizontalOutput = true) {
-    // const element = (isTruthy(event.target.tagName)) ? event.target : event.currentTarget;
-    // const closest = element.closest(elementToSearch);
-    const closest = isTargetedElement(event, elementToSearch);
-    if (!verticalOutput && !horizontalOutput) return console.error("ERROR Utility-2:\nThe parameters verticalOutput and horizontalOutput must not be both set to false.");
+function getClosestEdge(event, closest, verticalOutput = true, horizontalOutput = true) {
+    if (!verticalOutput && !horizontalOutput) return console.error("ERROR Utility-4:\nThe parameters verticalOutput and horizontalOutput must not be both set to false.");
 
     var x = null, y = null, distFromRight = null, distFromBottom = null;
     var values = [];
@@ -177,7 +128,6 @@ function getClosestEdge(event, elementToSearch, verticalOutput = true, horizonta
         return element !== null;
     });
 
-    // const minDist = Math.min(x, y, distFromRight, distFromBottom);
     const minDist = Math.min.apply(this, values);
 
     switch (minDist) {
@@ -191,6 +141,32 @@ function getClosestEdge(event, elementToSearch, verticalOutput = true, horizonta
             return Positions.BOTTOM;
         default:
             console.error("ERROR Utility-1:\nAn error happened while retrieving position in targeted element.", minDist);
+            break;
+    }
+}
+
+function isHoverCorner(event, closest, thresholdValue, thresholdUnit) {
+    const rect = closest.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    switch (thresholdUnit) {
+        case "px":
+            return checkConditionsThreshold(2,
+                x <= thresholdValue,
+                y <= thresholdValue,
+                x >= rect.width - thresholdValue,
+                y >= rect.height - thresholdValue);
+        // case "%": // TODO
+        //     const thresholdX = (rect.width * thresholdValue) / 100;
+        //     const thresholdY = (rect.height * thresholdValue) / 100;
+        //     return checkConditionsThreshold(2,
+        //         x <= thresholdX,
+        //         y <= thresholdY,
+        //         x >= rect.width - thresholdX,
+        //         y >= rect.height - thresholdY);
+        default:
+            console.error("ERROR Utility-5:\nThreshold unit is not supported. Please use px or %.", minDist);
             break;
     }
 }
@@ -216,7 +192,7 @@ function SetDragClass(element, val) {
         case 5: // inner
             element.classList.add("drag-inner");
             break;
-        default:
+        default: // remove classes
             element.classList.remove("drag-top", "drag-right", "drag-bottom", "drag-left", "drag-inner");
             break;
     }
@@ -273,7 +249,8 @@ function handleGroupDragOver(event) {
             SetDragClass(closest, Positions.INNER);
             break;
         case FavsCustomElementsName.tags.GROUP:
-            const closestEdge = getClosestEdge(event, FavsCustomElementsName.tags.GROUP);
+            const closestEdge = getClosestEdge(event, closest);
+            console.log("is hover corner", isHoverCorner(event, closest, 20, "px"));
             SetDragClass(closest, closestEdge);
             break;
         default:
@@ -298,7 +275,7 @@ function handleGroupDrop(event) {
 
     event.preventDefault();
     event.stopPropagation();
-    
+
     switch (elementToMove.tagName.toLowerCase()) {
         case FavsCustomElementsName.tags.STICKER:
             closest.appendChild(elementToMove);
@@ -306,7 +283,7 @@ function handleGroupDrop(event) {
             SetDragClass(closest, 0);
             break;
         case FavsCustomElementsName.tags.GROUP:
-            const closestEdge = getClosestEdge(event, FavsCustomElementsName.tags.GROUP);
+            const closestEdge = getClosestEdge(event, closest);
             assignGroup(event, elementToMove, closestEdge);
             SetDragClass(closest, 0);
             break;
@@ -398,7 +375,7 @@ function handleStickerDragOver(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    const closestEdge = getClosestEdge(event, FavsCustomElementsName.tags.STICKER);
+    const closestEdge = getClosestEdge(event, closest);
     // Todo: add css and update it depending of position of cursor
     if (closest.id !== event.dataTransfer.getData("element")) SetDragClass(closest, closestEdge);
 }
@@ -421,7 +398,7 @@ function handleStickerDrop(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    const closestEdge = getClosestEdge(event, FavsCustomElementsName.tags.STICKER);
+    const closestEdge = getClosestEdge(event, closest);
     if (closestEdge === 1 || closestEdge === 4) {
         closest.closest(FavsCustomElementsName.tags.STICKER).before(elementToMove);
     } else {

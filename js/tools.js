@@ -27,6 +27,15 @@ function cleanArrayOfObjects(arr) {
     });
 }
 
+function conditionsCountTrue(...conditions) {
+    return conditions.reduce((count, condition) => (condition ? count + 1 : count), 0);
+}
+
+function checkConditionsThreshold(threshold, ...conditions) {
+    const trueCount = conditionsCountTrue(...conditions);
+    return trueCount >= threshold;
+}
+
 const cssVariablePrefix = "--";
 /**
  * Dissociate variables values from constants values in css
