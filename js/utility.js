@@ -68,7 +68,6 @@ function setOrderToFitSiblings(element) {
  * @param {Boolean} iterateToNextSibling true: next sibling / false: previous sibling 
  */
 function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
-    console.log("iterate");
     const nextElement = element.nextElementSibling;
     const prevElement = element.previousElementSibling;
 
@@ -81,7 +80,6 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
     else
         newOrder = (nextElement) ? parseInt(nextOrder, 10) - 1 : 0;
     if (prevElement && nextElement && prevOrder < nextOrder - 1) {
-        console.log("special case");
         newOrder = nextOrder - 1;
     }
     element.style.setProperty("--order", newOrder);
@@ -101,7 +99,7 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
  * @param {HTMLElement} closest 
  * @param {Boolean} verticalOutput Should we return vertical output (top, bottom)
  * @param {Boolean} horizontalOutput Should we return horizontal ouput (right, left)
- * @returns 
+ * @returns {Number}
  */
 function getClosestEdge(event, closest, verticalOutput = true, horizontalOutput = true) {
     if (!verticalOutput && !horizontalOutput) return console.error("ERROR Utility-4:\nThe parameters verticalOutput and horizontalOutput must not be both set to false.");
@@ -145,6 +143,59 @@ function getClosestEdge(event, closest, verticalOutput = true, horizontalOutput 
     }
 }
 
+/**
+ * Return closest edges ordered and reduced to number needed
+ * @param {Event} event 
+ * @param {HTMLElement} closest 
+ * @param {Boolean} verticalOutput Should we return vertical output (top, bottom)
+ * @param {Boolean} horizontalOutput Should we return horizontal ouput (right, left)
+ * @returns {Array} Tuple returning the (1) closest edges (2) values of closest edges
+ */
+function getClosestEdges(event, closest, nbValReturned = 1, ascending = true) {
+    var x = null, y = null, distFromRight = null, distFromBottom = null;
+    var values = [];
+
+    y = event.clientY - closest.getBoundingClientRect().top;
+    const height = closest.offsetHeight;
+    distFromBottom = height - y;
+    values.push(y, distFromBottom);
+
+    x = event.clientX - closest.getBoundingClientRect().left;
+    const width = closest.offsetWidth;
+    distFromRight = width - x;
+    values.push(x, distFromRight);
+
+    values = values.filter(element => {
+        return element !== null;
+    })
+        .sort(ascending ? sortAscending : sortDescending);
+
+    var results = [];
+    for (let i = 0; i < nbValReturned; i++) {
+
+        // results.push(values[i]);
+        switch (values[i]) {
+            case x:
+                results.push(Positions.LEFT);
+                break;
+            case y:
+                results.push(Positions.TOP);
+                break;
+            case distFromRight:
+                results.push(Positions.RIGHT);
+                break;
+            case distFromBottom:
+                results.push(Positions.BOTTOM);
+                break;
+            default:
+                console.error("ERROR Utility-6:\nAn error happened while retrieving position in targeted element.", values[i]);
+                break;
+        }
+    }
+
+    return [results, values];
+}
+
 function isHoverCorner(event, closest, thresholdValue, thresholdUnit) {
     const rect = closest.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -168,6 +219,24 @@ function isHoverCorner(event, closest, thresholdValue, thresholdUnit) {
         default:
             console.error("ERROR Utility-5:\nThreshold unit is not supported. Please use px or %.", minDist);
             break;
+    }
+}
+
+function isHoverCornerCalc(closest, positions, values, thresholdValue = 30, thresholdUnit = "px") {
+    if (values.length <= 1) return false;
+
+    switch (thresholdUnit) {
+        case "px":
+            return values[0] <= thresholdValue && values[1] <= thresholdValue;
+        case "%":
+            const rect = closest.getBoundingClientRect();
+            const thresholdPercentHeight = rect.height / 100 * thresholdValue;
+            const thresholdPercentWidth = rect.width / 100 * thresholdValue;
+            return ((positions[0] == Positions.TOP || positions[0] == Positions.BOTTOM) ? values[0] <= thresholdPercentHeight : values[0] <= thresholdPercentWidth) &&
+                ((positions[1] == Positions.TOP || positions[1] == Positions.BOTTOM) ? values[1] <= thresholdPercentHeight : values[1] <= thresholdPercentWidth);
+        default:
+            console.error("ERROR Utility-7:\nThreshold unit is not supported. Please use px or %.", minDist);
+            return false;
     }
 }
 
@@ -255,9 +324,7 @@ function handleGroupDragOver(event) {
             break;
         case FavsCustomElementsName.tags.GROUP: // Currently correcting this part
             if (closest.id === data) break;
-            const closestEdge = getClosestEdge(event, closest);
-            // console.log("is hover corner", isHoverCorner(event, closest, 20, "px"));
-            assignGroup(event, closest, elementToMove, closestEdge);
+            assignGroup(event, closest, elementToMove);
             break;
         default:
             console.error("ERROR Utility-3:\nAn error happened while trying to determine what element type your were trying to drag over a group.", minDist);
@@ -270,19 +337,100 @@ function handleGroupDrop(event) {
     const elementToMove = document.getElementById(data);
     elementToMove.classList.remove("dragged");
 
+    // Search tmp, remove tmp attribute and set a new id
+
+
     event.preventDefault();
     event.stopPropagation();
 }
 
-function assignGroup(event, closest, elementToMove, closestEdge) {
-    console.log("tried to push a group into a group");
-    console.log("group closest edge:", closestEdge, "from:", closest);
-    if (closestEdge === 1 || closestEdge === 4) {
-        closest.before(elementToMove);
+function assignGroup(event, closest, elementToMove) {
+    // if group has child group, return
+    if (closest.querySelector("my-group")) return;
+
+    const parent = closest.parentElement;
+    const parentFlexDirection = getComputedStyle(parent).flexDirection;
+
+    // If hover corner first
+    // console.log("is hover corner", isHoverCorner(event, closest, 20, "px"));
+    const [closestEdges, closestValues] = getClosestEdges(event, closest, 2, true);
+
+    const isHoverCorner = isHoverCornerCalc(closest, closestEdges, closestValues, 15, "%");
+    console.log(isHoverCorner);
+
+    if (isHoverCorner) {
+        // Creating parent from target
+        let layerLevel = null;
+        if (!closest.parentNode.getAttribute("tmp")) {
+            // Search other tmp and remove them
+            removeTmpGroups();
+
+            let parentGroup = document.createElement("my-group");
+            parentGroup.setAttribute("tmp", true);
+            closest.before(parentGroup);
+            parentGroup.appendChild(closest);
+            layerLevel = parentGroup.parentNode ? parentGroup.parentNode.getAttribute("layer-level") == "odd" ? "even" : "odd" : "odd";
+            parentGroup.setAttribute("layer-level", layerLevel);
+        }
+
+        // Move dragged element
+        if (closestEdges.includes(Positions.TOP) && closestEdges.includes(Positions.LEFT))
+            closest.before(elementToMove);
+        else if (closestEdges.includes(Positions.RIGHT) && closestEdges.includes(Positions.BOTTOM))
+            closest.after(elementToMove);
+        else if (closestEdges.includes(Positions.TOP) && closestEdges.includes(Positions.RIGHT)) {
+            if (layerLevel == "odd") closest.before(elementToMove);
+            else closest.after(elementToMove);
+        } else { // Positions.BOTTOM && Positions.LEFT
+            if (layerLevel == "odd") closest.after(elementToMove);
+            else closest.before(elementToMove);
+        }
     } else {
-        closest.after(elementToMove);
+        // Search tmp and remove them
+        removeTmpGroups();
+
+        // TODO: Refactoring
+        const closestEdge = closestEdges[0];
+        if (parentFlexDirection === "row") {
+            if (closestEdge === Positions.TOP) {
+                parent.before(elementToMove);
+            } else if (closestEdge === Positions.RIGHT) {
+                closest.after(elementToMove);
+            } else if (closestEdge === Positions.BOTTOM) {
+                parent.after(elementToMove);
+            } else if (closestEdge === Positions.LEFT) {
+                closest.before(elementToMove);
+            }
+        } else if (parentFlexDirection === "column") {
+            if (closestEdge === Positions.TOP) {
+                closest.before(elementToMove);
+            } else if (closestEdge === Positions.RIGHT) {
+                parent.after(elementToMove);
+            } else if (closestEdge === Positions.BOTTOM) {
+                closest.after(elementToMove);
+            } else if (closestEdge === Positions.LEFT) {
+                parent.before(elementToMove);
+            }
+        }
     }
+
     setOrderToFitSiblings(elementToMove);
+}
+
+function removeTmpGroups() {
+    // to remove parent but not childs, use parent.replaceWith(childs)
+    tmps = document.querySelectorAll("[tmp=true]");
+    if (tmps.length <= 0) return;
+
+    tmps.forEach(element => {
+        // element.childNodes.forEach(c => {
+        //     element.before(c);
+        // });
+
+        // element.remove();
+
+        // element.replaceWith(element.childsNodes);
+    });
 }
 
 class Sticker extends HTMLElement {
@@ -353,7 +501,7 @@ function handleStickerDragOver(event) {
 
     const closest = isTargetedElement(event, FavsCustomElementsName.tags.STICKER);
     if (!closest) return;
-    
+
     event.preventDefault();
     event.stopPropagation();
 

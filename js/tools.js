@@ -36,6 +36,14 @@ function checkConditionsThreshold(threshold, ...conditions) {
     return trueCount >= threshold;
 }
 
+function sortAscending(a, b) {
+    return a - b;
+}
+
+function sortDescending(a, b) {
+    return b - a;
+}
+
 const cssVariablePrefix = "--";
 /**
  * Dissociate variables values from constants values in css

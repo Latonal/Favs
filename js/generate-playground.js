@@ -20,6 +20,7 @@ async function generatePlayground() {
 
     try {
         const db = await openDatabase();
+        // TODO: pass page data depending of user preferences
         const elementsId = await generateAlbum(db);
         await setInformations(db, elementsId);
 
@@ -29,8 +30,6 @@ async function generatePlayground() {
     }
 }
 
-// Todo: add a paramater to define if we must open a certain page
-// (for perfomances) or all of them.
 async function generateAlbum(db, page = 0) {
     playground = document.getElementById("playground");
 
