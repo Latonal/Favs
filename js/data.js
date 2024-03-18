@@ -1,16 +1,31 @@
 const DB_NAME = "playground-ltnl-462";
 const DB_VERSION = 1;
 
+var highestId = 0;
+
 // export {
-//     instantiateDB,
 //     openDatabase,
+//     instantiateDB,
 //     deleteDB
 // }
 
+function openDatabase() {
+    return new Promise((resolve, reject) => {
+        const openRequest = indexedDB.open(DB_NAME, DB_VERSION);
+
+        openRequest.onerror = function () {
+            console.error("ERROR Database-1:\nAn error occured while opening the database: ", openRequest.error);
+            reject(false);
+        };
+
+        openRequest.onsuccess = function () {
+            resolve(openRequest.result);
+        };
+    });
+}
+
 function instantiateDB() {
-    // TODO : replace this openRequest by openDatabase()
     const openRequest = indexedDB.open(DB_NAME, DB_VERSION); //
-    let db; //
 
     return new Promise((resolve, reject) => {
         openRequest.onupgradeneeded = function (event) {
@@ -41,21 +56,21 @@ function instantiateDB() {
             reject(false);
         };
         openRequest.onsuccess = function () {
-            db = openRequest.result;
+            const db = openRequest.result;
             console.log("Database has been opened: ", db);
             // continue using the db object
-            let elements = db.transaction("elements", "readonly");
-            let elem = elements.objectStore("elements");
+            const transactionRead = db.transaction("elements", "readonly");
+            const elementsStore = transactionRead.objectStore("elements");
 
             // get by index
-            let parent = elem.index("by_parent");
+            let parent = elementsStore.index("by_parent");
             console.log("get elements with parent 1:", parent.getAll(1));
 
             // empty index is not possible, we use a dummy data
             console.log("by empty index: ", parent.getAll(IDBKeyRange.only(0)));
 
             // get by key
-            let withKey = elem.get(1);
+            let withKey = elementsStore.get(1);
             console.log("with key:", withKey);
 
             // get only data related to key
@@ -64,27 +79,10 @@ function instantiateDB() {
                 console.log("parent:", matching.parent, " id:", matching.uuid);
             }
 
-            // TODO : CURSOR
+            getElementsHighestId(elementsStore);
 
             db.close();
             resolve(true);
-        };
-    });
-}
-
-function openDatabase() {
-    return new Promise((resolve, reject) => {
-        const openRequest = indexedDB.open(DB_NAME, DB_VERSION);
-        // const openRequest = IndexedDBWrapper.open(DB_NAME, DB_VERSION);
-        // const openRequest = FavsIndexedDB.open(DB_NAME, DB_VERSION);
-
-        openRequest.onerror = function () {
-            console.error("ERROR Database-1:\nAn error occured while opening the database: ", openRequest.error);
-            reject(false);
-        };
-
-        openRequest.onsuccess = function () {
-            resolve(openRequest.result);
         };
     });
 }
@@ -104,34 +102,34 @@ function defaultGeneration(elementsStore, iconsStore, informationsStore) {
     // ELEMENTS
     // Page 1
     elementsStore.put({ parent: 0, order: 0, uuid: 1 });
-        elementsStore.put({ parent: 1, order: 0, uuid: 2 });
-            elementsStore.put({ parent: 2, order: 1, uuid: 3 });
-                elementsStore.put({ parent: 3, order: 0, uuid: 4 });
-                elementsStore.put({ parent: 3, order: 1, uuid: 19 });
-                elementsStore.put({ parent: 3, order: 3, uuid: 20 });
-                elementsStore.put({ parent: 3, order: 2, uuid: 21 });
-            elementsStore.put({ parent: 2, order: 0, uuid: 5 });
-                elementsStore.put({ parent: 5, order: 0, uuid: 6 });
-            elementsStore.put({ parent: 2, order: 2, uuid: 7 });
-                elementsStore.put({ parent: 7, order: 2, uuid: 22 });
-                    elementsStore.put({ parent: 22, order: 1, uuid: 8 });
-                        // elementsStore.put({ parent: 8, order: 1, uuid: 30 }); // debugging
-                    elementsStore.put({ parent: 22, order: 0, uuid: 25 });
-                elementsStore.put({ parent: 7, order: 0, uuid: 23 });
-                    elementsStore.put({ parent: 23, order: 2, uuid: 24 });
-        elementsStore.put({ parent: 1, order: 1, uuid: 9 });
-            elementsStore.put({ parent: 9, order: 0, uuid: 10 });
-        elementsStore.put({ parent: 1, order: 2, uuid: 11 });
-            elementsStore.put({ parent: 11, order: 0, uuid: 12 });
+    elementsStore.put({ parent: 1, order: 0, uuid: 2 });
+    elementsStore.put({ parent: 2, order: 1, uuid: 3 });
+    elementsStore.put({ parent: 3, order: 0, uuid: 4 });
+    elementsStore.put({ parent: 3, order: 1, uuid: 19 });
+    elementsStore.put({ parent: 3, order: 3, uuid: 20 });
+    elementsStore.put({ parent: 3, order: 2, uuid: 21 });
+    elementsStore.put({ parent: 2, order: 0, uuid: 5 });
+    elementsStore.put({ parent: 5, order: 0, uuid: 6 });
+    elementsStore.put({ parent: 2, order: 2, uuid: 7 });
+    elementsStore.put({ parent: 7, order: 2, uuid: 22 });
+    elementsStore.put({ parent: 22, order: 1, uuid: 8 });
+    // elementsStore.put({ parent: 8, order: 1, uuid: 30 }); // debugging
+    elementsStore.put({ parent: 22, order: 0, uuid: 25 });
+    elementsStore.put({ parent: 7, order: 0, uuid: 23 });
+    elementsStore.put({ parent: 23, order: 2, uuid: 24 });
+    elementsStore.put({ parent: 1, order: 1, uuid: 9 });
+    elementsStore.put({ parent: 9, order: 0, uuid: 10 });
+    elementsStore.put({ parent: 1, order: 2, uuid: 11 });
+    elementsStore.put({ parent: 11, order: 0, uuid: 12 });
 
     // Page 2
     elementsStore.put({ parent: 0, order: 1, uuid: 13 });
-        elementsStore.put({ parent: 13, order: 0, uuid: 14 });
-            elementsStore.put({ parent: 14, order: 0, uuid: 15 });
-        // Page 3
+    elementsStore.put({ parent: 13, order: 0, uuid: 14 });
+    elementsStore.put({ parent: 14, order: 0, uuid: 15 });
+    // Page 3
     elementsStore.put({ parent: 0, order: 2, uuid: 16 });
-        elementsStore.put({ parent: 16, order: 0, uuid: 17 });
-            elementsStore.put({ parent: 17, order: 0, uuid: 18 });
+    elementsStore.put({ parent: 16, order: 0, uuid: 17 });
+    elementsStore.put({ parent: 17, order: 0, uuid: 18 });
 
     // ICONS
     iconsStore.put({ name: "options", link: "./img/options.svg", uuid: 1 });
@@ -165,4 +163,28 @@ function defaultGeneration(elementsStore, iconsStore, informationsStore) {
     informationsStore.put({ parent: 16, customcss: "background-color:blue;" });
     informationsStore.put({ parent: 17 });
     informationsStore.put({ parent: 18, text: "some text on the third page" });
+}
+
+
+
+
+/** Utility */
+
+async function getElementsHighestId(elementsStore = null) {
+    if (elementsStore == null) {
+        const db = await openDatabase();
+        const transactionsRead = db.transaction("elements", "readonly");
+        elementsStore = transactionsRead.objectStore("elements");
+    }
+    
+    const index = elementsStore.index("by_uuid");
+    let elementsCursor = index.openCursor(null, "prev");
+    elementsCursor.onsuccess = function (event) {
+        highestId = event.target.result.primaryKey;
+        return highestId;
+    }
+
+    elementsCursor.onerror = function() {
+        return null;
+    }
 }
