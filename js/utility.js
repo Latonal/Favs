@@ -1,3 +1,6 @@
+var draggedElementId = 0;
+var oldParentId = 0;
+
 //#region PROTOTYPES
 // TODO : ENCRYPT
 String.prototype.encrypt/*, Number.prototype.encrypt */ = function () {
@@ -296,15 +299,14 @@ function handleGroupEdit(event) {
 }
 
 function handleGroupDragStart(event) {
-    event.dataTransfer.clearData();
-    event.dataTransfer.setData("element", event.currentTarget.id);
+    draggedElementId = event.currentTarget.id;
+    oldParentId = event.currentTarget.parentElement.id;
 
     event.stopPropagation();
 }
 
 function handleGroupDragOver(event) {
-    const data = event.dataTransfer.getData("element");
-    const elementToMove = document.getElementById(data);
+    const elementToMove = document.getElementById(draggedElementId);
     if (elementToMove.tagName.toLowerCase() != FavsCustomElementsName.tags.STICKER &&
         elementToMove.tagName.toLowerCase() != FavsCustomElementsName.tags.GROUP)
         return;
@@ -323,7 +325,7 @@ function handleGroupDragOver(event) {
             }
             break;
         case FavsCustomElementsName.tags.GROUP: // Currently correcting this part
-            if (closest.id === data) break;
+            if (closest.id === draggedElementId) break;
             assignGroup(event, closest, elementToMove);
             break;
         default:
@@ -333,15 +335,44 @@ function handleGroupDragOver(event) {
 }
 
 function handleGroupDrop(event) {
-    const data = event.dataTransfer.getData("element");
-    const elementToMove = document.getElementById(data);
+    const elementToMove = document.getElementById(draggedElementId);
     elementToMove.classList.remove("dragged");
-
-    // Search tmp, remove tmp attribute and set a new id
-
 
     event.preventDefault();
     event.stopPropagation();
+
+    if (event.target.parentElement.getAttribute("tmp")) { // parent is tmp
+        event.target.parentElement.removeAttribute("tmp");
+        event.target.parentElement.removeEventListener("dragleave", removeTmpGroup);
+        event.target.parentElement.id = ++highestId;
+        setOrderToFitSiblings(event.target.parentElement);
+        // put in db
+        // change parent of both its childs in db
+    } else {
+        // change child parent id to new parent id in db
+    }
+
+    // remove old parent if only one child
+    if (isTruthy(oldParentId) && document.getElementById(oldParentId).children.length <= 1)
+        replaceParentByChild(document.getElementById(oldParentId));
+
+    // remove other tmps
+    const tmps = document.querySelectorAll("[tmp=true]");
+    if (tmps.length > 0) {
+        tmps.forEach(element => {
+            replaceParentByChild(element);
+        });
+    }
+}
+
+function replaceParentByChild(element) {
+    const childId = element.childNodes[0].id;
+    const layerlevel = element.getAttribute("layer-level");
+    element.replaceWith(...element.childNodes);
+    let child = document.getElementById(childId);
+    setOrderToFitSiblings(child);
+    child.setAttribute("layer-level", layerlevel);
+    
 }
 
 function assignGroup(event, closest, elementToMove) {
@@ -356,21 +387,20 @@ function assignGroup(event, closest, elementToMove) {
     const [closestEdges, closestValues] = getClosestEdges(event, closest, 2, true);
 
     const isHoverCorner = isHoverCornerCalc(closest, closestEdges, closestValues, 15, "%");
-    console.log(isHoverCorner);
 
     if (isHoverCorner) {
         // Creating parent from target
         let layerLevel = null;
         if (!closest.parentNode.getAttribute("tmp")) {
-            // Search other tmp and remove them
-            removeTmpGroups();
-
-            let parentGroup = document.createElement("my-group");
-            parentGroup.setAttribute("tmp", true);
-            closest.before(parentGroup);
-            parentGroup.appendChild(closest);
-            layerLevel = parentGroup.parentNode ? parentGroup.parentNode.getAttribute("layer-level") == "odd" ? "even" : "odd" : "odd";
-            parentGroup.setAttribute("layer-level", layerLevel);
+            let tmpGroup = document.createElement("my-group");
+            tmpGroup.setAttribute('draggable', editing);
+            tmpGroup.setAttribute("tmp", true);
+            closest.before(tmpGroup);
+            tmpGroup.appendChild(closest);
+            layerLevel = tmpGroup.parentNode ? tmpGroup.parentNode.getAttribute("layer-level") == "odd" ? "even" : "odd" : "odd";
+            tmpGroup.setAttribute("layer-level", layerLevel);
+            
+            tmpGroup.addEventListener("dragleave", removeTmpGroup);
         }
 
         // Move dragged element
@@ -386,9 +416,6 @@ function assignGroup(event, closest, elementToMove) {
             else closest.before(elementToMove);
         }
     } else {
-        // Search tmp and remove them
-        removeTmpGroups();
-
         // TODO: Refactoring
         const closestEdge = closestEdges[0];
         if (parentFlexDirection === "row") {
@@ -417,20 +444,12 @@ function assignGroup(event, closest, elementToMove) {
     setOrderToFitSiblings(elementToMove);
 }
 
-function removeTmpGroups() {
-    // to remove parent but not childs, use parent.replaceWith(childs)
-    tmps = document.querySelectorAll("[tmp=true]");
-    if (tmps.length <= 0) return;
+function removeTmpGroup(event) {
+    if (event.currentTarget == document.getElementById(draggedElementId).parentNode) return;
+    event.preventDefault();
+    event.stopPropagation();
 
-    tmps.forEach(element => {
-        // element.childNodes.forEach(c => {
-        //     element.before(c);
-        // });
-
-        // element.remove();
-
-        // element.replaceWith(element.childsNodes);
-    });
+    event.currentTarget.replaceWith(...event.currentTarget.childNodes);
 }
 
 class Sticker extends HTMLElement {
@@ -487,16 +506,14 @@ function handleStickerEdit(event) {
 
 // Allow to drag element
 function handleStickerDragStart(event) {
-    event.dataTransfer.clearData();
     event.currentTarget.classList.add("dragged");
-    event.dataTransfer.setData("element", event.currentTarget.id);
+    draggedElementId = event.currentTarget.id;
 
     event.stopPropagation();
 }
 
 function handleStickerDragOver(event) {
-    const data = event.dataTransfer.getData("element");
-    const elementToMove = document.getElementById(data);
+    const elementToMove = document.getElementById(draggedElementId);
     if (elementToMove.tagName.toLowerCase() != FavsCustomElementsName.tags.STICKER) return;
 
     const closest = isTargetedElement(event, FavsCustomElementsName.tags.STICKER);
@@ -515,8 +532,7 @@ function handleStickerDragOver(event) {
 }
 
 function handleStickerDrop(event) {
-    const data = event.dataTransfer.getData("element");
-    const elementToMove = document.getElementById(data);
+    const elementToMove = document.getElementById(draggedElementId);
     elementToMove.classList.remove("dragged");
 
     event.preventDefault();
