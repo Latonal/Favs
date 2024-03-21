@@ -324,7 +324,7 @@ function handleGroupDragOver(event) {
                 setOrderToFitSiblings(elementToMove);
             }
             break;
-        case FavsCustomElementsName.tags.GROUP: // Currently correcting this part
+        case FavsCustomElementsName.tags.GROUP:
             if (closest.id === draggedElementId) break;
             assignGroup(event, closest, elementToMove);
             break;
@@ -419,12 +419,13 @@ function assignGroup(event, closest, elementToMove) {
         // TODO: Refactoring
         const closestEdge = closestEdges[0];
         if (parentFlexDirection === "row") {
+            const parentIsGroup = parent.tagName.toLowerCase() == FavsCustomElementsName.tags.GROUP;
             if (closestEdge === Positions.TOP) {
-                parent.before(elementToMove);
+                parentIsGroup ? parent.before(elementToMove) : closest.before(elementToMove);
             } else if (closestEdge === Positions.RIGHT) {
                 closest.after(elementToMove);
             } else if (closestEdge === Positions.BOTTOM) {
-                parent.after(elementToMove);
+                parentIsGroup ? parent.after(elementToMove) : closest.after(elementToMove);
             } else if (closestEdge === Positions.LEFT) {
                 closest.before(elementToMove);
             }
@@ -533,6 +534,8 @@ function handleStickerDragOver(event) {
 
 function handleStickerDrop(event) {
     const elementToMove = document.getElementById(draggedElementId);
+    if (elementToMove.tagName.toLowerCase() != FavsCustomElementsName.tags.STICKER) return;
+
     elementToMove.classList.remove("dragged");
 
     event.preventDefault();
