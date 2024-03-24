@@ -2,12 +2,12 @@ var draggedElementId = 0;
 var oldParentId = 0;
 
 //#region PROTOTYPES
-// TODO : ENCRYPT
+// TODO : ENCRYPT -- Prototype should not be used
 String.prototype.encrypt/*, Number.prototype.encrypt */ = function () {
     if (!isTruthy(this)) return this;
     return this;
 }
-// TODO : DECRYPT
+// TODO : DECRYPT -- Prototype should not be used
 String.prototype.decrypt = function () {
     if (!isTruthy(this)) return this;
     return this;
@@ -25,12 +25,6 @@ const FavsCustomElementsName = {
         ALBUM: "my-album",
         GROUP: "my-group",
         STICKER: "my-sticker",
-    },
-    tags_value: {
-        ALBUM: 1,
-        GROUP: 2,
-        STICKER: 3,
-        HIGH: 3,
     }
 };
 
@@ -40,6 +34,12 @@ const Positions = {
     BOTTOM: 3,
     LEFT: 4,
     INNER: 5,
+}
+
+const Status = {
+    CREATE: "create",
+    UPDATE: "update",
+    DELETE: "delete"
 }
 //#endregion "ENUMS"
 
@@ -372,7 +372,6 @@ function replaceParentByChild(element) {
     let child = document.getElementById(childId);
     setOrderToFitSiblings(child);
     child.setAttribute("layer-level", layerlevel);
-    
 }
 
 function assignGroup(event, closest, elementToMove) {
@@ -399,7 +398,7 @@ function assignGroup(event, closest, elementToMove) {
             tmpGroup.appendChild(closest);
             layerLevel = tmpGroup.parentNode ? tmpGroup.parentNode.getAttribute("layer-level") == "odd" ? "even" : "odd" : "odd";
             tmpGroup.setAttribute("layer-level", layerLevel);
-            
+
             tmpGroup.addEventListener("dragleave", removeTmpGroup);
         }
 
@@ -542,3 +541,41 @@ function handleStickerDrop(event) {
     event.stopPropagation();
 }
 //#endregion CLASSES
+
+class ElementLog {
+    constructor(id, status, ...propertiesName) {
+        this.id = id;
+        this.status = status;
+        this.propertiesName = propertiesName;
+    }
+}
+
+var elementLogTracking = new Array();
+
+/**
+ * 
+ * @param {ElementLog} obj 
+ */
+function keepTrackOfChanges(obj) {
+    if (!(obj instanceof ElementLog)) {
+        return console.error("ERROR Utility-8:\nAn object of an incorrect type has been passed down to the list of element to update in the database. Object is: ", obj);
+    }
+
+    const elementChanged = elementLogTracking.find(({ id }) => id == obj.id);
+    if (isTruthy(elementChanged)) { // update already existing element to save
+        if (obj.status == Status.DELETE) {
+            if (elementChanged.status == Status.CREATE) {
+                let index = elementLogTracking.indexOf(elementChanged);
+                elementLogTracking.splice(index, 1);
+                return;
+            }
+            // if is update or delete
+            elementChanged.status = obj.status;
+            return;
+        }
+
+        elementChanged.propertiesName = [...new Set(...elementChanged.propertiesName, ...obj.propertiesName)];
+    } else { // create new element to save
+        elementLogTracking.push(obj);
+    }
+}
