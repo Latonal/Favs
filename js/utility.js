@@ -356,6 +356,8 @@ function handleGroupDrop(event) {
     if (isTruthy(oldParentId) && document.getElementById(oldParentId).children.length <= 1)
         replaceParentByChild(document.getElementById(oldParentId));
 
+    keepTrackOfChanges(new ElementLog(draggedElementId, "changed", "parent"));
+
     // remove other tmps
     const tmps = document.querySelectorAll("[tmp=true]");
     if (tmps.length > 0) {
@@ -539,6 +541,8 @@ function handleStickerDrop(event) {
 
     event.preventDefault();
     event.stopPropagation();
+
+    keepTrackOfChanges(new ElementLog(draggedElementId, "changed", "parent"));
 }
 //#endregion CLASSES
 
@@ -574,7 +578,7 @@ function keepTrackOfChanges(obj) {
             return;
         }
 
-        elementChanged.propertiesName = [...new Set(...elementChanged.propertiesName, ...obj.propertiesName)];
+        elementChanged.propertiesName = [...new Set([...elementChanged.propertiesName, ...obj.propertiesName])];
     } else { // create new element to save
         elementLogTracking.push(obj);
     }
