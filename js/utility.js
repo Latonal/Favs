@@ -38,6 +38,7 @@ const Positions = {
 
 const Status = {
     CREATE: "create",
+    PENDING: "pending",
     UPDATE: "update",
     DELETE: "delete"
 }
@@ -94,6 +95,8 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
 
     // Todo : create a case if the previous or next element does not require to change its order
     // (because real order does not change)
+
+    keepTrackOfChanges(new ElementLog(element.id, Status.PENDING, "order"));
 }
 
 /**
@@ -341,24 +344,31 @@ function handleGroupDrop(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    if (event.target.parentElement.getAttribute("tmp")) { // parent is tmp
+    if (event.target.parentElement.getAttribute("tmp")) { // parent is tmp (new)
         event.target.parentElement.removeAttribute("tmp");
         event.target.parentElement.removeEventListener("dragleave", removeTmpGroup);
         event.target.parentElement.id = ++highestId;
         setOrderToFitSiblings(event.target.parentElement);
         // put in db
-        // change parent of both its childs in db
+        keepTrackOfChanges(new ElementLog(event.target.parentElement.id, Status.CREATE, "parent", "order"));
+        event.target.parentElement.childNodes.forEach(e => {
+            keepTrackOfChanges(new ElementLog(e.id, Status.UPDATE, "parent", "order"));
+        });
     } else {
-        // change child parent id to new parent id in db
+        keepTrackOfChanges(new ElementLog(draggedElementId, Status.UPDATE, "parent", "order"));
     }
 
     // remove old parent if only one child
-    if (isTruthy(oldParentId) && document.getElementById(oldParentId).children.length <= 1)
+    if (isTruthy(oldParentId) && document.getElementById(oldParentId).children.length <= 1) 
         replaceParentByChild(document.getElementById(oldParentId));
 
-    keepTrackOfChanges(new ElementLog(draggedElementId, "changed", "parent"));
+    updatePendingChanges(event.target.parentElement.parentElement.childNodes);
+    updateElementsInDb();
 
-    // remove other tmps
+    removeAllTmps();
+}
+
+function removeAllTmps() {
     const tmps = document.querySelectorAll("[tmp=true]");
     if (tmps.length > 0) {
         tmps.forEach(element => {
@@ -374,6 +384,7 @@ function replaceParentByChild(element) {
     let child = document.getElementById(childId);
     setOrderToFitSiblings(child);
     child.setAttribute("layer-level", layerlevel);
+    keepTrackOfChanges(new ElementLog(childId, Status.UPDATE, "parent", "order"));
 }
 
 function assignGroup(event, closest, elementToMove) {
@@ -542,10 +553,18 @@ function handleStickerDrop(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    keepTrackOfChanges(new ElementLog(draggedElementId, "changed", "parent"));
+    keepTrackOfChanges(new ElementLog(draggedElementId, Status.UPDATE, "parent", "order"));
+    updatePendingChanges(elementToMove.parentElement.childNodes);
+    updateElementsInDb();
 }
 //#endregion CLASSES
 
+/**
+ * Create an instance of object allowing to keep track of changes
+ * @param {Number} id id of the element to keep track of the changes
+ * @param {String} status state of the change. Warning, deletion will prevent any changes
+ * @param {...String} propertiesName unlimited number of name of properties we'll have to change in the db
+ */
 class ElementLog {
     constructor(id, status, ...propertiesName) {
         this.id = id;
@@ -578,8 +597,20 @@ function keepTrackOfChanges(obj) {
             return;
         }
 
+        if (elementChanged.status == Status.PENDING) {
+            elementChanged.status = obj.status;
+        }
+
         elementChanged.propertiesName = [...new Set([...elementChanged.propertiesName, ...obj.propertiesName])];
     } else { // create new element to save
-        elementLogTracking.push(obj);
+        if (obj.propertiesName.length > 0)
+            elementLogTracking.push(obj);
     }
+}
+
+function updatePendingChanges(elements) {
+    elements.forEach(e => {
+        if (isTruthy(e.id))
+            keepTrackOfChanges(new ElementLog(e.id, Status.UPDATE));
+    });
 }
