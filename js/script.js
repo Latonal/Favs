@@ -9,8 +9,8 @@ async function Start() {
     }
 
     try {
-        const isok = await instantiateDB();
-        if (isok) {
+        const dbInstantiated = await instantiateDB();
+        if (dbInstantiated) {
             generatePlayground().then(() => {
                 console.log("LAST: playground has been created");
             }).catch((error) => {
