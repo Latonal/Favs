@@ -176,7 +176,7 @@ async function getElementsHighestId(elementsStore = null) {
         const transactionsRead = db.transaction("elements", "readonly");
         elementsStore = transactionsRead.objectStore("elements");
     }
-    
+
     const index = elementsStore.index("by_uuid");
     let elementsCursor = index.openCursor(null, "prev");
     elementsCursor.onsuccess = function (event) {
@@ -184,7 +184,75 @@ async function getElementsHighestId(elementsStore = null) {
         return highestId;
     }
 
-    elementsCursor.onerror = function() {
+    elementsCursor.onerror = function () {
         return null;
     }
+}
+
+async function updateElementsInDb() {
+    console.log(elementLogTracking);
+    // DELETE
+    // CREATE first
+    // UPDATE
+    const db = await openDatabase();
+    const transactionsWrite = db.transaction(["elements", "informations"], "readwrite");
+    const elementsStore = transactionsWrite.objectStore("elements");
+    const informationsStore = transactionsWrite.objectStore("informations");
+
+    elementLogTracking.forEach(e => {
+        console.log(e);
+        id = parseInt(e.id, 10);
+        switch (e.status) {
+            case Status.DELETE:
+                break;
+            case Status.CREATE:
+                // create entry in elements and informations dbs
+                break;
+            case Status.UPDATE:
+                const elementToUpdate = elementsStore.index("by_uuid").get(id);
+                elementToUpdate.onsuccess = async () => {
+                    const updatedElement = await getUpdatedElement(elementToUpdate.result, ...e.propertiesName);
+
+                    elementsStore.put(updatedElement);
+                }
+
+                elementToUpdate.onerror = () => {
+                    console.error("ERROR Database-4:\nAn error occured while updating an element in the database: ", elementToUpdate.error)
+                }
+                break;
+            case Status.PENDING:
+                // remove from array
+                break;
+        }
+    });
+    // TODO: make elementLogTracking a queue and removed them when the request has been fullfiled instead of clearing the whole array
+    elementLogTracking = new Array();
+}
+
+async function getUpdatedElement(dbElement, ...newData) {
+    console.log(dbElement);
+    return new Promise(async (resolve, reject) => {
+        try {
+            const element = document.getElementById(dbElement.uuid);
+            if (!isTruthy(element)) return;
+        
+            newData.forEach(e => {
+                switch (e) {
+                    case "parent":
+                        dbElement.parent = parseInt(element.parentElement.id, 10);
+                        break;
+                    case "order":
+                        dbElement.order = parseInt(getComputedStyle(element).getPropertyValue("--order"), 10);
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            resolve(dbElement);
+        } catch (error) {
+            console.log("ERROR Database-5:\nAn unsuspected error happened: ", elementToUpdate.error);
+            reject();
+        }
+    });
 }
