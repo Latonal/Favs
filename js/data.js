@@ -41,8 +41,8 @@ function instantiateDB() {
                 iconsStore.createIndex("by_name", "name", { unique: false });
                 // iconsStore.createIndex("link", "link", { unique: false });
 
-                const informationsStore = db.createObjectStore("informations", { autoIncrement: true });
-                informationsStore.createIndex("by_parent", "parent", { unique: false });
+                const informationsStore = db.createObjectStore("informations", { keyPath: "parent" });
+                informationsStore.createIndex("by_parent", "parent", { unique: true });
 
 
                 defaultGeneration(elementsStore, iconsStore, informationsStore);
@@ -155,7 +155,6 @@ function defaultGeneration(elementsStore, iconsStore, informationsStore) {
     informationsStore.put({ parent: 10, text: "sticker below" });
     informationsStore.put({ parent: 11 });
     informationsStore.put({ parent: 12, text: "another sticker below" });
-    informationsStore.put({ parent: 19 }); // debugging
 
     informationsStore.put({ parent: 13, customcss: "background-color:green;" });
     informationsStore.put({ parent: 14 });
@@ -200,7 +199,6 @@ async function updateElementsInDb() {
     const informationsStore = transactionsWrite.objectStore("informations");
 
     elementLogTracking.forEach(async e => {
-        console.log(e);
         id = parseInt(e.id, 10);
         switch (e.status) {
             case Status.DELETE:
