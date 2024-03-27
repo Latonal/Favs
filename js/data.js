@@ -199,20 +199,21 @@ async function updateElementsInDb() {
     const elementsStore = transactionsWrite.objectStore("elements");
     const informationsStore = transactionsWrite.objectStore("informations");
 
-    elementLogTracking.forEach(e => {
+    elementLogTracking.forEach(async e => {
         console.log(e);
         id = parseInt(e.id, 10);
         switch (e.status) {
             case Status.DELETE:
+                elementsStore.delete(id);
                 break;
             case Status.CREATE:
-                // create entry in elements and informations dbs
+                const newElement = await getUpdatedElement({uuid: id}, ...e.propertiesName);
+                elementsStore.put(newElement);
                 break;
             case Status.UPDATE:
                 const elementToUpdate = elementsStore.index("by_uuid").get(id);
                 elementToUpdate.onsuccess = async () => {
                     const updatedElement = await getUpdatedElement(elementToUpdate.result, ...e.propertiesName);
-
                     elementsStore.put(updatedElement);
                 }
 
@@ -225,7 +226,7 @@ async function updateElementsInDb() {
                 break;
         }
     });
-    // TODO: make elementLogTracking a queue and removed them when the request has been fullfiled instead of clearing the whole array
+    // TODO: make elementLogTracking a queue and remove them when the request has been fullfiled instead of clearing the whole array
     elementLogTracking = new Array();
 }
 
