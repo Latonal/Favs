@@ -366,7 +366,7 @@ function handleGroupDrop(event) {
 
     removeAllTmps();
 
-    updatePendingChanges(event.target.parentElement.parentElement.childNodes);
+    updatePendingChanges(event.target.parentElement.childNodes);
     updateElementsInDb();
 }
 
