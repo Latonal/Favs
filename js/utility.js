@@ -359,13 +359,15 @@ function handleGroupDrop(event) {
     }
 
     // remove old parent if only one child
-    if (isTruthy(oldParentId) && document.getElementById(oldParentId).children.length <= 1) 
+    if (isTruthy(oldParentId) && document.getElementById(oldParentId).children.length <= 1) {
+        keepTrackOfChanges(new ElementLog(oldParentId, Status.DELETE));
         replaceParentByChild(document.getElementById(oldParentId));
+    }
+
+    removeAllTmps();
 
     updatePendingChanges(event.target.parentElement.parentElement.childNodes);
     updateElementsInDb();
-
-    removeAllTmps();
 }
 
 function removeAllTmps() {
