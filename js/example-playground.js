@@ -13,30 +13,47 @@ var global = {
 }
 
 /**
- * Used to create relation between elements, and allow to
- * create an empty skeleton at the start when loading the
- * page. It will creates empty groups and order them. It'll
+ * [Mandatory] Used to create relation between elements, and
+ * allow to create an empty skeleton at the start when loading
+ * the page. It will creates empty groups and order them. It'll
  * be filled thank to the `informations` table.
  * 
  * Allow to create an empty skeleton at the start when loading
- * the page. It will creates empty groups and order them. It'll
- * be filled thanks to exampleStickersSetup.
+ * the page. It will creates empty groups and order them.
+ * 
+ * uuid, parent-uuid, position
+ * 
+ * [Optional] Any other value is optional and will be used to
+ * change elements in the front for the user.
  */
 var elements = [
     {
+        // mandatory
         "uuid": Number,
         "parent-uuid": null, // parent is empty, it is an album (main container)
         "position": Number,
+        // optional
+        "name": "name [string]",
+        "theme": "theme name [string]",
+        "customcss": "css [string]",
     },
     {
-        "uuid": Number, // we'll know it's a group later (informations table)
+        "uuid": Number, // we'll know if it's a group if there is at least a child
         "parent-uuid": Number,
         "position": Number,
+
+        "type": "",
+        "theme": "theme name [string]",
+        "customcss": "css [string]",
     },
     {
-        "uuid": Number,
+        "uuid": Number, // we'll know if it's a sticker if there is no child
         "parent-uuid": Number,
         "position": Number,
+
+        "text": "text [string]",
+        "icon": "iconName [string]",
+        "customcss": "css [string]",
     }
 ]
 
@@ -48,27 +65,3 @@ var icons = {
     "iconName2": "url2 [string]",
     "iconName3": "svg [string]",
 }
-
-/**
- * Used to store data about the elements.
- */
-var informations = [
-    {
-        "parent-uuid": Number,
-        "name": "name [string]",
-        "theme": "theme name [string]",
-        "customcss": "css [string]",
-    },
-    {
-        "parent-uuid": Number,
-        "type": "",
-        "theme": "theme name [string]",
-        "customcss": "css [string]",
-    },
-    {
-        "parent-uuid": Number,
-        "text": "text [string]",
-        "icon": "iconName [string]",
-        "customcss": "css [string]",
-    }
-]

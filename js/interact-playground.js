@@ -8,12 +8,4 @@ function setEditing(canEdit) {
 function setEditAttribute() {
     const app = document.getElementById("app");
     app.setAttribute("edit", editing);
-
-    if (!editing) {
-        // issue related to browsers with a slower dragover than dragleave
-        elements = document.querySelectorAll(".drag-top, .drag-right, .drag-bottom, .drag-left, .drag-inner");
-        elements.forEach(e => {
-            e.classList.remove("drag-top", "drag-right", "drag-bottom", "drag-left", "drag-inner");
-        });
-    }
 }

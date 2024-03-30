@@ -34,18 +34,13 @@ function instantiateDB() {
             if (event.oldVersion < 1) { // Initialize db
                 const elementsStore = db.createObjectStore("elements", { keyPath: "uuid" })
                 elementsStore.createIndex("by_parent", "parent", { unique: false });
-                // elementsStore.createIndex("by_order", "order", { unique: false });
                 elementsStore.createIndex("by_uuid", "uuid", { unique: true });
 
                 const iconsStore = db.createObjectStore("icons", { keyPath: "uuid" });
                 iconsStore.createIndex("by_name", "name", { unique: false });
-                // iconsStore.createIndex("link", "link", { unique: false });
-
-                const informationsStore = db.createObjectStore("informations", { keyPath: "parent" });
-                informationsStore.createIndex("by_parent", "parent", { unique: true });
 
 
-                defaultGeneration(elementsStore, iconsStore, informationsStore);
+                defaultGeneration(elementsStore, iconsStore);
 
                 StartTutorial();
             }
@@ -98,70 +93,42 @@ function deleteDB() {
     console.log("database has been deleted");
 }
 
-function defaultGeneration(elementsStore, iconsStore, informationsStore) {
+function defaultGeneration(elementsStore, iconsStore) {
     // ELEMENTS
-    // Page 1
-    elementsStore.put({ parent: 0, order: 0, uuid: 1 });
+    // Page 1 -- 19 items
+    elementsStore.put({ parent: 0, order: 0, uuid: 1, theme: "light" });
     elementsStore.put({ parent: 1, order: 0, uuid: 2 });
-    elementsStore.put({ parent: 2, order: 1, uuid: 3 });
-    elementsStore.put({ parent: 3, order: 0, uuid: 4 });
-    elementsStore.put({ parent: 3, order: 1, uuid: 19 });
-    elementsStore.put({ parent: 3, order: 3, uuid: 20 });
-    elementsStore.put({ parent: 3, order: 2, uuid: 21 });
+    elementsStore.put({ parent: 2, order: 1, uuid: 3, customcss: "background-color:cadetblue;" });
+    elementsStore.put({ parent: 3, order: 0, uuid: 4, text: "middle element", img_uuid: 1 });
+    elementsStore.put({ parent: 3, order: 1, uuid: 19, text: "new tab", img_uuid: 1, href: "https://www.youtube.com/", target: "_blank", customcss: "background-color:green;font-style:oblique;" });
+    elementsStore.put({ parent: 3, order: 3, uuid: 20, text: "same tab - no target", img_uuid: 1, href: "https://www.youtube.com/" });
+    elementsStore.put({ parent: 3, order: 2, uuid: 21, text: "same tab - with target", img_uuid: 1, href: "https://www.youtube.com/", target: "_self", customcss: "font-size:25px;font-weight:bold;" });
     elementsStore.put({ parent: 2, order: 0, uuid: 5 });
-    elementsStore.put({ parent: 5, order: 0, uuid: 6 });
-    elementsStore.put({ parent: 2, order: 2, uuid: 7 });
+    elementsStore.put({ parent: 5, order: 0, uuid: 6, text: "left element" });
     elementsStore.put({ parent: 7, order: 2, uuid: 22 });
-    elementsStore.put({ parent: 22, order: 1, uuid: 8 });
+    elementsStore.put({ parent: 2, order: 2, uuid: 7 });
+    elementsStore.put({ parent: 22, order: 1, uuid: 8, text: "right element" });
     // elementsStore.put({ parent: 8, order: 1, uuid: 30 }); // debugging
-    elementsStore.put({ parent: 22, order: 0, uuid: 25 });
+    elementsStore.put({ parent: 22, order: 0, uuid: 25, text: "column right" });
     elementsStore.put({ parent: 7, order: 0, uuid: 23 });
-    elementsStore.put({ parent: 23, order: 2, uuid: 24 });
+    elementsStore.put({ parent: 23, order: 2, uuid: 24, text: "some text below right element" });
     elementsStore.put({ parent: 1, order: 1, uuid: 9 });
-    elementsStore.put({ parent: 9, order: 0, uuid: 10 });
+    elementsStore.put({ parent: 9, order: 0, uuid: 10, text: "sticker below" });
     elementsStore.put({ parent: 1, order: 2, uuid: 11 });
-    elementsStore.put({ parent: 11, order: 0, uuid: 12 });
+    elementsStore.put({ parent: 11, order: 0, uuid: 12, text: "another sticker below" });
 
-    // Page 2
-    elementsStore.put({ parent: 0, order: 1, uuid: 13 });
+    // Page 2 -- 3 items
+    elementsStore.put({ parent: 0, order: 1, uuid: 13, customcss: "background-color:#708a70;" });
     elementsStore.put({ parent: 13, order: 0, uuid: 14 });
-    elementsStore.put({ parent: 14, order: 0, uuid: 15 });
-    // Page 3
-    elementsStore.put({ parent: 0, order: 2, uuid: 16 });
+    elementsStore.put({ parent: 14, order: 0, uuid: 15, text: "some text on the second page" });
+    // Page 3 -- 3 items
+    elementsStore.put({ parent: 0, order: 2, uuid: 16, customcss: "background-color:#618188;" });
     elementsStore.put({ parent: 16, order: 0, uuid: 17 });
-    elementsStore.put({ parent: 17, order: 0, uuid: 18 });
+    elementsStore.put({ parent: 17, order: 0, uuid: 18, text: "some text on the third page" });
 
     // ICONS
     iconsStore.put({ name: "options", link: "./img/options.svg", uuid: 1 });
     iconsStore.put({ name: "blah blah", link: "./img/blahblah", uuid: 2 });
-
-    // INFORMATIONS
-    informationsStore.put({ parent: 1, theme: "light" });
-    informationsStore.put({ parent: 2 });
-    informationsStore.put({ parent: 3, customcss: "background-color:cadetblue;" });
-    informationsStore.put({ parent: 4, text: "middle element", img_uuid: 1 });
-    informationsStore.put({ parent: 19, text: "new tab", img_uuid: 1, href: "https://www.youtube.com/", target: "_blank", customcss: "background-color:green;font-style:oblique;" });
-    informationsStore.put({ parent: 20, text: "same tab - no target", img_uuid: 1, href: "https://www.youtube.com/" });
-    informationsStore.put({ parent: 21, text: "same tab - with target", img_uuid: 1, href: "https://www.youtube.com/", target: "_self", customcss: "font-size:25px;font-weight:bold;" });
-    informationsStore.put({ parent: 5 });
-    informationsStore.put({ parent: 6, text: "left element" });
-    informationsStore.put({ parent: 7 });
-    informationsStore.put({ parent: 22 });
-    informationsStore.put({ parent: 8, text: "right element" });
-    informationsStore.put({ parent: 25, text: "column right" });
-    informationsStore.put({ parent: 23 });
-    informationsStore.put({ parent: 24, text: "some text below right element" });
-    informationsStore.put({ parent: 9 });
-    informationsStore.put({ parent: 10, text: "sticker below" });
-    informationsStore.put({ parent: 11 });
-    informationsStore.put({ parent: 12, text: "another sticker below" });
-
-    informationsStore.put({ parent: 13, customcss: "background-color:green;" });
-    informationsStore.put({ parent: 14 });
-    informationsStore.put({ parent: 15, text: "some text on the second page" });
-    informationsStore.put({ parent: 16, customcss: "background-color:blue;" });
-    informationsStore.put({ parent: 17 });
-    informationsStore.put({ parent: 18, text: "some text on the third page" });
 }
 
 
@@ -194,9 +161,8 @@ async function updateElementsInDb() {
     // CREATE first
     // UPDATE
     const db = await openDatabase();
-    const transactionsWrite = db.transaction(["elements", "informations"], "readwrite");
+    const transactionsWrite = db.transaction(["elements"], "readwrite");
     const elementsStore = transactionsWrite.objectStore("elements");
-    const informationsStore = transactionsWrite.objectStore("informations");
 
     elementLogTracking.forEach(async e => {
         id = parseInt(e.id, 10);
@@ -205,7 +171,7 @@ async function updateElementsInDb() {
                 elementsStore.delete(id);
                 break;
             case Status.CREATE:
-                const newElement = await getUpdatedElement({uuid: id}, ...e.propertiesName);
+                const newElement = await getUpdatedElement({ uuid: id }, ...e.propertiesName);
                 elementsStore.put(newElement);
                 break;
             case Status.UPDATE:
@@ -234,7 +200,7 @@ async function getUpdatedElement(dbElement, ...newData) {
         try {
             const element = document.getElementById(dbElement.uuid);
             if (!isTruthy(element)) return;
-        
+
             newData.forEach(e => {
                 switch (e) {
                     case "parent":

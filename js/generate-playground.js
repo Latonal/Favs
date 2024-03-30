@@ -19,10 +19,9 @@ async function generatePlayground() {
     console.log("Creating playground");
 
     try {
-        const db = await openDatabase();
         // TODO: pass page data depending of user preferences
-        const elementsId = await generateAlbum(db);
-        await setInformations(db, elementsId);
+        // find default page to display
+        await generateAlbum();
 
         console.log("Album has been created");
     } catch (error) {
@@ -30,15 +29,32 @@ async function generatePlayground() {
     }
 }
 
-async function generateAlbum(db, page = 0) {
-    playground = document.getElementById("playground");
+async function generateAlbum(page = 0) {
+    const db = await openDatabase();
 
     return new Promise(async (resolve, reject) => {
         try {
-            const transactionsRead = db.transaction("elements", "readonly");
+            const transactionsRead = db.transaction(["elements", "icons"], "readonly");
             const elementsStore = transactionsRead.objectStore("elements");
+            const iconsStore = transactionsRead.objectStore("icons");
 
-            // const albumCursor = elementsStore.index("by_parent").openCursor(page);
+            const data = await getElementsData(elementsStore, page);
+            data.sort(compareElements);
+
+            await createElements(iconsStore, data, page);
+
+            console.log(data);
+            resolve();
+        } catch (error) {
+            console.error("ERROR Playground-8:\nAn error occured while creating the playground: ", error)
+            reject();
+        }
+    });
+}
+
+async function getElementsData(elementsStore, page) {
+    return new Promise(async (resolve, reject) => {
+        try {
             let albumCursor = null;
             if (page === 0) albumCursor = elementsStore.index("by_parent").openCursor(page);
             else albumCursor = elementsStore.index("by_uuid").openCursor(page);
@@ -48,47 +64,35 @@ async function generateAlbum(db, page = 0) {
             albumCursor.onsuccess = async function () {
                 const cursor = albumCursor.result;
                 if (cursor) {
-                    // Create new album
-                    const album = document.createElement(FavsCustomElementsName.tags.ALBUM);
-                    album.id = cursor.value.uuid;
+                    // Search any child element inside the parent
+                    const search = await retrieveElementChildrenRecursively(elementsStore, cursor.value.uuid, [cursor.value]);
 
-                    // Search any other element inside the album
-                    const search = [cursor.value];
-                    const children = await retrieveElementChildrenRecursively(elementsStore, cursor.value.uuid, search);
-
-                    children.sort(compareElements);
-
-                    // Append results
-                    playground.appendChild(album);
-                    children.forEach(element => {
-                        searches.push(element.uuid);
-                        let layer_order;
-                        if (element.parent === cursor.value.parent) return;
-                        parent = document.getElementById(element.parent);
-                        if (search.find(s => s.parent === element.uuid)) {
-                            tag_name = FavsCustomElementsName.tags.GROUP;
-                            layer_order = (parent.getAttribute("layer-level") != "odd") ? "odd" : "even";
-                        } else {
-                            tag_name = FavsCustomElementsName.tags.STICKER;
-                        }
-                        const elem = document.createElement(tag_name);
-                        elem.id = element.uuid;
-                        elem.style.setProperty("--order", element.order);
-                        // elem.innerText = element.uuid;
-                        if (typeof layer_order !== "undefined") elem.setAttribute("layer-level", layer_order);
-                        parent.appendChild(elem);
-                    });
-
+                    searches.push(...search);
                     cursor.continue();
                 } else {
                     resolve(searches);
                 }
-            };
+            }
         } catch (error) {
-            console.error("ERROR Playground-2:\nAn error occured while creating the playground: ", error);
-            reject;
+            reject("ERROR Playground-7:\nERROR Playground-7:\nAn error occured while getting the data in the db to create the playground: ", error)
         }
     });
+}
+
+function compareElements(a, b) {
+    if (a.parent === b.parent) {
+        return a.order - b.order;
+    }
+
+    if (a.parent === b.uuid) {
+        return 1;
+    }
+
+    if (b.parent === a.uuid) {
+        return -1;
+    }
+
+    return a.parent - b.parent;
 }
 
 async function retrieveElementChildrenRecursively(store, currentId, search) {
@@ -113,161 +117,180 @@ async function retrieveElementChildrenRecursively(store, currentId, search) {
     });
 }
 
-function compareElements(a, b) {
-    if (a.parent === b.parent) {
-        return a.order - b.order;
-    }
+async function createElements(iconsStore, data, page) {
+    playground = document.getElementById("playground");
 
-    if (a.parent === b.uuid) {
-        return 1;
-    }
-    
-    if (b.parent === a.uuid) {
-        return -1;
-    }
+    data.forEach(async e => {
+        let tagName;
+        if (e.parent === page)
+            tagName = FavsCustomElementsName.tags.ALBUM;
+        else if (data.find(d => d.parent === e.uuid))
+            tagName = FavsCustomElementsName.tags.GROUP;
+        else
+            tagName = FavsCustomElementsName.tags.STICKER;
 
-    return a.parent - b.parent;
-}
+        const newElement = document.createElement(tagName);
 
-async function setInformations(db, elementsId) {
-    console.log("Elements id: ", elementsId);
-    return new Promise(async (resolve, reject) => {
-        try {
-            const transactionsRead = db.transaction(["icons", "informations"], "readonly");
-            const informationsStore = transactionsRead.objectStore("informations");
-            const iconsStore = transactionsRead.objectStore("icons");
+        const parentData = data.find(d => d.uuid === e.parent);
+        await formatElement(newElement, e, parentData, iconsStore);
 
-            const promises = elementsId.map(element =>
-                new Promise(async (resolveElement, rejectElement) => {
-                    const informationsCursor = informationsStore.index("by_parent").openCursor(element);
-
-                    informationsCursor.onsuccess = async function () {
-                        const cursor = informationsCursor.result;
-                        if (cursor) {
-                            try {
-                                await formatElements(iconsStore, cursor.value, element);
-                                cursor.continue();
-                            } catch (error) {
-                                rejectElement(error);
-                            }
-                        } else {
-                            resolveElement();
-                        }
-                    };
-
-                    informationsCursor.onerror = function () {
-                        console.error("ERROR Playground-5:\nAn error occured while creating the playground: ", error);
-                        rejectElement(informationsCursor.error);
-                    };
-                })
-            );
-            await Promise.all(promises);
-
-            console.log("set informations");
-            resolve();
-        } catch (error) {
-            console.error("ERROR Playground-3:\nAn error occured while creating the playground: ", error);
-            reject(error);
+        let parent = null;
+        switch (tagName) {
+            case FavsCustomElementsName.tags.ALBUM:
+                playground.appendChild(newElement);
+                break;
+            case FavsCustomElementsName.tags.GROUP:
+                parent = document.getElementById(e.parent);
+                const layer_level = (parent.getAttribute("layer-level") != "odd") ? "odd" : "even";
+                newElement.setAttribute("layer-level", layer_level);
+            case FavsCustomElementsName.tags.STICKER:
+                if (!isTruthy(parent)) parent = document.getElementById(e.parent);
+                parent.appendChild(newElement);
+                break;
         }
     });
 }
 
-async function formatElements(iconsStore, cursorValues, element) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const my_element = document.getElementById(element);
-            const my_tag = my_element.tagName;
+async function formatElement(htmlElement, dataElement, parentData, iconsStore) {
+    htmlElement.id = dataElement.uuid;
 
-            // image
-            var my_img;
-            if (typeof cursorValues.img_uuid !== "undefined") {
-                await new Promise(async (resolveImg, rejectImg) => {
-                    // const iconsIndex = iconsStore.index("by_name");
-                    const iconByName = iconsStore.get(cursorValues.img_uuid);
-                    iconByName.onsuccess = function () {
-                        my_img = iconByName.result.link.decrypt();
-                        resolveImg();
-                    }
-
-                    iconByName.onerror = function () {
-                        console.error("ERROR Playground-6:\nAn error occured while creating the playground: ", error);
-                        rejectImg;
-                    }
-                })
-            }
-
-            // text
-            const my_text = getDefinedContent(cursorValues.text, { decrypt: true });
-            // theme
-            const my_theme = getDefinedContent(cursorValues.theme, { decrypt: true });
-
-            // customcss
-            const my_customcss = getDefinedContent(cursorValues.customcss, { decrypt: true });
-            // color
-            const my_color = getDefinedContent(cursorValues.color, { decrypt: true });
-
-            let my_css = [
-                { color: my_color }
-            ];
-
-            my_css = my_css.concat(cssStringAsObj(my_customcss));
-
-            switch (my_tag.toLowerCase()) {
-                case FavsCustomElementsName.tags.ALBUM:
-                    if (my_theme) my_element.setAttribute("theme", my_theme);
-                    break;
-                case FavsCustomElementsName.tags.GROUP:
-                    if (my_css) setCss(my_element, my_css);
-                    break;
-                case FavsCustomElementsName.tags.STICKER:
-                    // Todo: if both img and txt are empty ?...
-                    if (my_img) {
-                        let img_tag = document.createElement("img");
-                        img_tag.setAttribute("src", my_img);
-                        my_element.append(img_tag);
-                    }
-                    if (my_text) {
-                        let p_tag = document.createElement("p");
-                        p_tag.append(document.createTextNode(my_text));
-                        my_element.append(p_tag);
-                    }
-                    if (my_css != null) {
-                        // my_element.style = my_element.style + my_css;
-                        setCss(my_element, my_css);
-                    }
-
-                    const my_href = getDefinedContent(cursorValues.href, { decrypt: true });
-                    if (my_href) my_element.setAttribute("href", my_href);
-                    const my_target = getDefinedContent(cursorValues.target, { decrypt: true });
-                    if (my_target) my_element.setAttribute("target", my_target);
-                    break;
-                default:
-                    break;
-            }
-
-            resolve();
-        } catch (error) {
-            console.error("ERROR Playground-4:\nAn error occured while creating the playground: ", error);
-            reject;
-        }
-    });
+    const elementType = getElementType(htmlElement, parentData);
+    elementTypeFormat[elementType].setCustom(htmlElement, dataElement, iconsStore);
 }
 
-function setCss(element, css) {
-    css.forEach(e => {
-        if (!isTruthy(e)) return;
-        const property = Object.getOwnPropertyNames(e);
-        const value = e[property];
-        if (property == null || value == null) return;
-        element.style.setProperty(property, value);
-    });
-}
+function getElementType(htmlElement, parentData) {
+    const tagName = htmlElement.tagName.toLowerCase();
 
-function getDefinedContent(content, { encrypt, decrypt }) {
-    if (!isTruthy(content)) return null;
-    if (typeof (content) == "string") {
-        if (encrypt) return content.encrypt();
-        if (decrypt) return content.decrypt();
+    switch (tagName) {
+        case FavsCustomElementsName.tags.ALBUM:
+            return 'album';
+        case FavsCustomElementsName.tags.GROUP:
+            return 'group';
+        case FavsCustomElementsName.tags.STICKER:
+            const parentType = parentData.type || 'default';
+            return parentType;
     }
-    return content;
+}
+
+async function setImgUri() {
+
+}
+
+async function getImgUri(img_uuid, iconsStore) {
+    return new Promise((resolve, reject) => {
+        try {
+            const iconByUuid = iconsStore.get(img_uuid);
+            iconByUuid.onsuccess = function () {
+                resolve(iconByUuid.result.link);
+            }
+
+            iconByUuid.onerror = function () {
+                console.error("ERROR Playground-6a:\nAn error occured while getting the uri of the image: ", error);
+                reject(null);
+            }
+        } catch (error) {
+            console.error("ERROR Playground-6b:\nAn error occured while getting the uri of the image: ", error);
+            reject(null);
+        }
+    })
+}
+
+const elementTypeFormat = {
+    default: {
+        getCustom: function (element) {
+
+        },
+        setCustom: async function (element, dataElement, iconsStore) {
+            let elementObj = new Object();
+            this.setTheme(element, dataElement.theme);
+            this.setCustomCss(element, dataElement.customcss);
+
+            elementObj.text = this.setText(dataElement.text);
+            if (dataElement.img_uuid) {
+                let imgUri = await getImgUri(dataElement.img_uuid, iconsStore);
+                elementObj.img = this.setImg(imgUri, dataElement.img_uuid);
+            }
+
+            if (elementObj.img) element.appendChild(elementObj.img);
+            if (elementObj.text) element.appendChild(elementObj.text);
+        },
+
+        getTheme: function (element) {
+
+        },
+        setTheme: function (element, theme) {
+            if (theme) element.setAttribute("theme", theme);
+        },
+        getCustomCss: function (element) {
+
+        },
+        setCustomCss: function (element, customCss) {
+            if (customCss) element.setAttribute("style", customCss);
+        },
+
+
+        getText: function (element) {
+
+        },
+        setText: function (text) {
+            if (!text) return null;
+            const newP = document.createElement("p");
+            newP.innerText = text;
+            return newP;
+        },
+        getImg: function (element) {
+
+        },
+        setImg: function (imgUri, imgUuid) {
+            if (!imgUri) return null;
+            const newImg = document.createElement("img");
+            newImg.setAttribute("src", imgUri);
+            newImg.setAttribute("img-uuid", imgUuid);
+            return newImg;
+        },
+        getHref: function (element) {
+
+        },
+        setHref: function (element, href) {
+            if (href) element.setAttribute("href", href);
+        },
+        getTarget: function (element) {
+
+        },
+        setTarget: function (element, target) {
+            if (target) element.setAttribute("target", target);
+        },
+    },
+    album: {
+        getCustom: function (element) { },
+        setCustom: function (element, dataElement) {
+            this.setTheme(element, dataElement.theme);
+            this.setCustomCss(element, dataElement.customcss);
+
+            // TODO: Create a tab in the header
+        },
+        getTheme: function (element) { },
+        setTheme: function (element, theme) {
+            if (theme) element.setAttribute("theme", theme);
+        },
+        getCustomCss: function (element) { },
+        setCustomCss: function (element, customCss) {
+            if (customCss) element.setAttribute("style", customCss);
+        },
+    },
+    group: {
+        getCustom: function (element) { },
+        setCustom: function (element, dataElement) {
+            this.setTheme(element, dataElement.theme);
+            this.setCustomCss(element, dataElement.customcss);
+        },
+        getTheme: function (element) { },
+        setTheme: function (element, theme) {
+            if (theme) element.setAttribute("theme", theme);
+        },
+        getCustomCss: function (element) { },
+        setCustomCss: function (element, customCss) {
+            if (customCss) element.setAttribute("style", customCss);
+        },
+    }
 }

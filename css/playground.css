@@ -83,9 +83,9 @@ my-sticker img+p {
     margin-left: 6px;
 }
 
-my-group {
+/* my-group {
     order: var(--order);
-}
+} */
 
 my-sticker {
     order: var(--order);
@@ -101,4 +101,8 @@ my-sticker {
 /* DEBUGGING */
 my-group my-sticker:last-child {
     background-color: darkblue;
+}
+
+my-group[tmp=true] my-sticker {
+    pointer-events: none;
 }
