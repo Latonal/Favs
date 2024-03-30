@@ -181,7 +181,8 @@ async function getImgUri(img_uuid, iconsStore) {
         try {
             const iconByUuid = iconsStore.get(img_uuid);
             iconByUuid.onsuccess = function () {
-                resolve(iconByUuid.result.link);
+                // TODO: put a default image if no entry is returned
+                resolve(iconByUuid.result ? iconByUuid.result.link : "missing");
             }
 
             iconByUuid.onerror = function () {
