@@ -21,6 +21,7 @@ async function generatePlayground() {
     try {
         // TODO: pass page data depending of user preferences
         // find default page to display
+        await generateTabs();
         await generateAlbum();
 
         console.log("Album has been created");
@@ -28,6 +29,62 @@ async function generatePlayground() {
         console.error("ERROR Playground-1:\nAn error occured while creating the playground: ", error)
     }
 }
+
+// #region Tabs
+async function generateTabs() {
+    const db = await openDatabase();
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            const transactionsRead = db.transaction(["elements", "icons"], "readonly");
+            const elementsStore = transactionsRead.objectStore("elements");
+            const iconsStore = transactionsRead.objectStore("icons");
+
+            const data = await getTabsData(elementsStore);
+            data.sort(compareElements);
+
+            await createTabs(iconsStore, data);
+
+            resolve();
+        } catch (error) {
+            console.error("ERROR Playground-9:\nAn error occured while creating the tabs in the header: ", error)
+            reject();
+        }
+    });
+}
+
+async function getTabsData(elementsStore) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const tabsCursor = elementsStore.index("by_parent").openCursor(0);
+
+            let searches = [];
+
+            tabsCursor.onsuccess = async function () {
+                const cursor = tabsCursor.result;
+                if (cursor) {
+                    searches.push(cursor.value);
+                    cursor.continue();
+                } else {
+                    resolve(searches);
+                }
+            }
+        } catch (error) {
+            reject("ERROR Playground-10:\nAn error occured while getting the data in the db to create the tabs: ", error)
+        }
+    });
+}
+
+async function createTabs(iconsStore, data) {
+    tabs = document.getElementById("tabs");
+
+    data.forEach(async e => {
+        htmlElement = document.createElement(FavsCustomElementsName.tags.TAB);
+        const newTab = elementTypeFormat['tab'].setCustom(htmlElement, e, iconsStore);
+        tabs.appendChild(newTab);
+    });
+}
+// #endregion Tabs
 
 async function generateAlbum(page = 0) {
     const db = await openDatabase();
@@ -74,7 +131,7 @@ async function getElementsData(elementsStore, page) {
                 }
             }
         } catch (error) {
-            reject("ERROR Playground-7:\nERROR Playground-7:\nAn error occured while getting the data in the db to create the playground: ", error)
+            reject("ERROR Playground-7:\nAn error occured while getting the data in the db to create the playground: ", error)
         }
     });
 }
@@ -261,6 +318,18 @@ const elementTypeFormat = {
         setTarget: function (element, target) {
             if (target) element.setAttribute("target", target);
         },
+    },
+    tab: {
+        getCustom: function (element) { },
+        setCustom: function (element, dataElement) {
+            console.log(dataElement);
+            this.setAlbumId(element, dataElement.uuid);
+            return element;
+        },
+        getAlbumId: function (element) { },
+        setAlbumId: function (element, albumId) {
+            if (albumId) element.setAttribute("data-album", albumId);
+        }
     },
     album: {
         getCustom: function (element) { },

@@ -106,3 +106,7 @@ my-group my-sticker:last-child {
 my-group[tmp=true] my-sticker {
     pointer-events: none;
 }
+
+.hide {
+    display:none;
+}
