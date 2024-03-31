@@ -122,7 +122,7 @@ async function createElements(iconsStore, data, page) {
 
     data.forEach(async e => {
         let tagName;
-        if (e.parent === page)
+        if (e.parent === 0 || e.uuid === page)
             tagName = FavsCustomElementsName.tags.ALBUM;
         else if (data.find(d => d.parent === e.uuid))
             tagName = FavsCustomElementsName.tags.GROUP;
