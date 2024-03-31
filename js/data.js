@@ -100,7 +100,7 @@ function defaultGeneration(elementsStore, iconsStore) {
     elementsStore.put({ parent: 1, order: 0, uuid: 2 });
     elementsStore.put({ parent: 2, order: 1, uuid: 3, customcss: "background-color:cadetblue;" });
     elementsStore.put({ parent: 3, order: 0, uuid: 4, text: "middle element", img_uuid: 1 });
-    elementsStore.put({ parent: 3, order: 1, uuid: 19, text: "new tab", img_uuid: 1, href: "https://www.youtube.com/", target: "_blank", customcss: "background-color:green;font-style:oblique;" });
+    elementsStore.put({ parent: 3, order: 1, uuid: 19, text: "new tab", img_uuid: 3, href: "https://www.youtube.com/", target: "_blank", customcss: "background-color:green;font-style:oblique;" });
     elementsStore.put({ parent: 3, order: 3, uuid: 20, text: "same tab - no target", img_uuid: 1, href: "https://www.youtube.com/" });
     elementsStore.put({ parent: 3, order: 2, uuid: 21, text: "same tab - with target", img_uuid: 1, href: "https://www.youtube.com/", target: "_self", customcss: "font-size:25px;font-weight:bold;" });
     elementsStore.put({ parent: 2, order: 0, uuid: 5 });

@@ -22,6 +22,7 @@ console.log(String.prototype);
 //#region "ENUMS"
 const FavsCustomElementsName = {
     tags: {
+        TAB: "my-tab",
         ALBUM: "my-album",
         GROUP: "my-group",
         STICKER: "my-sticker",
@@ -271,6 +272,28 @@ function SetDragClass(element, val) {
             element.classList.remove("drag-top", "drag-right", "drag-bottom", "drag-left", "drag-inner");
             break;
     }
+}
+
+class Tabs extends HTMLElement {
+    constructor() {
+        super();
+        this.addEventListener('click', handleTabsClick);
+    }
+}
+customElements.define(FavsCustomElementsName.tags.TAB, Tabs);
+
+async function handleTabsClick(event) {  
+    albumId = event.target.getAttribute("data-album");
+    if (!document.getElementById(albumId)) {
+        await generateAlbum(parseInt(albumId));
+    }
+
+    const toHide = document.querySelectorAll(FavsCustomElementsName.tags.ALBUM + ":not([id='" + albumId + "']):not(:has(.hide))");
+    const toShow = document.querySelector(FavsCustomElementsName.tags.ALBUM + "[id='" + albumId + "']");
+    toHide.forEach(e => {
+        e.classList.add("hide");
+    });
+    if (toShow) toShow.classList.remove("hide");
 }
 
 class Groups extends HTMLElement {
