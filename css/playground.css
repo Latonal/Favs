@@ -2,6 +2,9 @@
     --album-border-color: salmon;
     --group-bg-color: transparent;
     --sticker-bg-color: transparent;
+
+    --header-height: 50px;
+    --footer-height: 50px;
 }
 
 my-album,
@@ -18,6 +21,7 @@ my-album {
     display: block;
     border: 3px solid var(--album-border-color);
     padding: 3px;
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
 }
 
 my-group {
@@ -108,5 +112,5 @@ my-group[tmp=true] my-sticker {
 }
 
 .hide {
-    display:none;
+    display: none;
 }
