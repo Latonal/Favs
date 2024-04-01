@@ -157,9 +157,6 @@ async function getElementsHighestId(elementsStore = null) {
 
 async function updateElementsInDb() {
     console.log(elementLogTracking);
-    // DELETE
-    // CREATE first
-    // UPDATE
     const db = await openDatabase();
     const transactionsWrite = db.transaction(["elements"], "readwrite");
     const elementsStore = transactionsWrite.objectStore("elements");
@@ -201,19 +198,11 @@ async function getUpdatedElement(dbElement, ...newData) {
             const element = document.getElementById(dbElement.uuid);
             if (!isTruthy(element)) return;
 
+            const elementType = getElementType(element);
             newData.forEach(e => {
-                // TODO : use getElementType && elementTypeFormat
-                switch (e) {
-                    case "parent":
-                        dbElement.parent = parseInt(element.parentElement.id, 10);
-                        break;
-                    case "order":
-                        dbElement.order = parseInt(element.getAttribute("data-order"), 10) || 0;
-                        break;
-                    default:
-                        break;
-                }
+                elementTypeFormatCommon.getData(element, elementType, dbElement, e);
             });
+            console.log(dbElement);
 
             resolve(dbElement);
         } catch (error) {

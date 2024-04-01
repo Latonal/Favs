@@ -215,7 +215,7 @@ async function formatElement(htmlElement, dataElement, parentData, iconsStore) {
     elementTypeFormat[elementType].setCustom(htmlElement, dataElement, iconsStore);
 }
 
-function getElementType(htmlElement, parentData) {
+function getElementType(htmlElement, parentData = null) {
     const tagName = htmlElement.tagName.toLowerCase();
 
     switch (tagName) {
@@ -224,7 +224,9 @@ function getElementType(htmlElement, parentData) {
         case FavsCustomElementsName.tags.GROUP:
             return 'group';
         case FavsCustomElementsName.tags.STICKER:
-            const parentType = parentData.type || 'default';
+            let parentType = null;
+            if (!parentData) parentType = htmlElement.parentNode.getAttribute("data-type") || 'default';
+            else parentType = parentData.type || 'default';
             return parentType;
     }
 }
@@ -254,6 +256,19 @@ async function getImgUri(img_uuid, iconsStore) {
 }
 
 const elementTypeFormatCommon = {
+    getData: function (element, elementType, object, dataToUpdate) {
+        switch (dataToUpdate) {
+            case "parent":
+                object.parent = this.getParent(element);
+                break;
+            case "order":
+                object.order = parseInt(element.getAttribute("data-order"), 10) || 0;
+                break;
+            default:
+                elementTypeFormat[elementType].getCustom(element, object, dataToUpdate);
+                break;
+        }
+    },
     getTheme: function (element) { },
     setTheme: function (element, theme) {
         if (theme) element.setAttribute("data-theme", theme);
@@ -265,12 +280,15 @@ const elementTypeFormatCommon = {
     getOrder: function (element) { },
     setOrder: function (element, order) {
         if (order) element.setAttribute("data-order", order || "0");
-    }
+    },
+    getParent: function (element) {
+        return parseInt(element.parentElement.id, 10);
+    },
 }
 
 const elementTypeFormat = {
     default: {
-        getCustom: function (element) { },
+        getCustom: function (element, object, dataToUpdate) { },
         setCustom: async function (element, dataElement, iconsStore) {
             let elementObj = new Object();
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
@@ -311,7 +329,7 @@ const elementTypeFormat = {
         },
     },
     tab: {
-        getCustom: function (element) { },
+        getCustom: function (element, object, dataToUpdate) { },
         setCustom: function (element, dataElement) {
             this.setAlbumId(element, dataElement.uuid);
             elementTypeFormatCommon.setOrder(element, dataElement.order);
@@ -323,7 +341,7 @@ const elementTypeFormat = {
         }
     },
     album: {
-        getCustom: function (element) { },
+        getCustom: function (element, object, dataToUpdate) { },
         setCustom: function (element, dataElement) {
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
@@ -331,7 +349,7 @@ const elementTypeFormat = {
         },
     },
     group: {
-        getCustom: function (element) { },
+        getCustom: function (element, object, dataToUpdate) { },
         setCustom: function (element, dataElement) {
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
