@@ -253,15 +253,29 @@ async function getImgUri(img_uuid, iconsStore) {
     })
 }
 
+const elementTypeFormatCommon = {
+    getTheme: function (element) { },
+    setTheme: function (element, theme) {
+        if (theme) element.setAttribute("data-theme", theme);
+    },
+    getCustomCss: function (element) { },
+    setCustomCss: function (element, customCss) {
+        if (customCss) element.setAttribute("style", customCss);
+    },
+    getOrder: function (element) { },
+    setOrder: function (element, order) {
+        if (order) element.setAttribute("data-order", order || "0");
+    }
+}
+
 const elementTypeFormat = {
     default: {
-        getCustom: function (element) {
-
-        },
+        getCustom: function (element) { },
         setCustom: async function (element, dataElement, iconsStore) {
             let elementObj = new Object();
-            this.setTheme(element, dataElement.theme);
-            this.setCustomCss(element, dataElement.customcss);
+            elementTypeFormatCommon.setTheme(element, dataElement.theme);
+            elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
+            elementTypeFormatCommon.setOrder(element, dataElement.order);
 
             elementObj.text = this.setText(dataElement.text);
             if (dataElement.img_uuid) {
@@ -272,33 +286,14 @@ const elementTypeFormat = {
             if (elementObj.img) element.appendChild(elementObj.img);
             if (elementObj.text) element.appendChild(elementObj.text);
         },
-
-        getTheme: function (element) {
-
-        },
-        setTheme: function (element, theme) {
-            if (theme) element.setAttribute("theme", theme);
-        },
-        getCustomCss: function (element) {
-
-        },
-        setCustomCss: function (element, customCss) {
-            if (customCss) element.setAttribute("style", customCss);
-        },
-
-
-        getText: function (element) {
-
-        },
+        getText: function (element) { },
         setText: function (text) {
             if (!text) return null;
             const newP = document.createElement("p");
             newP.innerText = text;
             return newP;
         },
-        getImg: function (element) {
-
-        },
+        getImg: function (element) { },
         setImg: function (imgUri, imgUuid) {
             if (!imgUri) return null;
             const newImg = document.createElement("img");
@@ -306,15 +301,11 @@ const elementTypeFormat = {
             newImg.setAttribute("img-uuid", imgUuid);
             return newImg;
         },
-        getHref: function (element) {
-
-        },
+        getHref: function (element) { },
         setHref: function (element, href) {
             if (href) element.setAttribute("href", href);
         },
-        getTarget: function (element) {
-
-        },
+        getTarget: function (element) { },
         setTarget: function (element, target) {
             if (target) element.setAttribute("target", target);
         },
@@ -322,8 +313,8 @@ const elementTypeFormat = {
     tab: {
         getCustom: function (element) { },
         setCustom: function (element, dataElement) {
-            console.log(dataElement);
             this.setAlbumId(element, dataElement.uuid);
+            elementTypeFormatCommon.setOrder(element, dataElement.order);
             return element;
         },
         getAlbumId: function (element) { },
@@ -334,33 +325,17 @@ const elementTypeFormat = {
     album: {
         getCustom: function (element) { },
         setCustom: function (element, dataElement) {
-            this.setTheme(element, dataElement.theme);
-            this.setCustomCss(element, dataElement.customcss);
-
-            // TODO: Create a tab in the header
-        },
-        getTheme: function (element) { },
-        setTheme: function (element, theme) {
-            if (theme) element.setAttribute("theme", theme);
-        },
-        getCustomCss: function (element) { },
-        setCustomCss: function (element, customCss) {
-            if (customCss) element.setAttribute("style", customCss);
+            elementTypeFormatCommon.setTheme(element, dataElement.theme);
+            elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
+            elementTypeFormatCommon.setOrder(element, dataElement.order);
         },
     },
     group: {
         getCustom: function (element) { },
         setCustom: function (element, dataElement) {
-            this.setTheme(element, dataElement.theme);
-            this.setCustomCss(element, dataElement.customcss);
-        },
-        getTheme: function (element) { },
-        setTheme: function (element, theme) {
-            if (theme) element.setAttribute("theme", theme);
-        },
-        getCustomCss: function (element) { },
-        setCustomCss: function (element, customCss) {
-            if (customCss) element.setAttribute("style", customCss);
+            elementTypeFormatCommon.setTheme(element, dataElement.theme);
+            elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
+            elementTypeFormatCommon.setOrder(element, dataElement.order);
         },
     }
 }
