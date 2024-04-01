@@ -202,12 +202,13 @@ async function getUpdatedElement(dbElement, ...newData) {
             if (!isTruthy(element)) return;
 
             newData.forEach(e => {
+                // TODO : use getElementType && elementTypeFormat
                 switch (e) {
                     case "parent":
                         dbElement.parent = parseInt(element.parentElement.id, 10);
                         break;
                     case "order":
-                        dbElement.order = parseInt(getComputedStyle(element).getPropertyValue("--order"), 10);
+                        dbElement.order = parseInt(element.getAttribute("data-order"), 10) || 0;
                         break;
                     default:
                         break;

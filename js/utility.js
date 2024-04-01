@@ -76,8 +76,8 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
     const nextElement = element.nextElementSibling;
     const prevElement = element.previousElementSibling;
 
-    let nextOrder = (nextElement && getComputedStyle(nextElement).getPropertyValue("--order")) || 0;
-    let prevOrder = (prevElement && getComputedStyle(prevElement).getPropertyValue("--order")) || 0;
+    let nextOrder = (nextElement && nextElement.getAttribute("data-order")) || 0;
+    let prevOrder = (prevElement && prevElement.getAttribute("data-order")) || 0;
 
     let newOrder = 0;
     if (iterateToNextSibling)
@@ -87,7 +87,7 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
     if (prevElement && nextElement && prevOrder < nextOrder - 1) {
         newOrder = nextOrder - 1;
     }
-    element.style.setProperty("--order", newOrder);
+    element.setAttribute("data-order", newOrder);
 
     if (iterateToNextSibling)
         nextElement && assignOrderToSiblingsRecursively(nextElement, iterateToNextSibling);
