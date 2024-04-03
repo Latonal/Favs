@@ -282,7 +282,7 @@ class Tabs extends HTMLElement {
 }
 customElements.define(FavsCustomElementsName.tags.TAB, Tabs);
 
-async function handleTabsClick(event) {  
+async function handleTabsClick(event) {
     albumId = event.target.getAttribute("data-album");
     if (!document.getElementById(albumId)) {
         await generateAlbum(parseInt(albumId));
@@ -294,6 +294,44 @@ async function handleTabsClick(event) {
         e.classList.add("hide");
     });
     if (toShow) toShow.classList.remove("hide");
+}
+
+class Albums extends HTMLElement {
+    constructor() {
+        super();
+        this.addEventListener('dragover', handleAlbumDragOver);
+        this.addEventListener('drop', handleAlbumDrop);
+
+        this.addEventListener('mouseover', function () {
+            this.setAttribute('draggable', editing);
+        });
+    }
+}
+customElements.define(FavsCustomElementsName.tags.ALBUM, Albums);
+
+function handleAlbumDragOver(event) {
+    const elementToMove = document.getElementById(draggedElementId);
+
+    event.preventDefault();
+
+    event.target.appendChild(elementToMove);
+    setOrderToFitSiblings(elementToMove);
+}
+
+function handleAlbumDrop(event) {
+    const elementToMove = document.getElementById(draggedElementId);
+    elementToMove.classList.remove("dragged");
+
+    event.preventDefault();
+    event.stopPropagation();
+    
+    keepTrackOfChanges(new ElementLog(draggedElementId, Status.UPDATE, "parent", "order"));
+    
+    checkOldParent();
+    removeAllTmps();
+    
+    updatePendingChanges(event.target.parentElement.childNodes);
+    updateElementsInDb();
 }
 
 class Groups extends HTMLElement {
@@ -372,7 +410,6 @@ function handleGroupDrop(event) {
         event.target.parentElement.removeEventListener("dragleave", removeTmpGroup);
         event.target.parentElement.id = ++highestId;
         setOrderToFitSiblings(event.target.parentElement);
-        // put in db
         keepTrackOfChanges(new ElementLog(event.target.parentElement.id, Status.CREATE, "parent", "order"));
         event.target.parentElement.childNodes.forEach(e => {
             keepTrackOfChanges(new ElementLog(e.id, Status.UPDATE, "parent", "order"));
@@ -381,12 +418,7 @@ function handleGroupDrop(event) {
         keepTrackOfChanges(new ElementLog(draggedElementId, Status.UPDATE, "parent", "order"));
     }
 
-    // remove old parent if only one child
-    if (isTruthy(oldParentId) && document.getElementById(oldParentId).children.length <= 1) {
-        keepTrackOfChanges(new ElementLog(oldParentId, Status.DELETE));
-        replaceParentByChild(document.getElementById(oldParentId));
-    }
-
+    checkOldParent();
     removeAllTmps();
 
     updatePendingChanges(event.target.parentElement.childNodes);
@@ -399,6 +431,13 @@ function removeAllTmps() {
         tmps.forEach(element => {
             replaceParentByChild(element);
         });
+    }
+}
+
+function checkOldParent() {
+    if (isTruthy(oldParentId) && document.getElementById(oldParentId).children.length <= 1) {
+        keepTrackOfChanges(new ElementLog(oldParentId, Status.DELETE));
+        replaceParentByChild(document.getElementById(oldParentId));
     }
 }
 
@@ -628,7 +667,7 @@ function keepTrackOfChanges(obj) {
 
         elementChanged.propertiesName = [...new Set([...elementChanged.propertiesName, ...obj.propertiesName])];
     } else { // create new element to save
-        if (obj.propertiesName.length > 0)
+        if (obj.propertiesName.length > 0 || obj.status == Status.DELETE)
             elementLogTracking.push(obj);
     }
 }
@@ -638,4 +677,12 @@ function updatePendingChanges(elements) {
         if (isTruthy(e.id))
             keepTrackOfChanges(new ElementLog(e.id, Status.UPDATE));
     });
+}
+
+function showElementLogTracking() {
+    console.log("___________Element Log Tracking___________");
+    elementLogTracking.forEach(e => {
+        console.log(e);
+    });
+    console.log("___________End of Element Log Tracking___________");
 }

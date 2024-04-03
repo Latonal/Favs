@@ -40,8 +40,7 @@ async function generateTabs() {
             const elementsStore = transactionsRead.objectStore("elements");
             const iconsStore = transactionsRead.objectStore("icons");
 
-            const data = await getTabsData(elementsStore);
-            data.sort(compareElements);
+            const data = compareElements(await getTabsData(elementsStore));
 
             await createTabs(iconsStore, data);
 
@@ -95,12 +94,9 @@ async function generateAlbum(page = 0) {
             const elementsStore = transactionsRead.objectStore("elements");
             const iconsStore = transactionsRead.objectStore("icons");
 
-            const data = await getElementsData(elementsStore, page);
-            data.sort(compareElements);
+            const data = compareElements(await getElementsData(elementsStore, page));
 
             await createElements(iconsStore, data, page);
-
-            console.log(data);
             resolve();
         } catch (error) {
             console.error("ERROR Playground-8:\nAn error occured while creating the playground: ", error)
@@ -136,20 +132,22 @@ async function getElementsData(elementsStore, page) {
     });
 }
 
-function compareElements(a, b) {
-    if (a.parent === b.parent) {
-        return a.order - b.order;
-    }
+function compareElements(data) {
+    const organized = [];
 
-    if (a.parent === b.uuid) {
-        return 1;
-    }
+    function organizeChildren(parentUuid) {
+        const children = data.filter(obj => obj.parent === parentUuid);
+        children.sort((a, b) => a.order - b.order);
 
-    if (b.parent === a.uuid) {
-        return -1;
+        children.forEach(child => {
+            organized.push(child);
+            organizeChildren(child.uuid);
+        });
     }
+    
+    organizeChildren(0);
 
-    return a.parent - b.parent;
+    return organized;
 }
 
 async function retrieveElementChildrenRecursively(store, currentId, search) {
@@ -178,32 +176,36 @@ async function createElements(iconsStore, data, page) {
     playground = document.getElementById("playground");
 
     data.forEach(async e => {
-        let tagName;
-        if (e.parent === 0 || e.uuid === page)
-            tagName = FavsCustomElementsName.tags.ALBUM;
-        else if (data.find(d => d.parent === e.uuid))
-            tagName = FavsCustomElementsName.tags.GROUP;
-        else
-            tagName = FavsCustomElementsName.tags.STICKER;
+        try {
+            let tagName;
+            if (e.parent === 0 || e.uuid === page)
+                tagName = FavsCustomElementsName.tags.ALBUM;
+            else if (data.find(d => d.parent === e.uuid))
+                tagName = FavsCustomElementsName.tags.GROUP;
+            else
+                tagName = FavsCustomElementsName.tags.STICKER;
 
-        const newElement = document.createElement(tagName);
+            const newElement = document.createElement(tagName);
 
-        const parentData = data.find(d => d.uuid === e.parent);
-        await formatElement(newElement, e, parentData, iconsStore);
+            const parentData = data.find(d => d.uuid === e.parent);
+            await formatElement(newElement, e, parentData, iconsStore);
 
-        let parent = null;
-        switch (tagName) {
-            case FavsCustomElementsName.tags.ALBUM:
-                playground.appendChild(newElement);
-                break;
-            case FavsCustomElementsName.tags.GROUP:
-                parent = document.getElementById(e.parent);
-                const layer_level = (parent.getAttribute("layer-level") != "odd") ? "odd" : "even";
-                newElement.setAttribute("layer-level", layer_level);
-            case FavsCustomElementsName.tags.STICKER:
-                if (!isTruthy(parent)) parent = document.getElementById(e.parent);
-                parent.appendChild(newElement);
-                break;
+            let parent = null;
+            switch (tagName) {
+                case FavsCustomElementsName.tags.ALBUM:
+                    playground.appendChild(newElement);
+                    break;
+                case FavsCustomElementsName.tags.GROUP:
+                    parent = document.getElementById(e.parent);
+                    const layer_level = (parent.getAttribute("layer-level") != "odd") ? "odd" : "even";
+                    newElement.setAttribute("layer-level", layer_level);
+                case FavsCustomElementsName.tags.STICKER:
+                    if (!isTruthy(parent)) parent = document.getElementById(e.parent);
+                    parent.appendChild(newElement);
+                    break;
+            }
+        } catch (error) {
+            console.error("ERROR Playground-11:\nAn error occured while creating the elements because the parent wasn't properly instantiated: ", e.uuid, error);
         }
     });
 }
