@@ -79,7 +79,7 @@ async function createTabs(iconsStore, data) {
 
     data.forEach(async e => {
         htmlElement = document.createElement(FavsCustomElementsName.tags.TAB);
-        const newTab = elementTypeFormat['tab'].setCustom(htmlElement, e, iconsStore);
+        const newTab = elementTypeFormat['tab'].setData(htmlElement, e, iconsStore);
         tabs.appendChild(newTab);
     });
 }
@@ -144,7 +144,7 @@ function compareElements(data) {
             organizeChildren(child.uuid);
         });
     }
-    
+
     organizeChildren(0);
 
     return organized;
@@ -214,7 +214,7 @@ async function formatElement(htmlElement, dataElement, parentData, iconsStore) {
     htmlElement.id = dataElement.uuid;
 
     const elementType = getElementType(htmlElement, parentData);
-    elementTypeFormat[elementType].setCustom(htmlElement, dataElement, iconsStore);
+    elementTypeFormat[elementType].setData(htmlElement, dataElement, iconsStore);
 }
 
 function getElementType(htmlElement, parentData = null) {
@@ -267,7 +267,7 @@ const elementTypeFormatCommon = {
                 object.order = parseInt(element.getAttribute("data-order"), 10) || 0;
                 break;
             default:
-                elementTypeFormat[elementType].getCustom(element, object, dataToUpdate);
+                elementTypeFormat[elementType].getData(element, object, dataToUpdate);
                 break;
         }
     },
@@ -286,16 +286,25 @@ const elementTypeFormatCommon = {
     getParent: function (element) {
         return parseInt(element.parentElement.id, 10);
     },
+
+    encrypt: function (element) {
+        return element;
+    },
+    decrypt: function (element) {
+        return element;
+    },
 }
 
 const elementTypeFormat = {
     default: {
-        getCustom: function (element, object, dataToUpdate) { },
-        setCustom: async function (element, dataElement, iconsStore) {
+        getData: function (element, object, dataToUpdate) { },
+        setData: async function (element, dataElement, iconsStore) {
             let elementObj = new Object();
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
             elementTypeFormatCommon.setOrder(element, dataElement.order);
+            this.setHref(element, dataElement.href);
+            this.setTarget(element, dataElement.target);
 
             elementObj.text = this.setText(dataElement.text);
             if (dataElement.img_uuid) {
@@ -306,11 +315,13 @@ const elementTypeFormat = {
             if (elementObj.img) element.appendChild(elementObj.img);
             if (elementObj.text) element.appendChild(elementObj.text);
         },
-        getText: function (element) { },
+        getText: function (element, encrypt) {
+            // return (encrypt) ? elementTypeFormatCommon.encrypt() : element;
+        },
         setText: function (text) {
             if (!text) return null;
             const newP = document.createElement("p");
-            newP.innerText = text;
+            newP.innerText = elementTypeFormatCommon.decrypt(text);
             return newP;
         },
         getImg: function (element) { },
@@ -331,8 +342,8 @@ const elementTypeFormat = {
         },
     },
     tab: {
-        getCustom: function (element, object, dataToUpdate) { },
-        setCustom: function (element, dataElement) {
+        getData: function (element, object, dataToUpdate) { },
+        setData: function (element, dataElement) {
             this.setAlbumId(element, dataElement.uuid);
             elementTypeFormatCommon.setOrder(element, dataElement.order);
             return element;
@@ -343,16 +354,16 @@ const elementTypeFormat = {
         }
     },
     album: {
-        getCustom: function (element, object, dataToUpdate) { },
-        setCustom: function (element, dataElement) {
+        getData: function (element, object, dataToUpdate) { },
+        setData: function (element, dataElement) {
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
             elementTypeFormatCommon.setOrder(element, dataElement.order);
         },
     },
     group: {
-        getCustom: function (element, object, dataToUpdate) { },
-        setCustom: function (element, dataElement) {
+        getData: function (element, object, dataToUpdate) { },
+        setData: function (element, dataElement) {
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
             elementTypeFormatCommon.setOrder(element, dataElement.order);

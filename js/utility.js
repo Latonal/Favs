@@ -1,24 +1,6 @@
 var draggedElementId = 0;
 var oldParentId = 0;
 
-//#region PROTOTYPES
-// TODO : ENCRYPT -- Prototype should not be used
-String.prototype.encrypt/*, Number.prototype.encrypt */ = function () {
-    if (!isTruthy(this)) return this;
-    return this;
-}
-// TODO : DECRYPT -- Prototype should not be used
-String.prototype.decrypt = function () {
-    if (!isTruthy(this)) return this;
-    return this;
-}
-console.log(String.prototype);
-//#endregion PROTOTYPES
-
-
-
-
-
 //#region "ENUMS"
 const FavsCustomElementsName = {
     tags: {
@@ -48,8 +30,6 @@ const Status = {
 
 
 
-
-//#region CLASSES
 
 function isTargetedElement(event, tagName) {
     const element = (isTruthy(event.target.tagName)) ? event.target : event.currentTarget;
@@ -203,32 +183,6 @@ function getClosestEdges(event, closest, nbValReturned = 1, ascending = true) {
     return [results, values];
 }
 
-function isHoverCorner(event, closest, thresholdValue, thresholdUnit) {
-    const rect = closest.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    switch (thresholdUnit) {
-        case "px":
-            return checkConditionsThreshold(2,
-                x <= thresholdValue,
-                y <= thresholdValue,
-                x >= rect.width - thresholdValue,
-                y >= rect.height - thresholdValue);
-        // case "%": // TODO
-        //     const thresholdX = (rect.width * thresholdValue) / 100;
-        //     const thresholdY = (rect.height * thresholdValue) / 100;
-        //     return checkConditionsThreshold(2,
-        //         x <= thresholdX,
-        //         y <= thresholdY,
-        //         x >= rect.width - thresholdX,
-        //         y >= rect.height - thresholdY);
-        default:
-            console.error("ERROR Utility-5:\nThreshold unit is not supported. Please use px or %.", minDist);
-            break;
-    }
-}
-
 function isHoverCornerCalc(closest, positions, values, thresholdValue = 30, thresholdUnit = "px") {
     if (values.length <= 1) return false;
 
@@ -247,43 +201,17 @@ function isHoverCornerCalc(closest, positions, values, thresholdValue = 30, thre
     }
 }
 
-function SetDragClass(element, val) {
-    switch (val) {
-        case 1: // top
-            element.classList.add("drag-top");
-            element.classList.remove("drag-right", "drag-bottom", "drag-left");
-            break;
-        case 2: // right
-            element.classList.add("drag-right");
-            element.classList.remove("drag-top", "drag-bottom", "drag-left");
-            break;
-        case 3: // bottom
-            element.classList.add("drag-bottom");
-            element.classList.remove("drag-top", "drag-right", "drag-left");
-            break;
-        case 4: // left
-            element.classList.add("drag-left");
-            element.classList.remove("drag-top", "drag-right", "drag-bottom");
-            break;
-        case 5: // inner
-            element.classList.add("drag-inner");
-            break;
-        default: // remove classes
-            element.classList.remove("drag-top", "drag-right", "drag-bottom", "drag-left", "drag-inner");
-            break;
-    }
-}
-
-class Tabs extends HTMLElement {
+//#region Tab
+class Tab extends HTMLElement {
     constructor() {
         super();
         this.addEventListener('click', handleTabsClick);
     }
 }
-customElements.define(FavsCustomElementsName.tags.TAB, Tabs);
+customElements.define(FavsCustomElementsName.tags.TAB, Tab);
 
 async function handleTabsClick(event) {
-    albumId = event.target.getAttribute("data-album");
+    const albumId = event.target.getAttribute("data-album");
     if (!document.getElementById(albumId)) {
         await generateAlbum(parseInt(albumId));
     }
@@ -295,8 +223,10 @@ async function handleTabsClick(event) {
     });
     if (toShow) toShow.classList.remove("hide");
 }
+//#endregion Tabs
 
-class Albums extends HTMLElement {
+//#region Album
+class Album extends HTMLElement {
     constructor() {
         super();
         this.addEventListener('dragover', handleAlbumDragOver);
@@ -307,7 +237,7 @@ class Albums extends HTMLElement {
         });
     }
 }
-customElements.define(FavsCustomElementsName.tags.ALBUM, Albums);
+customElements.define(FavsCustomElementsName.tags.ALBUM, Album);
 
 function handleAlbumDragOver(event) {
     const elementToMove = document.getElementById(draggedElementId);
@@ -333,11 +263,13 @@ function handleAlbumDrop(event) {
     updatePendingChanges(event.target.parentElement.childNodes);
     updateElementsInDb();
 }
+//#endregion Album
 
-class Groups extends HTMLElement {
+//#region Group
+class Group extends HTMLElement {
     constructor() {
         super();
-        this.addEventListener('click', this.handleClick.bind(this));
+        this.addEventListener('click', handleGroupClick);
         this.addEventListener('dragstart', handleGroupDragStart);
         this.addEventListener('dragover', handleGroupDragOver);
         this.addEventListener('drop', handleGroupDrop);
@@ -346,14 +278,10 @@ class Groups extends HTMLElement {
             this.setAttribute('draggable', editing);
         });
     }
-
-    handleClick() {
-        handleGroupEdit(this);
-    }
 }
-customElements.define(FavsCustomElementsName.tags.GROUP, Groups);
+customElements.define(FavsCustomElementsName.tags.GROUP, Group);
 
-function handleGroupEdit(event) {
+function handleGroupClick(event) {
     if (editing) {
         // Todo: Open edit menu
 
@@ -528,7 +456,9 @@ function removeTmpGroup(event) {
 
     event.currentTarget.replaceWith(...event.currentTarget.childNodes);
 }
+//#endregion Group
 
+//#region Sticker
 class Sticker extends HTMLElement {
     constructor() {
         super();
@@ -540,18 +470,6 @@ class Sticker extends HTMLElement {
         this.addEventListener('mouseover', function () {
             this.setAttribute('draggable', editing);
         });
-    }
-
-    connectedCallback() { // Added to the DOM
-        // console.log(this);
-    }
-
-    disconnectedCallback() { // Removed from the DOM
-
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) { // An attribute has been changed
-        // change in style: save
     }
 
     handleClick() { // Element has been clicked on
@@ -621,7 +539,7 @@ function handleStickerDrop(event) {
     updatePendingChanges(elementToMove.parentElement.childNodes);
     updateElementsInDb();
 }
-//#endregion CLASSES
+//#endregion Sticker
 
 /**
  * Create an instance of object allowing to keep track of changes
