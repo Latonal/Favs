@@ -81,6 +81,7 @@ my-group:empty {
 
 my-sticker img {
     width: 25px;
+    pointer-events: none;
 }
 
 my-sticker img+p {
