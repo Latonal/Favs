@@ -40,7 +40,7 @@ function instantiateDB() {
                 iconsStore.createIndex("by_name", "name", { unique: false });
 
 
-                defaultGeneration(elementsStore, iconsStore);
+                generateDb(elementsStore, iconsStore);
 
                 StartTutorial();
             }
@@ -93,57 +93,14 @@ function deleteDB() {
     console.log("database has been deleted");
 }
 
-function defaultGeneration(elementsStore, iconsStore) {
-    // ELEMENTS
-    // Page 1 -- 19 items
-    elementsStore.put({ parent: 0, order: 0, uuid: 1, theme: "light" });
-    elementsStore.put({ parent: 1, order: 0, uuid: 2 });
-    elementsStore.put({ parent: 2, order: 2, uuid: 3, customcss: "background-color:cadetblue;" });
-    elementsStore.put({ parent: 3, order: 0, uuid: 4, text: "middle element", img_uuid: 1 });
-    elementsStore.put({ parent: 3, order: 1, uuid: 19, text: "new tab", img_uuid: 3, href: "https://www.youtube.com/", target: "_blank", customcss: "background-color:green;font-style:oblique;" });
-    elementsStore.put({ parent: 3, order: 3, uuid: 20, text: "same tab - no target", img_uuid: 1, href: "https://www.youtube.com/" });
-    elementsStore.put({ parent: 3, order: 2, uuid: 21, text: "same tab - with target", img_uuid: 1, href: "https://www.youtube.com/", target: "_self", customcss: "font-size:25px;font-weight:bold;" });
-    elementsStore.put({ parent: 2, order: 1, uuid: 5 });
-    elementsStore.put({ parent: 5, order: 0, uuid: 6, text: "left element" });
-    elementsStore.put({ parent: 7, order: 2, uuid: 22 });
-    elementsStore.put({ parent: 2, order: 3, uuid: 7 });
-    elementsStore.put({ parent: 22, order: 1, uuid: 8, text: "right element" });
-    // elementsStore.put({ parent: 8, order: 1, uuid: 30 }); // debugging
-    elementsStore.put({ parent: 22, order: 0, uuid: 25, text: "column right" });
-    elementsStore.put({ parent: 7, order: 0, uuid: 23 });
-    elementsStore.put({ parent: 23, order: 2, uuid: 24, text: "some text below right element" });
-    elementsStore.put({ parent: 1, order: -1, uuid: 9 });
-    elementsStore.put({ parent: 9, order: 0, uuid: 10, text: "sticker below" });
-    elementsStore.put({ parent: 11, order: 0, uuid: 12, text: "another sticker below" });
+function generateDb(elementsStore, iconsStore) {
+    playgroundDebugging.forEach(e => {
+        elementsStore.put(e);
+    });
 
-    elementsStore.put({ parent: 1, order: 2, uuid: 32 });
-
-    elementsStore.put({ parent: 32, order: 0, uuid: 27 });
-    elementsStore.put({ parent: 27, order: 0, uuid: 28, text: "middle element", img_uuid: 1 });
-    elementsStore.put({ parent: 27, order: 1, uuid: 29, text: "new tab", img_uuid: 3, href: "https://www.youtube.com/", target: "_blank", customcss: "background-color:green;font-style:oblique;" });
-    elementsStore.put({ parent: 27, order: 3, uuid: 30, text: "same tab - no target", img_uuid: 1, href: "https://www.youtube.com/" });
-    elementsStore.put({ parent: 27, order: 2, uuid: 31, text: "same tab - with target", img_uuid: 1, href: "https://www.youtube.com/", target: "_self", customcss: "font-size:25px;font-weight:bold;" });
-
-    elementsStore.put({ parent: 32, order: 2, uuid: 11 });
-    elementsStore.put({ parent: 0, order: 2, uuid: -1 });
-    elementsStore.put({ parent: 0, order: 2, uuid: -2 });
-    elementsStore.put({ parent: 0, order: 2, uuid: -3 });
-    elementsStore.put({ parent: 0, order: 2, uuid: -4 });
-    elementsStore.put({ parent: 0, order: 2, uuid: -5 });
-    elementsStore.put({ parent: 0, order: 2, uuid: -6 });
-
-    // Page 2 -- 3 items
-    elementsStore.put({ parent: 0, order: 1, uuid: 13, customcss: "background-color:#708a70;" });
-    elementsStore.put({ parent: 13, order: 0, uuid: 14 });
-    elementsStore.put({ parent: 14, order: 0, uuid: 15, text: "some text on the second page" });
-    // Page 3 -- 3 items
-    elementsStore.put({ parent: 0, order: 2, uuid: 16, customcss: "background-color:#618188;" });
-    elementsStore.put({ parent: 16, order: 0, uuid: 17 });
-    elementsStore.put({ parent: 17, order: 0, uuid: 18, text: "some text on the third page" });
-
-    // ICONS
-    iconsStore.put({ name: "options", link: "./img/options.svg", uuid: 1 });
-    iconsStore.put({ name: "blah blah", link: "./img/blahblah", uuid: 2 });
+    iconsDebugging.forEach(e => {
+        iconsStore.put(e);
+    });
 }
 
 
