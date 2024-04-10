@@ -1,5 +1,3 @@
-// import { openDatabase } from "./data";
-
 function openDatabase() { // Dupe
     return new Promise((resolve, reject) => {
         const openRequest = indexedDB.open(DB_NAME, DB_VERSION);
@@ -288,9 +286,11 @@ const elementTypeFormatCommon = {
     },
 
     encrypt: function (element) {
+        // return encryptMessage(element);
         return element;
     },
     decrypt: function (element) {
+        // return decryptMessage(element);
         return element;
     },
 }

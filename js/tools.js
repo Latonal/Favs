@@ -44,6 +44,28 @@ function sortDescending(a, b) {
     return b - a;
 }
 
+function getMessageEncoding(str) {
+    const encoder = new TextEncoder();
+    return encoder.encode(str);
+}
+
+function encryptMessage(str) {
+    const encoded = getMessageEncoding(str);
+    return window.crypto.subtle.encrypt(
+        { name: "AES-GCM" },
+        localStorageData.key,
+        encoded,
+    );
+}
+
+function decryptMessage(str) {
+    return window.crypto.subtle.decrypt(
+        { name: "AES-GCM" },
+        localStorageData.key,
+        str,
+    );
+}
+
 const cssVariablePrefix = "--";
 /**
  * Dissociate variables values from constants values in css
@@ -91,7 +113,7 @@ function cssStringAsObj(str) {
 
         values.push({ [property]: value });
     });
-    
+
     return values;
 }
 
