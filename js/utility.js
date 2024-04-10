@@ -2,6 +2,12 @@ var draggedElementId = 0;
 var oldParentId = 0;
 
 //#region "ENUMS"
+const SecurityLevel = {
+    NONE: 0,
+    LOW: 1,
+    MEDIUM: 2,
+}
+
 const FavsCustomElementsName = {
     tags: {
         TAB: "my-tab",
@@ -23,7 +29,7 @@ const Status = {
     CREATE: "create",
     PENDING: "pending",
     UPDATE: "update",
-    DELETE: "delete"
+    DELETE: "delete",
 }
 //#endregion "ENUMS"
 
@@ -363,7 +369,7 @@ function removeAllTmps() {
 }
 
 function checkOldParent() {
-    if (isTruthy(oldParentId) && document.getElementById(oldParentId).children.length <= 1) {
+    if (isTruthy(oldParentId) && document.getElementById(oldParentId).children.length <= 1 && document.getElementById(oldParentId).tagName === FavsCustomElementsName.tags.GROUP) {
         keepTrackOfChanges(new ElementLog(oldParentId, Status.DELETE));
         replaceParentByChild(document.getElementById(oldParentId));
     }
