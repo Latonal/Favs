@@ -29,7 +29,7 @@ my-group {
     justify-content: space-evenly;
     align-items: stretch;
     width: 100%;
-    flex: 1;
+    flex: 1 1 100%;
 
     background-color: var(--group-bg-color);
 
