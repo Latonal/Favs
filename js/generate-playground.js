@@ -119,7 +119,9 @@ async function getElementsData(elementsStore, page) {
                     const search = await retrieveElementChildrenRecursively(elementsStore, cursor.value.uuid, [cursor.value]);
 
                     searches.push(...search);
-                    cursor.continue();
+                    // TODO: let user decide if they want to generate the whole db or not
+                    // cursor.continue();
+                    resolve(searches);
                 } else {
                     resolve(searches);
                 }
