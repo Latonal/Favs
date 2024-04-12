@@ -348,12 +348,19 @@ const elementTypeFormat = {
         setData: function (element, dataElement) {
             this.setAlbumId(element, dataElement.uuid);
             elementTypeFormatCommon.setOrder(element, dataElement.order);
+            this.setTabContent(element, dataElement);
             return element;
         },
         getAlbumId: function (element) { },
         setAlbumId: function (element, albumId) {
             if (albumId) element.setAttribute("data-album", albumId);
-        }
+        },
+        getTabContent: function (element) { },
+        setTabContent: function (element, dataElement) {
+            // if img_uuid, put img_uuid instead of text
+            console.log(element);
+            if (dataElement.text) element.innerText = dataElement.text;
+        },
     },
     album: {
         getData: function (element, object, dataToUpdate) { },

@@ -17,6 +17,21 @@ my-sticker {
     opacity: .4 !important;
 }
 
+my-tab {
+    min-width: 50px;
+    width: auto;
+    height: 100%;
+    border: 1px solid black;
+    background-color: indianred;
+    display: flex;
+    transition: var(--transition-time);
+    cursor: pointer;
+
+    justify-content: center;
+    align-items:center;
+    padding:5px;
+}
+
 my-album {
     display: block;
     border: 3px solid var(--album-border-color);
@@ -110,8 +125,4 @@ my-group my-sticker:last-child {
 
 my-group[tmp=true] my-sticker {
     pointer-events: none;
-}
-
-.hide {
-    display: none;
 }
