@@ -3,12 +3,6 @@ const DB_VERSION = 1;
 
 var highestId = 0;
 
-// export {
-//     openDatabase,
-//     instantiateDB,
-//     deleteDB
-// }
-
 function openDatabase() {
     return new Promise((resolve, reject) => {
         const openRequest = indexedDB.open(DB_NAME, DB_VERSION);

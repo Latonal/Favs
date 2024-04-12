@@ -18,13 +18,34 @@
     </div>
     <div id="app">
         <header class="side">
+            <div id="favs"><h1>Favs</h1></div>
             <nav id="tabs">
-                
+
             </nav>
-            <img src="img/options.svg" style="width:50px;"/>
+            <img src="img/options.svg" style="width:50px;" />
         </header>
         <section id="playground"></section>
-        <footer>footer</footer>
+        <footer>
+            <div>
+                <button onclick="aboutFavs();">About Favs</button>
+                <button onclick="whatsNext();">What's next</button>
+            </div>
+            <div>
+                <a href="" target="_blank">Report a bug</a>
+            </div>
+            <div>
+                <button onclick="deleteData();">Clear my data</button>
+            </div>
+            <div>
+                <p>version b.0.1</p>
+            </div>
+        </footer>
+        <div class="center">
+            <div id="popup" class="hide">
+                <button class="close bold" onclick="closePopup();">X</button>
+                <div class="content"></div>
+            </div>
+        </div>
     </div>
     <script type="text/javascript" src="js/utility.js"></script>
     <script type="text/javascript" src="js/tools.js"></script>
@@ -38,4 +59,5 @@
     <script type="text/javascript" src="js/test/test.js"></script>
     <script type="text/javascript" src="js/test/testSort/testSort.js"></script>
 </body>
+
 </html>

@@ -8,31 +8,31 @@
     padding: 0;
 }
 
+#app {
+    font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size:16px;
+}
+
 header {
     height: 50px;
     background-color: gray;
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    position:sticky;
-    top:0;
-    z-index:9999;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
 }
 
 header nav {
-    display:flex;
-    flex-direction:row;
-    height:inherit;
+    display: flex;
+    flex-direction: row;
+    height: inherit;
 }
 
-header nav my-tab {
-    width:50px;
-    height:100%;
-    border: 1px solid black;
-    background-color:indianred;
-    display:flex;
-    transition: var(--transition-time);
-    cursor:pointer;
+#favs {
+    width: 100px;
+    text-align:center;
 }
 
 #playground {
@@ -42,8 +42,76 @@ header nav my-tab {
 }
 
 footer {
-    height: 50px;
+    min-height: 50px;
     background-color: brown;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding-top: 5px;
+}
+
+footer>div {
+    width: 100%;
+    margin: 0 10px;
+    display:flex;
+    flex-direction:column;
+}
+
+footer>div>button {
+    background:none;
+    border:none;
+    font-size:16px;
+}
+
+footer>div>a {
+    text-align:center;
+    color:#000;
+    text-decoration:none;
+}
+
+.center {
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#popup {
+    top:0;
+    position:fixed;
+    background-color: rgb(125, 91, 125);
+    border: 3px solid rgb(117, 66, 117);
+    border-radius: 5px;
+    min-width: 300px;
+    min-height: 300px;
+    z-index:9999;
+    padding:10px;
+}
+
+#popup button.close {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    background: none;
+    color: white;
+    border: none;
+    transition:var(--transition-time);
+}
+
+#popup>button.close:hover {
+    color:gray;
+    cursor:pointer;
+}
+
+#popup>.content ul>li {
+    margin-left:10px;
+}
+
+.hide {
+    display: none;
+}
+
+.bold {
+    font-weight:bold;
 }
 
 /* header.side {
@@ -59,13 +127,13 @@ header.side~footer {} */
 
 /** Dev **/
 .admin-tools {
-    position:absolute;
-    z-index:30;
-    left:75%;
-    top:15%;
+    position: absolute;
+    z-index: 30;
+    left: 75%;
+    top: 15%;
 }
 
 .admin-tools button {
-    width:50px;
-    height:35px;
+    width: 50px;
+    height: 35px;
 }

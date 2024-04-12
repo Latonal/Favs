@@ -1,5 +1,5 @@
 const playgroundDebugging = [
-    { uuid: 1, parent: 0, order: 0, theme: "light" },
+    { uuid: 1, parent: 0, order: 0, theme: "light", text: "first page" },
     { uuid: 2, parent: 1, order: 0 },
     { uuid: 3, parent: 2, order: 2, customcss: "background-color:cadetblue;" },
     { uuid: 4, parent: 3, order: 0, text: "middle element", img_uuid: 1 },
