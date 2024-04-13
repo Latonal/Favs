@@ -1,4 +1,4 @@
-let DB_NAME = "playground-ltnl";
+const DB_NAME = "playground-ltnl";
 const DB_VERSION = 1;
 
 var highestId = 0;

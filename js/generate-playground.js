@@ -20,7 +20,8 @@ async function generatePlayground() {
         // TODO: pass page data depending of user preferences
         // find default page to display
         await generateTabs();
-        await generateAlbum();
+        const defaultPage = localStorageData.defaultPage || 0;
+        await generateAlbum(defaultPage);
 
         console.log("Album has been created");
     } catch (error) {
