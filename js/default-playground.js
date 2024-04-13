@@ -34,8 +34,8 @@ const playgroundDebugging = [
     { uuid: 18, parent: 17, order: 0, text: "some text on the third page" },
 ];
 const iconsDebugging = [
-    { uuid: 1, name: "options", link: "./img/options.svg" },
-    { uuid: 2, name: "blah blah", link: "./img/blahblah" },
+    { uuid: 1, name: "options", link: "./img/options.svg", origin: "app" },
+    { uuid: 2, name: "blah blah", link: "./img/blahblah", origin: "app" },
 ]
 
 const playgroundFirst = [
