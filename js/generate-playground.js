@@ -17,8 +17,6 @@ async function generatePlayground() {
     console.log("Creating playground");
 
     try {
-        // TODO: pass page data depending of user preferences
-        // find default page to display
         await generateTabs();
         const defaultPage = localStorageData.defaultPage || 0;
         await generateAlbum(defaultPage);
@@ -39,7 +37,7 @@ async function generateTabs() {
             const elementsStore = transactionsRead.objectStore("elements");
             const iconsStore = transactionsRead.objectStore("icons");
 
-            const data = compareElements(await getTabsData(elementsStore));
+            const data = orderObjectsByParent(await getTabsData(elementsStore));
 
             await createTabs(iconsStore, data);
 
@@ -93,7 +91,8 @@ async function generateAlbum(page = 0) {
             const elementsStore = transactionsRead.objectStore("elements");
             const iconsStore = transactionsRead.objectStore("icons");
 
-            const data = compareElements(await getElementsData(elementsStore, page));
+            console.log(page);
+            const data = orderObjectsByParent(await getElementsData(elementsStore, page), page);
 
             await createElements(iconsStore, data, page);
             resolve();
@@ -133,12 +132,12 @@ async function getElementsData(elementsStore, page) {
     });
 }
 
-function compareElements(data) {
+function orderObjectsByParent(data, page = 0) {
     const organized = [];
 
     function organizeChildren(parentUuid) {
-        const children = data.filter(obj => obj.parent === parentUuid);
-        children.sort((a, b) => a.order - b.order);
+        let children = data.filter(obj => obj.parent === parentUuid);
+        children = orderWithPreviousSibling(children);
 
         children.forEach(child => {
             organized.push(child);
@@ -146,9 +145,29 @@ function compareElements(data) {
         });
     }
 
+    if (page !== 0)
+        organized.push(data.find(a => a.uuid === page));
     organizeChildren(0);
 
     return organized;
+}
+
+function orderWithPreviousSibling(arr) {
+    const organized = [];
+
+    function findPrevious(previousUuid) {
+        const sibling = arr.find(s => s.previous === previousUuid);
+        
+        if (sibling) {
+            organized.push(sibling);
+            findPrevious(sibling.uuid);
+        }
+    }
+
+    findPrevious(0);
+
+    // avoid losing data if there is an error with previous
+    return [...new Set([...organized, ...arr])];
 }
 
 async function retrieveElementChildrenRecursively(store, currentId, search) {
@@ -264,8 +283,8 @@ const elementTypeFormatCommon = {
             case "parent":
                 object.parent = this.getParent(element);
                 break;
-            case "order":
-                object.order = parseInt(element.getAttribute("data-order"), 10) || 0;
+            case "previous":
+                object.previous = this.getPrevious(element);
                 break;
             default:
                 elementTypeFormat[elementType].getData(element, object, dataToUpdate);
@@ -280,9 +299,8 @@ const elementTypeFormatCommon = {
     setCustomCss: function (element, customCss) {
         if (customCss) element.setAttribute("style", customCss);
     },
-    getOrder: function (element) { },
-    setOrder: function (element, order) {
-        if (order) element.setAttribute("data-order", order || "0");
+    getPrevious: function (element) {
+        return element.previousSibling.id || 0;
     },
     getParent: function (element) {
         return parseInt(element.parentElement.id, 10);
@@ -305,7 +323,6 @@ const elementTypeFormat = {
             let elementObj = new Object();
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
-            elementTypeFormatCommon.setOrder(element, dataElement.order);
             this.setHref(element, dataElement.href);
             this.setTarget(element, dataElement.target);
 
@@ -348,7 +365,6 @@ const elementTypeFormat = {
         getData: function (element, object, dataToUpdate) { },
         setData: function (element, dataElement) {
             this.setAlbumId(element, dataElement.uuid);
-            elementTypeFormatCommon.setOrder(element, dataElement.order);
             this.setTabContent(element, dataElement);
             return element;
         },
@@ -368,7 +384,6 @@ const elementTypeFormat = {
         setData: function (element, dataElement) {
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
-            elementTypeFormatCommon.setOrder(element, dataElement.order);
         },
     },
     group: {
@@ -376,7 +391,6 @@ const elementTypeFormat = {
         setData: function (element, dataElement) {
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
-            elementTypeFormatCommon.setOrder(element, dataElement.order);
         },
     }
 }
