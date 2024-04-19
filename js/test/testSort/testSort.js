@@ -7,7 +7,7 @@ async function testSort() {
             const elementsStore = transactionsRead.objectStore("elements");
 
             const data = await getElementsData(elementsStore, 0);
-            const dataResult = compareElements(data);
+            const dataResult = orderObjectsByParent(data);
             
             testSortOutput(dataResult, "Test sort");
             
@@ -24,7 +24,7 @@ function testSortOutput(arr, text) {
     arr.forEach(e => {
         let currentOutput;
         currentOutput = appendStringConsole(currentOutput, testSortCheckParentCondition(arr, e))
-        currentOutput = appendStringConsole(currentOutput, testSortCheckOrderCondition(arr, e))
+        currentOutput = appendStringConsole(currentOutput, testSortCheckSiblingCondition(arr, e))
 
         if (currentOutput) {
             output = appendStringConsole(output, currentOutput)
@@ -50,29 +50,14 @@ function testSortCheckParentCondition(arr, currentElement) {
     return;
 }
 
-function testSortCheckOrderCondition(arr, currentElement) {
+function testSortCheckSiblingCondition(arr, currentElement) {
     const currentIndex = arr.indexOf(currentElement);
-    let badlyOrderedSiblings = [];
+    if (currentElement.previous === 0) return;
 
-    const siblings = arr.filter(s => s.parent === currentElement.parent);
-    siblings.forEach(e => {
-        const siblingIndex = arr.indexOf(e);
-        if (siblingIndex > currentIndex && e.order < currentElement.order
-            || siblingIndex < currentIndex && e.order > currentElement.order) {
-            badlyOrderedSiblings.push(e.uuid);
-        }
-    });
-
-    let output;
-    if (badlyOrderedSiblings.length > 0) {
-        output = "Uuid (" + currentElement.uuid + ") does not match position of siblings: ";
-        badlyOrderedSiblings.forEach(e => {
-            output += "(" + e + "),";
-        });
-        output = output.slice(0, -1);
-        output += "\n";
-        
-        return output;
+    const previousSibling = arr.find(s => s.uuid === currentElement.previous);
+    const previousSiblingIndex = arr.indexOf(previousSibling);
+    if (currentIndex < previousSiblingIndex) {
+        return "Uuid (" + currentElement.uuid + ") does not match position of previous siblings: (" + previousSibling.uuid + ")\n";
     }
 
     return;
