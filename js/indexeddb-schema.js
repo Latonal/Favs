@@ -31,7 +31,7 @@ var elements = [
         // mandatory
         "uuid": Number,
         "parent-uuid": null, // parent is empty, it is an album (main container)
-        "position": Number,
+        "previous": Number, // reference to the previous element (not parent), 0 or not referenced means first element in parent
         // optional
         "name": "name [string]",
         "theme": "theme name [string]",
@@ -40,7 +40,7 @@ var elements = [
     {
         "uuid": Number, // we'll know if it's a group if there is at least a child
         "parent-uuid": Number,
-        "position": Number,
+        "previous": Number,
 
         "type": "",
         "theme": "theme name [string]",
@@ -49,7 +49,7 @@ var elements = [
     {
         "uuid": Number, // we'll know if it's a sticker if there is no child
         "parent-uuid": Number,
-        "position": Number,
+        "previous": Number,
 
         "text": "text [string]",
         "icon": "iconName [string]",

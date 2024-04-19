@@ -29,6 +29,7 @@ function instantiateDB() {
                 const elementsStore = db.createObjectStore("elements", { keyPath: "uuid" })
                 elementsStore.createIndex("by_parent", "parent", { unique: false });
                 elementsStore.createIndex("by_uuid", "uuid", { unique: true });
+                elementsStore.createIndex("by_previous", "previous", { unique: false });
 
                 const iconsStore = db.createObjectStore("icons", { keyPath: "uuid" });
                 iconsStore.createIndex("by_name", "name", { unique: false });
