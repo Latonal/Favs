@@ -1,6 +1,3 @@
-var draggedElementId = 0;
-var oldParentId = 0;
-
 //#region "ENUMS"
 const SecurityLevel = {
     NONE: 0,
@@ -37,7 +34,7 @@ const Status = {
 
 
 
-function isTargetedElement(event, tagName) {
+function getClosestElement(event, tagName) {
     const element = (isTruthy(event.target.tagName)) ? event.target : event.currentTarget;
     const closest = element.closest(tagName);
     if (event.currentTarget !== closest) return null;
@@ -58,7 +55,7 @@ function setOrderToFitSiblings(element) {
  * @param {HTMLElement} element 
  * @param {Boolean} iterateToNextSibling true: next sibling / false: previous sibling 
  */
-function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
+function assignOrderToSiblingsRecursively(element, iterateToNextSibling) { // TODO: delete
     const nextElement = element.nextElementSibling;
     const prevElement = element.previousElementSibling;
 
@@ -95,6 +92,7 @@ function assignOrderToSiblingsRecursively(element, iterateToNextSibling) {
  * @returns {Number}
  */
 function getClosestEdge(event, closest, verticalOutput = true, horizontalOutput = true) {
+    // TODO: make the "middle" not count as any edge (or return edge +4 ?)
     if (!verticalOutput && !horizontalOutput) return console.error("ERROR Utility-4:\nThe parameters verticalOutput and horizontalOutput must not be both set to false.");
 
     var x = null, y = null, distFromRight = null, distFromBottom = null;
@@ -207,16 +205,110 @@ function isHoverCornerCalc(closest, positions, values, thresholdValue = 30, thre
     }
 }
 
+//#region Document
+// TODO: make it work -- keydown is fired after dragend :/
+// document.addEventListener('keydown', function (event) {
+//     console.log("keydown");
+//     if (event.key === "Escape") {
+//         event.preventDefault();
+//         if (Object.keys(currentDraggedElementData).length !== 0) {
+//             setDraggedElementBackAtPosition();
+//         }
+//     }
+// });
+
+// function setDraggedElementBackAtPosition() {
+//     previousSibling = document.getElementById(currentDraggedElementData.previousNextSiblingId);
+//     previousSibling ? previousSibling.before(currentDraggedElementData.element) : document.getElementById(currentDraggedElementData.previousParentId).appendChild(currentDraggedElementData.element);
+//     currentDraggedElementData.element.classList.remove("dragged");
+//     clearDraggedElement();
+// }
+//#endregion Document
+
 //#region Tab
 class Tab extends HTMLElement {
     constructor() {
         super();
         this.addEventListener('click', handleTabsClick);
+        this.addEventListener('dragstart', handleTabDragStart);
+        this.addEventListener('dragover', handleTabDragOver);
+        this.addEventListener('drop', handleTabDrop);
+        this.addEventListener('dragend', handleTabDragEnd);
+
+        this.addEventListener('mouseover', function () {
+            this.setAttribute('draggable', editing);
+        });
     }
 }
 customElements.define(FavsCustomElementsName.tags.TAB, Tab);
 
 async function handleTabsClick(event) {
+    if (!editing)
+        await tabsChangeCurrentPage(event);
+    else {
+        // TODO: Open edit menu
+
+        // const compStyle = getComputedStyle(prevElement);
+        // prevOrder = compStyle.getPropertyValue("--value");
+    }
+}
+
+function handleTabDragStart(event) {
+    if (!editing) return;
+
+    event.currentTarget.classList.add("dragged");
+    getElementData(event.currentTarget);
+    currentDraggedElementData.previousNextSiblingId = event.currentTarget.nextSibling ? event.currentTarget.nextSibling.getAttribute("data-album") : 0;
+
+    event.stopPropagation();
+}
+
+function handleTabDragOver(event) {
+    const elementToMove = currentDraggedElementData.element;
+    if (currentDraggedElementData.tagName != FavsCustomElementsName.tags.TAB) return;
+
+    const closest = getClosestElement(event, FavsCustomElementsName.tags.TAB);
+    if (!closest) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const closestEdge = getClosestEdge(event, closest);
+    if (closestEdge === 1 || closestEdge === 4) {
+        closest.before(elementToMove);
+    } else {
+        closest.after(elementToMove);
+    }
+}
+
+function handleTabDrop(event) {
+    const elementToMove = currentDraggedElementData.element;
+    if (currentDraggedElementData.tagName != FavsCustomElementsName.tags.TAB) return;
+
+    elementToMove.classList.remove("dragged");
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    checkOldParentIfEmpty();
+
+    keepTrackOfChanges(new ElementLog(currentDraggedElementData.element.getAttribute("data-album"), Status.UPDATE, "previous"));
+    if (currentDraggedElementData.previousNextSiblingId !== 0)
+        keepTrackOfChanges(new ElementLog(document.querySelector("my-tab[data-album='" + currentDraggedElementData.previousNextSiblingId + "']").getAttribute("data-album"), Status.UPDATE, "previous"));
+    const nextNewSiblingId = (currentDraggedElementData.element.nextSibling) ? currentDraggedElementData.element.nextSibling.getAttribute("data-album") : 0;
+    if (nextNewSiblingId !== 0)
+        keepTrackOfChanges(new ElementLog(nextNewSiblingId, Status.UPDATE, "previous"));
+    
+    updateElementsInDb();
+    clearDraggedElement();
+}
+
+function handleTabDragEnd(event) {
+    if (Object.keys(currentDraggedElementData).length !== 0)
+        handleTabDrop(event);
+}
+
+async function tabsChangeCurrentPage(event) {
     const albumId = event.target.getAttribute("data-album");
     if (!document.getElementById(albumId)) {
         await generateAlbum(parseInt(albumId));
@@ -237,38 +329,37 @@ class Album extends HTMLElement {
         super();
         this.addEventListener('dragover', handleAlbumDragOver);
         this.addEventListener('drop', handleAlbumDrop);
-
-        this.addEventListener('mouseover', function () {
-            this.setAttribute('draggable', editing);
-        });
     }
 }
 customElements.define(FavsCustomElementsName.tags.ALBUM, Album);
 
 function handleAlbumDragOver(event) {
-    const elementToMove = document.getElementById(draggedElementId);
+    const elementToMove = currentDraggedElementData.element;
 
     event.preventDefault();
 
-    event.target.appendChild(elementToMove);
-    setOrderToFitSiblings(elementToMove);
+    if (currentDraggedElementData.tagName === FavsCustomElementsName.tags.GROUP)
+        event.currentTarget.appendChild(elementToMove);
 }
 
 function handleAlbumDrop(event) {
-    const elementToMove = document.getElementById(draggedElementId);
+    const elementToMove = currentDraggedElementData.element;
     elementToMove.classList.remove("dragged");
 
     event.preventDefault();
     event.stopPropagation();
-    
-    keepTrackOfChanges(new ElementLog(draggedElementId, Status.UPDATE, "parent", "order"));
-    
-    checkOldParent();
-    removeAllTmps();
-    
-    updatePendingChanges(event.target.parentElement.childNodes);
+
+    // only for groups
+    checkOldParentNotOnlyOneChild();
+
+    if (currentDraggedElementData.tagName === FavsCustomElementsName.tags.STICKER)
+        checkOldParentIfEmpty();
+
+    keepTrackDragging();
     updateElementsInDb();
+    clearDraggedElement();
 }
+
 //#endregion Album
 
 //#region Group
@@ -279,6 +370,7 @@ class Group extends HTMLElement {
         this.addEventListener('dragstart', handleGroupDragStart);
         this.addEventListener('dragover', handleGroupDragOver);
         this.addEventListener('drop', handleGroupDrop);
+        this.addEventListener('dragend', handleGroupDragEnd);
 
         this.addEventListener('mouseover', function () {
             this.setAttribute('draggable', editing);
@@ -289,7 +381,7 @@ customElements.define(FavsCustomElementsName.tags.GROUP, Group);
 
 function handleGroupClick(event) {
     if (editing) {
-        // Todo: Open edit menu
+        // TODO: Open edit menu
 
         // const compStyle = getComputedStyle(prevElement);
         // prevOrder = compStyle.getPropertyValue("--value");
@@ -297,170 +389,118 @@ function handleGroupClick(event) {
 }
 
 function handleGroupDragStart(event) {
-    draggedElementId = event.currentTarget.id;
-    oldParentId = event.currentTarget.parentElement.id;
+    if (!editing) return;
+
+    event.currentTarget.classList.add("dragged");
+    getElementData(event.currentTarget);
 
     event.stopPropagation();
 }
 
 function handleGroupDragOver(event) {
-    const elementToMove = document.getElementById(draggedElementId);
-    if (elementToMove.tagName.toLowerCase() != FavsCustomElementsName.tags.STICKER &&
-        elementToMove.tagName.toLowerCase() != FavsCustomElementsName.tags.GROUP)
+    const elementToMove = currentDraggedElementData.element;
+    if (currentDraggedElementData.tagName != FavsCustomElementsName.tags.STICKER &&
+        currentDraggedElementData.tagName != FavsCustomElementsName.tags.GROUP)
         return;
 
-    const closest = isTargetedElement(event, FavsCustomElementsName.tags.GROUP);
+    const closest = getClosestElement(event, FavsCustomElementsName.tags.GROUP);
     if (!closest) return;
 
     event.preventDefault();
     event.stopPropagation();
 
-    switch (elementToMove.tagName.toLowerCase()) {
+    switch (currentDraggedElementData.tagName) {
         case FavsCustomElementsName.tags.STICKER:
             if (!closest.contains(elementToMove)) {
                 closest.appendChild(elementToMove);
-                setOrderToFitSiblings(elementToMove);
             }
             break;
         case FavsCustomElementsName.tags.GROUP:
-            if (closest.id === draggedElementId) break;
-            assignGroup(event, closest, elementToMove);
+            if (closest.id === currentDraggedElementData.elementId) break;
+            assignDraggedGroup(event, closest);
             break;
         default:
-            console.error("ERROR Utility-3:\nAn error happened while trying to determine what element type your were trying to drag over a group.", minDist);
+            console.error("ERROR Utility-3:\nAn error happened while trying to determine what element type your were trying to drag over a group.");
             break;
     }
 }
 
 function handleGroupDrop(event) {
-    const elementToMove = document.getElementById(draggedElementId);
+    const elementToMove = currentDraggedElementData.element;
     elementToMove.classList.remove("dragged");
 
     event.preventDefault();
     event.stopPropagation();
 
-    if (event.target.parentElement.getAttribute("tmp")) { // parent is tmp (new)
-        event.target.parentElement.removeAttribute("tmp");
-        event.target.parentElement.removeEventListener("dragleave", removeTmpGroup);
-        event.target.parentElement.id = ++highestId;
-        setOrderToFitSiblings(event.target.parentElement);
-        keepTrackOfChanges(new ElementLog(event.target.parentElement.id, Status.CREATE, "parent", "order"));
-        event.target.parentElement.childNodes.forEach(e => {
-            keepTrackOfChanges(new ElementLog(e.id, Status.UPDATE, "parent", "order"));
-        });
-    } else {
-        keepTrackOfChanges(new ElementLog(draggedElementId, Status.UPDATE, "parent", "order"));
-    }
+    // only for groups
+    checkOldParentNotOnlyOneChild();
 
-    checkOldParent();
-    removeAllTmps();
+    if (currentDraggedElementData.tagName === FavsCustomElementsName.tags.STICKER)
+        checkOldParentIfEmpty();
 
-    updatePendingChanges(event.target.parentElement.childNodes);
+    keepTrackDragging();
     updateElementsInDb();
+    clearDraggedElement();
 }
 
-function removeAllTmps() {
-    const tmps = document.querySelectorAll("[tmp=true]");
-    if (tmps.length > 0) {
-        tmps.forEach(element => {
-            replaceParentByChild(element);
-        });
-    }
+function handleGroupDragEnd(event) {
+    if (Object.keys(currentDraggedElementData).length !== 0)
+        handleGroupDrop(event);
 }
 
-function checkOldParent() {
-    if (isTruthy(oldParentId) && document.getElementById(oldParentId).children.length <= 1 && document.getElementById(oldParentId).tagName === FavsCustomElementsName.tags.GROUP) {
-        keepTrackOfChanges(new ElementLog(oldParentId, Status.DELETE));
-        replaceParentByChild(document.getElementById(oldParentId));
-    }
-}
-
-function replaceParentByChild(element) {
-    const childId = element.childNodes[0].id;
-    const layerlevel = element.getAttribute("layer-level");
-    element.replaceWith(...element.childNodes);
-    let child = document.getElementById(childId);
-    setOrderToFitSiblings(child);
-    child.setAttribute("layer-level", layerlevel);
-    keepTrackOfChanges(new ElementLog(childId, Status.UPDATE, "parent", "order"));
-}
-
-function assignGroup(event, closest, elementToMove) {
+function assignDraggedGroup(event, closest) {
     // if group has child group, return
     if (closest.querySelector("my-group")) return;
 
     const parent = closest.parentElement;
     const parentFlexDirection = getComputedStyle(parent).flexDirection;
 
-    // If hover corner first
-    // console.log("is hover corner", isHoverCorner(event, closest, 20, "px"));
-    const [closestEdges, closestValues] = getClosestEdges(event, closest, 2, true);
+    const closestEdge = getClosestEdge(event, closest);
 
-    const isHoverCorner = isHoverCornerCalc(closest, closestEdges, closestValues, 15, "%");
-
-    if (isHoverCorner) {
-        // Creating parent from target
-        let layerLevel = null;
-        if (!closest.parentNode.getAttribute("tmp")) {
-            let tmpGroup = document.createElement("my-group");
-            tmpGroup.setAttribute('draggable', editing);
-            tmpGroup.setAttribute("tmp", true);
-            closest.before(tmpGroup);
-            tmpGroup.appendChild(closest);
-            layerLevel = tmpGroup.parentNode ? tmpGroup.parentNode.getAttribute("layer-level") == "odd" ? "even" : "odd" : "odd";
-            tmpGroup.setAttribute("layer-level", layerLevel);
-
-            tmpGroup.addEventListener("dragleave", removeTmpGroup);
-        }
-
-        // Move dragged element
-        if (closestEdges.includes(Positions.TOP) && closestEdges.includes(Positions.LEFT))
-            closest.before(elementToMove);
-        else if (closestEdges.includes(Positions.RIGHT) && closestEdges.includes(Positions.BOTTOM))
+    const elementToMove = currentDraggedElementData.element;
+    // TODO: Refactoring
+    if (parentFlexDirection === "row") {
+        const parentIsGroup = parent.tagName.toLowerCase() === FavsCustomElementsName.tags.GROUP;
+        if (closestEdge === Positions.TOP) {
+            parentIsGroup ? parent.before(elementToMove) : closest.before(elementToMove);
+        } else if (closestEdge === Positions.RIGHT) {
             closest.after(elementToMove);
-        else if (closestEdges.includes(Positions.TOP) && closestEdges.includes(Positions.RIGHT)) {
-            if (layerLevel == "odd") closest.before(elementToMove);
-            else closest.after(elementToMove);
-        } else { // Positions.BOTTOM && Positions.LEFT
-            if (layerLevel == "odd") closest.after(elementToMove);
-            else closest.before(elementToMove);
+        } else if (closestEdge === Positions.BOTTOM) {
+            parentIsGroup ? parent.after(elementToMove) : closest.after(elementToMove);
+        } else if (closestEdge === Positions.LEFT) {
+            closest.before(elementToMove);
         }
-    } else {
-        // TODO: Refactoring
-        const closestEdge = closestEdges[0];
-        if (parentFlexDirection === "row") {
-            const parentIsGroup = parent.tagName.toLowerCase() == FavsCustomElementsName.tags.GROUP;
-            if (closestEdge === Positions.TOP) {
-                parentIsGroup ? parent.before(elementToMove) : closest.before(elementToMove);
-            } else if (closestEdge === Positions.RIGHT) {
-                closest.after(elementToMove);
-            } else if (closestEdge === Positions.BOTTOM) {
-                parentIsGroup ? parent.after(elementToMove) : closest.after(elementToMove);
-            } else if (closestEdge === Positions.LEFT) {
-                closest.before(elementToMove);
-            }
-        } else if (parentFlexDirection === "column") {
-            if (closestEdge === Positions.TOP) {
-                closest.before(elementToMove);
-            } else if (closestEdge === Positions.RIGHT) {
-                parent.after(elementToMove);
-            } else if (closestEdge === Positions.BOTTOM) {
-                closest.after(elementToMove);
-            } else if (closestEdge === Positions.LEFT) {
-                parent.before(elementToMove);
-            }
+    } else if (parentFlexDirection === "column") {
+        if (closestEdge === Positions.TOP) {
+            closest.before(elementToMove);
+        } else if (closestEdge === Positions.RIGHT) {
+            parent.after(elementToMove);
+        } else if (closestEdge === Positions.BOTTOM) {
+            closest.after(elementToMove);
+        } else if (closestEdge === Positions.LEFT) {
+            parent.before(elementToMove);
         }
     }
-
-    setOrderToFitSiblings(elementToMove);
 }
 
-function removeTmpGroup(event) {
-    if (event.currentTarget == document.getElementById(draggedElementId).parentNode) return;
-    event.preventDefault();
-    event.stopPropagation();
+function checkOldParentNotOnlyOneChild() {
+    const oldParentId = currentDraggedElementData.previousParentId;
+    if (isTruthy(oldParentId) &&
+        document.getElementById(oldParentId).children.length <= 1 &&
+        currentDraggedElementData.tagName === FavsCustomElementsName.tags.GROUP) {
+            keepTrackOfChanges(new ElementLog(oldParentId, Status.DELETE));
+            replaceParentByChild(document.getElementById(oldParentId));
+    }
+}
 
-    event.currentTarget.replaceWith(...event.currentTarget.childNodes);
+function replaceParentByChild(element) {
+    const childId = element.childNodes[0].id;
+    keepTrackOfChanges(new ElementLog(childId, Status.UPDATE, "parent", "previous"));
+    const layerLevel = element.getAttribute("layer-level");
+    element.replaceWith(...element.childNodes);
+    let child = document.getElementById(childId);
+    child.setAttribute("layer-level", layerLevel);
+
 }
 //#endregion Group
 
@@ -468,56 +508,49 @@ function removeTmpGroup(event) {
 class Sticker extends HTMLElement {
     constructor() {
         super();
-        this.addEventListener('click', this.handleClick.bind(this));
+        this.addEventListener('click', handleStickerClick);
         this.addEventListener('dragstart', handleStickerDragStart);
         this.addEventListener('dragover', handleStickerDragOver);
         this.addEventListener('drop', handleStickerDrop);
+        this.addEventListener('dragend', handleStickerDragEnd);
 
         this.addEventListener('mouseover', function () {
             this.setAttribute('draggable', editing);
         });
     }
-
-    handleClick() { // Element has been clicked on
-        handleStickerRedirection(this);
-        handleStickerEdit(this);
-    }
 }
 customElements.define(FavsCustomElementsName.tags.STICKER, Sticker);
 
-function handleStickerRedirection(event) {
-    const href = event.getAttribute("href");
-    const target = event.getAttribute("target");
-
+function handleStickerClick(event) {
     if (!editing) {
+        const href = event.currentTarget.getAttribute("href");
+        const target = event.currentTarget.getAttribute("target");
+
         if (href) {
             window.open(href, target || '_self');
         }
-    }
-}
-
-function handleStickerEdit(event) {
-    if (editing) {
-        // Todo: Open edit menu
+    } else {
+        // TODO: Open edit menu
 
         // const compStyle = getComputedStyle(prevElement);
         // prevOrder = compStyle.getPropertyValue("--value");
     }
 }
 
-// Allow to drag element
 function handleStickerDragStart(event) {
+    if (!editing) return;
+
     event.currentTarget.classList.add("dragged");
-    draggedElementId = event.currentTarget.id;
+    getElementData(event.currentTarget);
 
     event.stopPropagation();
 }
 
 function handleStickerDragOver(event) {
-    const elementToMove = document.getElementById(draggedElementId);
-    if (elementToMove.tagName.toLowerCase() != FavsCustomElementsName.tags.STICKER) return;
+    const elementToMove = currentDraggedElementData.element;
+    if (currentDraggedElementData.tagName != FavsCustomElementsName.tags.STICKER) return;
 
-    const closest = isTargetedElement(event, FavsCustomElementsName.tags.STICKER);
+    const closest = getClosestElement(event, FavsCustomElementsName.tags.STICKER);
     if (!closest) return;
 
     event.preventDefault();
@@ -525,27 +558,62 @@ function handleStickerDragOver(event) {
 
     const closestEdge = getClosestEdge(event, closest);
     if (closestEdge === 1 || closestEdge === 4) {
-        closest.closest(FavsCustomElementsName.tags.STICKER).before(elementToMove);
+        closest.before(elementToMove);
     } else {
-        closest.closest(FavsCustomElementsName.tags.STICKER).after(elementToMove);
+        closest.after(elementToMove);
     }
-    setOrderToFitSiblings(elementToMove);
 }
 
 function handleStickerDrop(event) {
-    const elementToMove = document.getElementById(draggedElementId);
-    if (elementToMove.tagName.toLowerCase() != FavsCustomElementsName.tags.STICKER) return;
+    const elementToMove = currentDraggedElementData.element;
+    if (currentDraggedElementData.tagName != FavsCustomElementsName.tags.STICKER) return;
 
     elementToMove.classList.remove("dragged");
 
     event.preventDefault();
     event.stopPropagation();
 
-    keepTrackOfChanges(new ElementLog(draggedElementId, Status.UPDATE, "parent", "order"));
-    updatePendingChanges(elementToMove.parentElement.childNodes);
+    checkOldParentIfEmpty();
+
+    keepTrackDragging();
     updateElementsInDb();
+    clearDraggedElement();
+}
+
+function handleStickerDragEnd(event) {
+    if (Object.keys(currentDraggedElementData).length !== 0)
+        handleStickerDrop(event);
+}
+
+function checkOldParentIfEmpty() {
+    const oldParent = document.getElementById(currentDraggedElementData.previousParentId);
+    if (oldParent.childElementCount <= 0)
+        keepTrackOfChanges(new ElementLog(currentDraggedElementData.previousParentId, Status.UPDATE, "setAsGroup"));
 }
 //#endregion Sticker
+
+var currentDraggedElementData = new Object();
+
+function clearDraggedElement() {
+    currentDraggedElementData = new Object();
+}
+
+function getElementData(element) {
+    currentDraggedElementData.element = element;
+    currentDraggedElementData.elementId = element.id;
+    currentDraggedElementData.previousParentId = element.parentElement.id;
+    currentDraggedElementData.tagName = element.tagName.toLowerCase();
+    currentDraggedElementData.previousNextSiblingId = element.nextSibling ? element.nextSibling.id : 0;
+}
+
+function keepTrackDragging() {
+    keepTrackOfChanges(new ElementLog(currentDraggedElementData.elementId, Status.UPDATE, "parent", "previous"));
+    if (currentDraggedElementData.previousNextSiblingId !== 0)
+        keepTrackOfChanges(new ElementLog(currentDraggedElementData.previousNextSiblingId, Status.UPDATE, "previous"));
+    const nextNewSiblingId = (currentDraggedElementData.element.nextSibling) ? currentDraggedElementData.element.nextSibling.id : 0;
+    if (nextNewSiblingId !== 0)
+        keepTrackOfChanges(new ElementLog(nextNewSiblingId, Status.UPDATE, "previous"));
+}
 
 /**
  * Create an instance of object allowing to keep track of changes

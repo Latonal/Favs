@@ -130,6 +130,7 @@ async function updateElementsInDb() {
 
     elementLogTracking.forEach(async e => {
         id = parseInt(e.id, 10);
+        if (!isTruthy(id)) return;
         switch (e.status) {
             case Status.DELETE:
                 elementsStore.delete(id);
@@ -159,21 +160,19 @@ async function updateElementsInDb() {
 }
 
 async function getUpdatedElement(dbElement, ...newData) {
-    console.log(dbElement);
     return new Promise(async (resolve, reject) => {
         try {
-            const element = document.getElementById(dbElement.uuid);
+            const element = elementTypeFormatCommon.getElement(dbElement.uuid);
             if (!isTruthy(element)) return;
 
             const elementType = getElementType(element);
             newData.forEach(e => {
                 elementTypeFormatCommon.getData(element, elementType, dbElement, e);
             });
-            console.log(dbElement);
 
             resolve(dbElement);
         } catch (error) {
-            console.log("ERROR Database-5:\nAn unsuspected error happened: ", elementToUpdate.error);
+            console.log("ERROR Database-5:\nAn unsuspected error happened: ", error);
             reject();
         }
     });

@@ -91,7 +91,6 @@ async function generateAlbum(page = 0) {
             const elementsStore = transactionsRead.objectStore("elements");
             const iconsStore = transactionsRead.objectStore("icons");
 
-            console.log(page);
             const data = orderObjectsByParent(await getElementsData(elementsStore, page), page);
 
             await createElements(iconsStore, data, page);
@@ -107,6 +106,7 @@ async function getElementsData(elementsStore, page) {
     return new Promise(async (resolve, reject) => {
         try {
             let albumCursor = null;
+            if (page === 0) page = await getFirstPage(elementsStore);
             if (page === 0) albumCursor = elementsStore.index("by_parent").openCursor(page);
             else albumCursor = elementsStore.index("by_uuid").openCursor(page);
 
@@ -119,7 +119,6 @@ async function getElementsData(elementsStore, page) {
                     const search = await retrieveElementChildrenRecursively(elementsStore, cursor.value.uuid, [cursor.value]);
 
                     searches.push(...search);
-                    // TODO: let user decide if they want to generate the whole db or not
                     // cursor.continue();
                     resolve(searches);
                 } else {
@@ -129,6 +128,21 @@ async function getElementsData(elementsStore, page) {
         } catch (error) {
             reject("ERROR Playground-7:\nAn error occured while getting the data in the db to create the playground: ", error)
         }
+    });
+}
+
+async function getFirstPage(elementsStore) {
+    return new Promise((resolve, reject) => {
+        const request = elementsStore.index("by_parent").getAll(0);
+        request.onsuccess = async function () {
+            const result = request.result;
+            if (!result) resolve(0);
+            resolve(request.result.find(p => p.previous === 0).uuid || 0);
+        };
+        request.onerror = function (event) {
+            console.warn("ERROR Playground-12:\nAn error occured while getting the first page to display: ", event.target.error)
+            resolve(0);
+        };
     });
 }
 
@@ -145,8 +159,8 @@ function orderObjectsByParent(data, page = 0) {
         });
     }
 
-    if (page !== 0)
-        organized.push(data.find(a => a.uuid === page));
+    // if (page !== 0)
+    //     organized.push(data.find(a => a.uuid === page));
     organizeChildren(0);
 
     return organized;
@@ -157,7 +171,7 @@ function orderWithPreviousSibling(arr) {
 
     function findPrevious(previousUuid) {
         const sibling = arr.find(s => s.previous === previousUuid);
-        
+
         if (sibling) {
             organized.push(sibling);
             findPrevious(sibling.uuid);
@@ -200,7 +214,7 @@ async function createElements(iconsStore, data, page) {
             let tagName;
             if (e.parent === 0 || e.uuid === page)
                 tagName = FavsCustomElementsName.tags.ALBUM;
-            else if (data.find(d => d.parent === e.uuid))
+            else if (data.find(d => d.parent === e.uuid) || e.isGroup === true)
                 tagName = FavsCustomElementsName.tags.GROUP;
             else
                 tagName = FavsCustomElementsName.tags.STICKER;
@@ -241,6 +255,7 @@ function getElementType(htmlElement, parentData = null) {
     const tagName = htmlElement.tagName.toLowerCase();
 
     switch (tagName) {
+        case FavsCustomElementsName.tags.TAB:
         case FavsCustomElementsName.tags.ALBUM:
             return 'album';
         case FavsCustomElementsName.tags.GROUP:
@@ -284,12 +299,15 @@ const elementTypeFormatCommon = {
                 object.parent = this.getParent(element);
                 break;
             case "previous":
-                object.previous = this.getPrevious(element);
+                object.previous = this.getPrevious(element, elementType);
                 break;
             default:
                 elementTypeFormat[elementType].getData(element, object, dataToUpdate);
                 break;
         }
+    },
+    getElement: function (id) {
+        return document.getElementById(id) || document.querySelector("my-tab[data-album='" + id + "']");
     },
     getTheme: function (element) { },
     setTheme: function (element, theme) {
@@ -299,8 +317,11 @@ const elementTypeFormatCommon = {
     setCustomCss: function (element, customCss) {
         if (customCss) element.setAttribute("style", customCss);
     },
-    getPrevious: function (element) {
-        return element.previousSibling.id || 0;
+    getPrevious: function (element, elementType) {
+        if (typeof elementTypeFormat[elementType].getPrevious === "function")
+            return elementTypeFormat[elementType].getPrevious(element);
+
+        return element.previousSibling ? parseInt(element.previousSibling.id, 10) : 0;
     },
     getParent: function (element) {
         return parseInt(element.parentElement.id, 10);
@@ -317,6 +338,7 @@ const elementTypeFormatCommon = {
 }
 
 const elementTypeFormat = {
+    //#endregion Stickers
     default: {
         getData: function (element, object, dataToUpdate) { },
         setData: async function (element, dataElement, iconsStore) {
@@ -361,6 +383,14 @@ const elementTypeFormat = {
             if (target) element.setAttribute("target", target);
         },
     },
+    list: {
+
+    },
+    icon_list: {
+
+    },
+    //#region Stickers
+    //#region Not stickers    
     tab: {
         getData: function (element, object, dataToUpdate) { },
         setData: function (element, dataElement) {
@@ -368,29 +398,49 @@ const elementTypeFormat = {
             this.setTabContent(element, dataElement);
             return element;
         },
-        getAlbumId: function (element) { },
+        getAlbumId: function (element) {
+
+        },
         setAlbumId: function (element, albumId) {
             if (albumId) element.setAttribute("data-album", albumId);
         },
         getTabContent: function (element) { },
         setTabContent: function (element, dataElement) {
-            // if img_uuid, put img_uuid instead of text
+            // TODO: if img_uuid, put img_uuid instead of text & make tooltip for text
             console.log(element);
             if (dataElement.text) element.innerText = dataElement.text;
         },
     },
     album: {
-        getData: function (element, object, dataToUpdate) { },
+        getData: function (element, object, dataToUpdate) {
+
+        },
         setData: function (element, dataElement) {
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
         },
+        getPrevious: function (element) {
+            let targetTab = element;
+            if (targetTab.tagName.toLowerCase() === FavsCustomElementsName.tags.ALBUM)
+                targetTab = document.querySelector("my-tab[data-album='" + targetTab.id + "']");
+            return (targetTab.previousElementSibling) ? parseInt(targetTab.previousElementSibling.getAttribute("data-album"), 10) : 0;
+        },
     },
     group: {
-        getData: function (element, object, dataToUpdate) { },
+        getData: function (element, object, dataToUpdate) {
+            switch (dataToUpdate) {
+                case "setAsGroup":
+                    object.isGroup = true;
+                    break;
+                default:
+                    console.error("ERROR Playground-10a:\n" + dataToUpdate + " is not yet implemented for saving.");
+                    break;
+            }
+        },
         setData: function (element, dataElement) {
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
         },
     }
+    //#endregion Not stickers    
 }
