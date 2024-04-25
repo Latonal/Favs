@@ -32,6 +32,8 @@ const playgroundDebugging = [
     { uuid: 16, parent: 0, previous: 13, customcss: "background-color:#618188;" },
     { uuid: 17, parent: 16, previous: 0 },
     { uuid: 18, parent: 17, previous: 0, text: "some text on the third page" },
+
+    { uuid: 33, parent: 0, previous: 16, customcss: "background-color:#e68181;" }, // empty parent
 ];
 const iconsDebugging = [
     { uuid: 1, name: "options", link: "./img/options.svg", origin: "app" },
