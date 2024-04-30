@@ -95,17 +95,28 @@ my-group:empty {
 }
 
 my-sticker img {
-    width: 25px;
     pointer-events: none;
 }
 
-my-sticker img+p {
+/* specific depending of type */
+my-sticker img {
+    width: 25px;
+}
+
+/* specific depending of type */
+my-sticker img:not([src="null"])+p {
     margin-left: 6px;
 }
 
-/* my-group {
-    order: var(--order);
-} */
+/* specific depending of type */
+my-sticker p:empty {
+    display:none;
+}
+
+/* specific depending of type */
+my-sticker img[src="null"] {
+    display:none;
+}
 
 my-sticker {
     order: var(--order);

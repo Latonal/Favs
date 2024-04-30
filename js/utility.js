@@ -381,6 +381,8 @@ customElements.define(FavsCustomElementsName.tags.GROUP, Group);
 
 function handleGroupClick(event) {
     if (editing) {
+        event.stopPropagation();
+        openEditMenu(event.currentTarget);
         // TODO: Open edit menu
 
         // const compStyle = getComputedStyle(prevElement);
@@ -530,6 +532,8 @@ function handleStickerClick(event) {
             window.open(href, target || '_self');
         }
     } else {
+        event.stopPropagation();
+        openEditMenu(event.currentTarget);
         // TODO: Open edit menu
 
         // const compStyle = getComputedStyle(prevElement);
