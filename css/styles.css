@@ -106,6 +106,21 @@ footer>div>a {
     margin-left:10px;
 }
 
+#edit-menu {
+    background-color:white;
+    position:absolute;
+    top: 0px;
+    z-index:99999;
+}
+
+#edit-menu-pool {
+    background-color:white;
+    position:absolute;
+    top:0px;
+    right: 0px;
+    z-index:99999;
+}
+
 .hide {
     display: none;
 }

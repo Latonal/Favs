@@ -301,6 +301,9 @@ const elementTypeFormatCommon = {
             case "previous":
                 object.previous = this.getPrevious(element, elementType);
                 break;
+            case "customcss":
+                object.customcss = this.getCustomCss(element);
+                break;
             default:
                 elementTypeFormat[elementType].getData(element, object, dataToUpdate);
                 break;
@@ -309,11 +312,22 @@ const elementTypeFormatCommon = {
     getElement: function (id) {
         return document.getElementById(id) || document.querySelector("my-tab[data-album='" + id + "']");
     },
+    setMenu: function (elementType) {
+        if (typeof elementTypeFormat[elementType].setMenu === "function")
+            return elementTypeFormat[elementType].setMenu();
+
+        return new MenuItemsToDisplay();
+    },
     getTheme: function (element) { },
     setTheme: function (element, theme) {
         if (theme) element.setAttribute("data-theme", theme);
     },
-    getCustomCss: function (element) { },
+    getCustomCss: function (element) {
+        return element.style.cssText;
+    },
+    updateCustomCss: function (element, value) {
+        element.style.cssText = value;
+    },
     setCustomCss: function (element, customCss) {
         if (customCss) element.setAttribute("style", customCss);
     },
@@ -340,7 +354,15 @@ const elementTypeFormatCommon = {
 const elementTypeFormat = {
     //#endregion Stickers
     default: {
-        getData: function (element, object, dataToUpdate) { },
+        getData: function (element, object, dataToUpdate) {
+            switch (dataToUpdate) {
+                case "text":
+                    object.text = this.getText(element);
+                    break;
+                default:
+                    break;
+            }
+        },
         setData: async function (element, dataElement, iconsStore) {
             let elementObj = new Object();
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
@@ -352,23 +374,35 @@ const elementTypeFormat = {
             if (dataElement.img_uuid) {
                 let imgUri = await getImgUri(dataElement.img_uuid, iconsStore);
                 elementObj.img = this.setImg(imgUri, dataElement.img_uuid);
-            }
+            } else
+                elementObj.img = this.setImg(null, null);
 
             if (elementObj.img) element.appendChild(elementObj.img);
             if (elementObj.text) element.appendChild(elementObj.text);
         },
-        getText: function (element, encrypt) {
-            // return (encrypt) ? elementTypeFormatCommon.encrypt() : element;
+        setMenu: function () {
+            return new MenuItemsToDisplay("text", "img", "customcss");
+        },
+        findText: function (element) {
+            return element.querySelector("p");
+        },
+        getText: function (element) {
+            return this.findText(element).innerText;
+        },
+        updateText: function (element, value) {
+            this.findText(element).innerText = value;
         },
         setText: function (text) {
-            if (!text) return null;
+            // if (!text) return null;
             const newP = document.createElement("p");
             newP.innerText = elementTypeFormatCommon.decrypt(text);
             return newP;
         },
+        findImg: function (element) { },
         getImg: function (element) { },
+        updateImg: function (element) { },
         setImg: function (imgUri, imgUuid) {
-            if (!imgUri) return null;
+            // if (!imgUri) return null;
             const newImg = document.createElement("img");
             newImg.setAttribute("src", imgUri);
             newImg.setAttribute("img-uuid", imgUuid);
@@ -440,6 +474,9 @@ const elementTypeFormat = {
         setData: function (element, dataElement) {
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
+        },
+        setMenu: function () {
+            return new MenuItemsToDisplay("customcss");
         },
     }
     //#endregion Not stickers    
