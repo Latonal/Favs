@@ -27,11 +27,12 @@ function instantiateDB() {
 
             if (event.oldVersion < 1) { // Initialize db
                 const elementsStore = db.createObjectStore("elements", { keyPath: "uuid" })
-                elementsStore.createIndex("by_parent", "parent", { unique: false });
                 elementsStore.createIndex("by_uuid", "uuid", { unique: true });
+                elementsStore.createIndex("by_parent", "parent", { unique: false });
                 elementsStore.createIndex("by_previous", "previous", { unique: false });
 
                 const iconsStore = db.createObjectStore("icons", { keyPath: "uuid" });
+                iconsStore.createIndex("by_uuid", "uuid", { unique: true });
                 iconsStore.createIndex("by_name", "name", { unique: false });
 
 
@@ -165,7 +166,7 @@ async function getUpdatedElement(dbElement, ...newData) {
             const element = elementTypeFormatCommon.getElement(dbElement.uuid);
             if (!isTruthy(element)) return;
 
-            const elementType = getElementType(element);
+            const elementType = elementTypeFormatCommon.getElementType(element);
             newData.forEach(e => {
                 elementTypeFormatCommon.getData(element, elementType, dbElement, e);
             });

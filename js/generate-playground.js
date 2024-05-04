@@ -247,12 +247,12 @@ async function createElements(iconsStore, data, page) {
 async function formatElement(htmlElement, dataElement, parentData, iconsStore) {
     htmlElement.id = dataElement.uuid;
 
-    const elementType = getElementType(htmlElement, parentData);
+    const elementType = getElementObjectType(htmlElement, parentData);
     elementTypeFormat[elementType].setData(htmlElement, dataElement, iconsStore);
 }
 
-function getElementType(htmlElement, parentData = null) {
-    const tagName = htmlElement.tagName.toLowerCase();
+function getElementObjectType(element, parent) {
+    const tagName = element.tagName.toLowerCase();
 
     switch (tagName) {
         case FavsCustomElementsName.tags.TAB:
@@ -261,10 +261,12 @@ function getElementType(htmlElement, parentData = null) {
         case FavsCustomElementsName.tags.GROUP:
             return 'group';
         case FavsCustomElementsName.tags.STICKER:
-            let parentType = null;
-            if (!parentData) parentType = htmlElement.parentNode.getAttribute("data-type") || 'default';
-            else parentType = parentData.type || 'default';
-            return parentType;
+            if (element.type)
+                return FavsElementsType[element.type] || 'default';
+            else if (parent && parent.type)
+                return FavsElementsType[parent.type] || 'default';
+        default:
+            return 'default';
     }
 }
 
@@ -304,6 +306,11 @@ const elementTypeFormatCommon = {
             case "customcss":
                 object.customcss = this.getCustomCss(element);
                 break;
+            case "type":
+                object.type = this.getType(element, true);
+                break;
+            case "text":
+                object.text = this.getText(element, elementType);
             default:
                 elementTypeFormat[elementType].getData(element, object, dataToUpdate);
                 break;
@@ -322,6 +329,7 @@ const elementTypeFormatCommon = {
     setTheme: function (element, theme) {
         if (theme) element.setAttribute("data-theme", theme);
     },
+    //#region customcss
     getCustomCss: function (element) {
         return element.style.cssText;
     },
@@ -331,6 +339,36 @@ const elementTypeFormatCommon = {
     setCustomCss: function (element, customCss) {
         if (customCss) element.setAttribute("style", customCss);
     },
+    //#endregion customcss
+    //#region element type
+    getElementType: function (element, byId = false) {
+        const tagName = element.tagName.toLowerCase();
+
+        switch (tagName) {
+            case FavsCustomElementsName.tags.TAB:
+            case FavsCustomElementsName.tags.ALBUM:
+                return 'album';
+            case FavsCustomElementsName.tags.GROUP:
+                return 'group';
+            case FavsCustomElementsName.tags.STICKER:
+                return this.getType(element, byId) || 'default';
+            default:
+                return 'default';
+        }
+    },
+    getType: function (element, byId = false) {
+        if (element.hasAttribute("data-type"))
+            return byId ? getKeyByValue(FavsElementsType, element.getAttribute("data-type")) : element.getAttribute("data-type");
+        else if (element.parentNode && element.parentNode.hasAttribute("data-type"))
+            return byId ? getKeyByValue(FavsElementsType, element.parentNode.getAttribute("data-type")) : element.parentNode.getAttribute("data-type");
+    },
+    setType: function (element, type) {
+        if (type) {
+            let elementType = FavsElementsType[type];
+            if (elementType) element.setAttribute("data-type", elementType);
+        }
+    },
+    //#endregion element type
     getPrevious: function (element, elementType) {
         if (typeof elementTypeFormat[elementType].getPrevious === "function")
             return elementTypeFormat[elementType].getPrevious(element);
@@ -341,6 +379,28 @@ const elementTypeFormatCommon = {
         return parseInt(element.parentElement.id, 10);
     },
 
+    //#region text
+    getText: function (element, elementType) {
+        if (typeof elementTypeFormat[elementType].findText === "function")
+            return elementTypeFormat[elementType].findText(element).innerText;
+
+        console.warn("WARNING Playground-13a text:\nThe content of the element could not be found because it seems the type '" + elementType + "' does not support it.");
+        // default
+        return element.querySelector("p").innerText;
+    },
+    updateText: function (element, elementType, value) {
+        if (typeof elementTypeFormat[elementType].findText === "function") {
+            elementTypeFormat[elementType].findText(element).innerText = value;
+            return;
+        }
+
+        console.warn("WARNING Playground-13b text:\nThe content of the element could not be found because it seems the type '" + elementType + "' does not support it.");
+        // default
+        return element.querySelector("p").innerText = value;
+    },
+    //#endregion text
+
+    //#region others
     encrypt: function (element) {
         // return encryptMessage(element);
         return element;
@@ -349,79 +409,76 @@ const elementTypeFormatCommon = {
         // return decryptMessage(element);
         return element;
     },
+    //#endregion others
+}
+
+const elementTypeFormatDefault = {
+    getData: function (element, object, dataToUpdate) {
+        switch (dataToUpdate) {
+            default:
+                break;
+        }
+    },
+    setData: async function (element, dataElement, iconsStore) {
+        let elementObj = new Object();
+        elementTypeFormatCommon.setTheme(element, dataElement.theme);
+        elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
+        elementTypeFormatCommon.setType(element, dataElement.type);
+        this.setHref(element, dataElement.href);
+        this.setTarget(element, dataElement.target);
+
+        elementObj.text = this.setText(dataElement.text);
+        if (dataElement.img_uuid) {
+            let imgUri = await getImgUri(dataElement.img_uuid, iconsStore);
+            elementObj.img = this.setImg(imgUri, dataElement.img_uuid);
+        } else
+            elementObj.img = this.setImg(null, null);
+
+        if (elementObj.img) element.appendChild(elementObj.img);
+        if (elementObj.text) element.appendChild(elementObj.text);
+    },
+    setMenu: function () {
+        return new MenuItemsToDisplay("text", "img", "customcss", "type");
+    },
+    findText: function (element) {
+        return element.querySelector("p");
+    },
+    setText: function (text) {
+        // if (!text) return null;
+        const newP = document.createElement("p");
+        newP.innerText = elementTypeFormatCommon.decrypt(text);
+        return newP;
+    },
+    findImg: function (element) { },
+    getImg: function (element) { },
+    updateImg: function (element) { },
+    setImg: function (imgUri, imgUuid) {
+        // if (!imgUri) return null;
+        const newImg = document.createElement("img");
+        newImg.setAttribute("src", imgUri);
+        newImg.setAttribute("img-uuid", imgUuid);
+        return newImg;
+    },
+    getHref: function (element) { },
+    setHref: function (element, href) {
+        if (href) element.setAttribute("href", href);
+    },
+    getTarget: function (element) { },
+    setTarget: function (element, target) {
+        if (target) element.setAttribute("target", target);
+    },
 }
 
 const elementTypeFormat = {
     //#endregion Stickers
     default: {
-        getData: function (element, object, dataToUpdate) {
-            switch (dataToUpdate) {
-                case "text":
-                    object.text = this.getText(element);
-                    break;
-                default:
-                    break;
-            }
-        },
-        setData: async function (element, dataElement, iconsStore) {
-            let elementObj = new Object();
-            elementTypeFormatCommon.setTheme(element, dataElement.theme);
-            elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
-            this.setHref(element, dataElement.href);
-            this.setTarget(element, dataElement.target);
-
-            elementObj.text = this.setText(dataElement.text);
-            if (dataElement.img_uuid) {
-                let imgUri = await getImgUri(dataElement.img_uuid, iconsStore);
-                elementObj.img = this.setImg(imgUri, dataElement.img_uuid);
-            } else
-                elementObj.img = this.setImg(null, null);
-
-            if (elementObj.img) element.appendChild(elementObj.img);
-            if (elementObj.text) element.appendChild(elementObj.text);
-        },
-        setMenu: function () {
-            return new MenuItemsToDisplay("text", "img", "customcss");
-        },
-        findText: function (element) {
-            return element.querySelector("p");
-        },
-        getText: function (element) {
-            return this.findText(element).innerText;
-        },
-        updateText: function (element, value) {
-            this.findText(element).innerText = value;
-        },
-        setText: function (text) {
-            // if (!text) return null;
-            const newP = document.createElement("p");
-            newP.innerText = elementTypeFormatCommon.decrypt(text);
-            return newP;
-        },
-        findImg: function (element) { },
-        getImg: function (element) { },
-        updateImg: function (element) { },
-        setImg: function (imgUri, imgUuid) {
-            // if (!imgUri) return null;
-            const newImg = document.createElement("img");
-            newImg.setAttribute("src", imgUri);
-            newImg.setAttribute("img-uuid", imgUuid);
-            return newImg;
-        },
-        getHref: function (element) { },
-        setHref: function (element, href) {
-            if (href) element.setAttribute("href", href);
-        },
-        getTarget: function (element) { },
-        setTarget: function (element, target) {
-            if (target) element.setAttribute("target", target);
-        },
+        ...elementTypeFormatDefault,
     },
     list: {
-
+        ...elementTypeFormatDefault,
     },
-    icon_list: {
-
+    icon: {
+        ...elementTypeFormatDefault,
     },
     //#region Stickers
     //#region Not stickers    
@@ -474,9 +531,10 @@ const elementTypeFormat = {
         setData: function (element, dataElement) {
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
             elementTypeFormatCommon.setCustomCss(element, dataElement.customcss);
+            elementTypeFormatCommon.setType(element, dataElement.type);
         },
         setMenu: function () {
-            return new MenuItemsToDisplay("customcss");
+            return new MenuItemsToDisplay("customcss", "type");
         },
     }
     //#endregion Not stickers    

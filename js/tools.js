@@ -44,6 +44,10 @@ function sortDescending(a, b) {
     return b - a;
 }
 
+function getKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
+}
+
 function getMessageEncoding(str) {
     const encoder = new TextEncoder();
     return encoder.encode(str);
