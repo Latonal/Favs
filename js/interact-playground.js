@@ -13,7 +13,7 @@ function setEditAttribute() {
 let currentEditedElement = null;
 function openEditMenu(element) {
     currentEditedElement = element;
-    const elementType = getElementType(element, element.parentNode);
+    const elementType = elementTypeFormatCommon.getElementType(element);
     menu.setMenu(element, elementType);
 }
 
@@ -27,7 +27,8 @@ class MenuItemsToDisplay {
         this.items = {
             text: false,
             img: false,
-            customcss: false
+            customcss: false,
+            type: false,
         };
         itemsName.forEach(element => {
             if (this.items.hasOwnProperty(element))
@@ -57,6 +58,7 @@ class Menu {
 
     setFields(newElementType) {
         if (newElementType !== this.elementType) {
+            if (!newElementType) return;
             const itemsToDisplay = elementTypeFormatCommon.setMenu(newElementType).items;
             let lastElement;
             for (const [key, value] of Object.entries(itemsToDisplay)) {
@@ -66,8 +68,8 @@ class Menu {
                         menuFormat.default.poolField(field, this.itemPool);
                     else
                         field = menuFormat.default.createOrMoveField(key, field, lastElement, this.menu, this.itemPool);
-                    lastElement = field;
                 }
+                if (value) lastElement = field;
             }
 
             this.elementType = newElementType;
@@ -142,7 +144,7 @@ const menuFormat = {
             field.append(newP);
             const input = document.createElement("input");
             input.type = "text";
-            field.addEventListener("change", this.updateData);
+            field.addEventListener("keyup", this.updateData);
             field.append(input);
             return field;
         },
@@ -151,28 +153,15 @@ const menuFormat = {
         },
         setInputContent: function (element, field, elementType) {
             let input = this.getInput(field);
-            if (typeof elementTypeFormat[elementType].getText === "function") {
-                input.value = elementTypeFormat[elementType].getText(element);
-                return;
-            } else if (typeof elementTypeFormatCommon.getText === "function") {
-                input.value = elementTypeFormatCommon.getText(element);
-                return;
-            }
-
-            console.warn("WARNING Interact-Playground-3text:\nThe text input could not be filled because it seems the type'" + elementType + "' does not support it.");
+            if (typeof elementTypeFormatCommon.getText === "function")
+                input.value = elementTypeFormatCommon.getText(element, elementType);
         },
         updateData: function (event) {
-            if (typeof elementTypeFormat[menu.elementType].updateText === "function")
-                elementTypeFormat[menu.elementType].updateText(menu.currentElement, event.target.value);
-            else if (typeof elementTypeFormatCommon.updateText === "function")
-                elementTypeFormatCommon.updateText(menu.currentElement, event.target.value);
-            else {
-                console.warn("WARNING Interact-Playground-4text:\nThe text input could not be updated because it seems the type'" + menu.elementType + "' does not support it.");
-                return;
-            }
+            if (typeof elementTypeFormatCommon.updateText === "function")
+                elementTypeFormatCommon.updateText(menu.currentElement, menu.elementType, event.target.value);
 
             keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "text"));
-            updateElementsInDb();
+            updateElementsInDb(); // TODO: when closing or changing target
         }
     },
     img: {
@@ -207,7 +196,7 @@ const menuFormat = {
             field.append(newP);
             const input = document.createElement("input");
             input.type = "text";
-            field.addEventListener("change", this.updateData);
+            field.addEventListener("keyup", this.updateData);
             field.append(input);
             return field;
         },
@@ -227,20 +216,47 @@ const menuFormat = {
             console.warn("WARNING Interact-Playground-3customcss:\nThe custom css input could not be filled because it seems the type'" + elementType + "' does not support it.");
         },
         updateData: function (event) {
-            if (typeof elementTypeFormat[menu.elementType].updateCustomCss === "function") 
-                elementTypeFormat[menu.elementType].updateCustomCss(menu.currentElement, event.target.value);
-            else if (typeof elementTypeFormatCommon.updateCustomCss === "function") 
+            if (typeof elementTypeFormatCommon.updateCustomCss === "function")
                 elementTypeFormatCommon.updateCustomCss(menu.currentElement, event.target.value);
-            else {
-                console.warn("WARNING Interact-Playground-4text:\nThe custom css input could not be updated because it seems the type'" + menu.elementType + "' does not support it.");
-                return;
-            }
-
-            console.log("should update custom css");
 
             keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "customcss"));
-            updateElementsInDb();
+            updateElementsInDb(); // TODO: when closing or changing target
         }
+    },
+    type: {
+        createField: function () {
+            const field = document.createElement("div");
+            field.setAttribute("data-field", "type");
+            const newP = document.createElement("p");
+            newP.innerText = "Type";
+            field.append(newP);
+            const input = document.createElement("select");
+
+            for (const [key, value] of Object.entries(FavsElementsType)) {
+                var opt = document.createElement('option');
+                opt.value = key;
+                opt.innerHTML = value;
+                input.appendChild(opt);
+            }
+
+            field.addEventListener("change", this.updateData);
+            field.append(input);
+            return field;
+        },
+        getInput: function (field) {
+            return field.querySelector("select");
+        },
+        setInputContent: function (element, field, elementType) {
+            let input = this.getInput(field);
+            input.value = elementTypeFormatCommon.getType(element, true) || 1;
+        },
+        updateData: function (event) {
+            if (typeof elementTypeFormatCommon.setType === "function")
+                elementTypeFormatCommon.setType(menu.currentElement, event.target.value);
+
+            keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "type"));
+            updateElementsInDb(); // TODO: when closing or changing target
+        },
     },
     // schema: {
     //     createField: function () { },

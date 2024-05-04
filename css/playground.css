@@ -7,6 +7,7 @@
     --footer-height: 50px;
 }
 
+/* #region base logic */
 my-album,
 my-group,
 my-sticker {
@@ -97,31 +98,49 @@ my-group:empty {
 my-sticker img {
     pointer-events: none;
 }
+/* #endregion base logic */
 
-/* specific depending of type */
+/* #region default stickers */
 my-sticker img {
     width: 25px;
 }
 
-/* specific depending of type */
 my-sticker img:not([src="null"])+p {
     margin-left: 6px;
 }
 
-/* specific depending of type */
 my-sticker p:empty {
     display:none;
 }
 
-/* specific depending of type */
 my-sticker img[src="null"] {
     display:none;
 }
+/* #endregion default stickers */
 
-my-sticker {
-    order: var(--order);
-    color: var(--color);
+/* #region LIST */
+my-group[data-type="list"] {
+    flex-direction:column;
 }
+
+my-group[data-type="list"]>my-sticker,
+my-album my-group>my-sticker[data-type="list"] {
+    display:flex;
+    flex-direction:row;
+}
+/* #endregion LIST */
+
+/* #region ICON */
+my-group[data-type="icon"] {
+    flex-direction:row;
+}
+
+my-group[data-type="icon"]>my-sticker,
+my-album my-group>my-sticker[data-type="icon"] {
+    display:flex;
+    flex-direction:column;
+}
+/* #endregion ICON */
 
 #app[edit=true] my-sticker,
 #app[edit=true] my-group {

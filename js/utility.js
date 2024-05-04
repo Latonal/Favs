@@ -14,6 +14,11 @@ const FavsCustomElementsName = {
     }
 };
 
+const FavsElementsType = {
+    1: "list",
+    2: "icon",
+};
+
 const Positions = {
     TOP: 1,
     RIGHT: 2,
@@ -298,7 +303,7 @@ function handleTabDrop(event) {
     const nextNewSiblingId = (currentDraggedElementData.element.nextSibling) ? currentDraggedElementData.element.nextSibling.getAttribute("data-album") : 0;
     if (nextNewSiblingId !== 0)
         keepTrackOfChanges(new ElementLog(nextNewSiblingId, Status.UPDATE, "previous"));
-    
+
     updateElementsInDb();
     clearDraggedElement();
 }
@@ -490,8 +495,8 @@ function checkOldParentNotOnlyOneChild() {
     if (isTruthy(oldParentId) &&
         document.getElementById(oldParentId).children.length <= 1 &&
         currentDraggedElementData.tagName === FavsCustomElementsName.tags.GROUP) {
-            keepTrackOfChanges(new ElementLog(oldParentId, Status.DELETE));
-            replaceParentByChild(document.getElementById(oldParentId));
+        keepTrackOfChanges(new ElementLog(oldParentId, Status.DELETE));
+        replaceParentByChild(document.getElementById(oldParentId));
     }
 }
 
