@@ -124,6 +124,7 @@ async function getElementsHighestId(elementsStore = null) {
 }
 
 async function updateElementsInDb() {
+    if (elementLogTracking.length <= 0) return;
     console.log(elementLogTracking);
     const db = await openDatabase();
     const transactionsWrite = db.transaction(["elements"], "readwrite");
@@ -171,7 +172,7 @@ async function getUpdatedElement(dbElement, ...newData) {
                 elementTypeFormatCommon.getData(element, elementType, dbElement, e);
             });
 
-            resolve(objectRemoveEmpty(dbElement));
+            resolve(objectRemoveEmptyExcept(dbElement, "previous"));
         } catch (error) {
             console.log("ERROR Database-5:\nAn unsuspected error happened: ", error);
             reject();
