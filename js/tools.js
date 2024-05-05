@@ -48,6 +48,10 @@ function getKeyByValue(object, value) {
     return Object.keys(object).find(key => object[key] === value);
 }
 
+function objectRemoveEmpty(object) {
+    return Object.fromEntries(Object.entries(object).filter(([_, v]) => isTruthy(v)));
+}
+
 function getMessageEncoding(str) {
     const encoder = new TextEncoder();
     return encoder.encode(str);

@@ -13,7 +13,7 @@ function setEditAttribute() {
 let currentEditedElement = null;
 function openEditMenu(element) {
     currentEditedElement = element;
-    const elementType = elementTypeFormatCommon.getElementType(element);
+    const elementType = elementTypeFormatCommon.getElementType(element, false, true);
     menu.setMenu(element, elementType);
 }
 
@@ -152,7 +152,7 @@ const menuFormat = {
             return field.querySelector("input");
         },
         setInputContent: function (element, field, elementType) {
-            let input = this.getInput(field);
+            const input = this.getInput(field);
             if (typeof elementTypeFormatCommon.getText === "function")
                 input.value = elementTypeFormatCommon.getText(element, elementType);
         },
@@ -232,6 +232,10 @@ const menuFormat = {
             field.append(newP);
             const input = document.createElement("select");
 
+            var inheritOpt = document.createElement('option');
+            inheritOpt.value = -1;
+            inheritOpt.innerHTML = "";
+            input.appendChild(inheritOpt);
             for (const [key, value] of Object.entries(FavsElementsType)) {
                 var opt = document.createElement('option');
                 opt.value = key;
@@ -247,8 +251,13 @@ const menuFormat = {
             return field.querySelector("select");
         },
         setInputContent: function (element, field, elementType) {
-            let input = this.getInput(field);
-            input.value = elementTypeFormatCommon.getType(element, true) || 1;
+            const input = this.getInput(field);
+            const val = elementTypeFormatCommon.getType(element, true, false) || -1;
+            if (val === -1 && element.tagName.toLowerCase() !== FavsCustomElementsName.tags.STICKER) {
+                input.value = 1;
+                return;
+            }
+            input.value = val;
         },
         updateData: function (event) {
             if (typeof elementTypeFormatCommon.setType === "function")
