@@ -8,6 +8,7 @@ function setEditing(canEdit) {
 function setEditAttribute() {
     const app = document.getElementById("app");
     app.setAttribute("edit", editing);
+    closeEditMenu();
 }
 
 function openEditMenu(element) {
@@ -22,10 +23,12 @@ function closeEditMenu() {
 class MenuItemsToDisplay {
     constructor(...itemsName) {
         this.items = {
+            close: true,
             text: false,
             img: false,
             customcss: false,
             type: false,
+            save: true,
         };
         itemsName.forEach(element => {
             if (this.items.hasOwnProperty(element))
@@ -59,12 +62,12 @@ class Menu {
             const itemsToDisplay = elementTypeFormatCommon.setMenu(newElementType).items;
             let lastElement;
             for (const [key, value] of Object.entries(itemsToDisplay)) {
-                let field = menuFormat.default.checkFieldAlreadyInMenu(key, this.menu)
+                let field = menuFormatCommon.checkFieldAlreadyInMenu(key, this.menu)
                 if (isTruthy(field) !== value) {
                     if (field)
-                        menuFormat.default.poolField(field, this.itemPool);
+                        menuFormatCommon.poolField(field, this.itemPool);
                     else
-                        field = menuFormat.default.createOrMoveField(key, field, lastElement, this.menu, this.itemPool);
+                        field = menuFormatCommon.createOrMoveField(key, field, lastElement, this.menu, this.itemPool);
                 }
                 if (value) lastElement = field;
             }
@@ -103,40 +106,73 @@ class Menu {
 }
 const menu = new Menu(document.getElementById("edit-menu"), document.getElementById("edit-menu-pool"));
 
-const menuFormat = {
-    default: {
-        checkFieldAlreadyInMenu: function (item, menu) {
-            // return element instead of true or false
-            const element = menu.querySelector("[data-field='" + item + "']");
-            if (element)
-                return element;
+const menuFormatCommon = {
+    checkFieldAlreadyInMenu: function (item, menu) {
+        // return element instead of true or false
+        const element = menu.querySelector("[data-field='" + item + "']");
+        if (element)
+            return element;
 
-            return false;
-        },
-        createOrMoveField: function (item, field, lastElement, menu, itemPool) {
-            if (!field)
-                field = this.checkFieldAlreadyInMenu(item, itemPool);
-            if (!field) {
-                if (typeof menuFormat[item].createField === "function")
-                    field = menuFormat[item].createField();
-                else {
-                    console.warn("WARNING Interact-Playground-2:\nThe following type of field seems to not be handled for creation: " + item);
-                    return;
-                }
+        return false;
+    },
+    createOrMoveField: function (item, field, lastElement, menu, itemPool) {
+        if (!field)
+            field = this.checkFieldAlreadyInMenu(item, itemPool);
+        if (!field) {
+            if (typeof menuFormat[item].createField === "function")
+                field = menuFormat[item].createField();
+            else {
+                console.warn("WARNING Interact-Playground-2:\nThe following type of field seems to not be handled for creation: " + item);
+                return;
             }
+        }
 
-            if (!isTruthy(field)) return;
+        if (!isTruthy(field)) return;
 
-            if (isTruthy(lastElement))
-                lastElement.after(field);
-            else
-                menu.prepend(field);
+        if (isTruthy(lastElement))
+            lastElement.after(field);
+        else
+            menu.prepend(field);
 
+        return field;
+    },
+    poolField: function (element, itemPool) {
+        itemPool.append(element);
+    }
+}
+
+const menuFormat = {
+    close: {
+        createField: function () {
+            const field = document.createElement("div");
+            field.setAttribute("data-field", "close");
+            const newButton = document.createElement("button");
+            newButton.innerText = "X";
+            newButton.addEventListener("click", this.updateData);
+            field.append(newButton);
             return field;
         },
-        poolField: function (element, itemPool) {
-            itemPool.append(element);
-        }
+        getInput: function (field) { },
+        setInputContent: function (element, field, elementType) { },
+        updateData: function (event) {
+            menu.closeMenu();
+        },
+    },
+    save: {
+        createField: function () {
+            const field = document.createElement("div");
+            field.setAttribute("data-field", "save");
+            const newButton = document.createElement("button");
+            newButton.innerText = "Save";
+            newButton.addEventListener("click", this.updateData);
+            field.append(newButton);
+            return field;
+        },
+        getInput: function (field) { },
+        setInputContent: function (element, field, elementType) { },
+        updateData: function (event) {
+            menu.saveChanges();
+        },
     },
     text: {
         createField: function () {
