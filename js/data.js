@@ -166,12 +166,12 @@ async function getUpdatedElement(dbElement, ...newData) {
             const element = elementTypeFormatCommon.getElement(dbElement.uuid);
             if (!isTruthy(element)) return;
 
-            const elementType = elementTypeFormatCommon.getElementType(element);
+            const elementType = elementTypeFormatCommon.getElementType(element, false, true);
             newData.forEach(e => {
                 elementTypeFormatCommon.getData(element, elementType, dbElement, e);
             });
 
-            resolve(dbElement);
+            resolve(objectRemoveEmpty(dbElement));
         } catch (error) {
             console.log("ERROR Database-5:\nAn unsuspected error happened: ", error);
             reject();

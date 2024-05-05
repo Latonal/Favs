@@ -210,6 +210,7 @@ async function createElements(iconsStore, data, page) {
     playground = document.getElementById("playground");
 
     data.forEach(async e => {
+        // console.log(e);
         try {
             let tagName;
             if (e.parent === 0 || e.uuid === page)
@@ -307,7 +308,7 @@ const elementTypeFormatCommon = {
                 object.customcss = this.getCustomCss(element);
                 break;
             case "type":
-                object.type = this.getType(element, true);
+                object.type = parseInt(this.getType(element, true), 10);
                 break;
             case "text":
                 object.text = this.getText(element, elementType);
@@ -356,14 +357,18 @@ const elementTypeFormatCommon = {
                 return 'default';
         }
     },
-    getType: function (element, byId = false) {
+    getType: function (element, byId = false, throughParent = false) {
         if (element.hasAttribute("data-type"))
             return byId ? getKeyByValue(FavsElementsType, element.getAttribute("data-type")) : element.getAttribute("data-type");
-        else if (element.parentNode && element.parentNode.hasAttribute("data-type"))
+        else if (throughParent && element.parentNode && element.parentNode.hasAttribute("data-type"))
             return byId ? getKeyByValue(FavsElementsType, element.parentNode.getAttribute("data-type")) : element.parentNode.getAttribute("data-type");
     },
     setType: function (element, type) {
         if (type) {
+            if (type == -1) {
+                element.removeAttribute("data-type");
+                return;
+            }
             let elementType = FavsElementsType[type];
             if (elementType) element.setAttribute("data-type", elementType);
         }
