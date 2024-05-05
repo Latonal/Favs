@@ -52,6 +52,10 @@ function objectRemoveEmpty(object) {
     return Object.fromEntries(Object.entries(object).filter(([_, v]) => isTruthy(v)));
 }
 
+function objectRemoveEmptyExcept(object, ...exceptions) {
+    return Object.fromEntries(Object.entries(object).filter(([_, v]) => isTruthy(v) || exceptions.includes(_)));
+}
+
 function getMessageEncoding(str) {
     const encoder = new TextEncoder();
     return encoder.encode(str);

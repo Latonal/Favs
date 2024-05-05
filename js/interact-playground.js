@@ -10,16 +10,13 @@ function setEditAttribute() {
     app.setAttribute("edit", editing);
 }
 
-let currentEditedElement = null;
 function openEditMenu(element) {
-    currentEditedElement = element;
     const elementType = elementTypeFormatCommon.getElementType(element, false, true);
     menu.setMenu(element, elementType);
 }
 
 function closeEditMenu() {
-    currentEditedElement = null;
-    // close popup
+    menu.closeMenu();
 }
 
 class MenuItemsToDisplay {
@@ -86,6 +83,7 @@ class Menu {
             });
 
             this.currentElement = element;
+            if (isTruthy(this.elementId)) this.saveChanges();
             this.elementId = element.id;
         }
     }
@@ -95,7 +93,12 @@ class Menu {
     }
 
     closeMenu() {
+        this.saveChanges();
         this.menu.classList.add("hide");
+    }
+
+    saveChanges() {
+        updateElementsInDb();
     }
 }
 const menu = new Menu(document.getElementById("edit-menu"), document.getElementById("edit-menu-pool"));
@@ -161,7 +164,6 @@ const menuFormat = {
                 elementTypeFormatCommon.updateText(menu.currentElement, menu.elementType, event.target.value);
 
             keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "text"));
-            updateElementsInDb(); // TODO: when closing or changing target
         }
     },
     img: {
@@ -220,7 +222,6 @@ const menuFormat = {
                 elementTypeFormatCommon.updateCustomCss(menu.currentElement, event.target.value);
 
             keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "customcss"));
-            updateElementsInDb(); // TODO: when closing or changing target
         }
     },
     type: {
@@ -264,7 +265,6 @@ const menuFormat = {
                 elementTypeFormatCommon.setType(menu.currentElement, event.target.value);
 
             keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "type"));
-            updateElementsInDb(); // TODO: when closing or changing target
         },
     },
     // schema: {
