@@ -19,6 +19,7 @@ header {
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     position: sticky;
     top: 0;
     z-index: 9999;
@@ -28,14 +29,21 @@ header nav {
     display: flex;
     flex-direction: row;
     height: inherit;
+    min-width: calc(90vw - 220px);
+}
+
+#app-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
 }
 
 #edit-button {
-    background-color:transparent;
-    border:none;
-    display:flex;
-    cursor:pointer;
-    height:50px;
+    background-color: transparent;
+    border: none;
+    display: flex;
+    cursor: pointer;
+    height: 50px;
 }
 
 #edit-button svg {
@@ -48,12 +56,17 @@ header nav {
 }
 
 #edit-button:hover svg path {
-    fill:#1964d8;
+    fill: #1964d8;
 }
 
 #edit-button.active svg path {
-    fill:#1964d8;
-    stroke:#1964d8;
+    fill: #1964d8;
+    stroke: #1964d8;
+}
+
+#settings-button {
+    margin-right: 10px;
+    opacity: 0;
 }
 
 #favs {

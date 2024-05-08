@@ -19,13 +19,13 @@
     <div id="app">
         <header class="side">
             <div id="favs"><h1>Favs</h1></div>
-            <nav id="tabs">
-
-            </nav>
-            <button onclick="setEditing();" id="edit-button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M9 1h-8v14h14v-8h-1v7h-12v-12h7v-1" fill="#fff" fill-opacity="1" stroke="#fff" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.969 11.938c0 0 0 0 1-4 0 0 0 0 7-7 0 0 0 0 3 3 0 0 0 0-7 7 0 0 0 0-4 1" fill="#fff" fill-opacity="1" stroke="#fff" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <img src="img/options.svg" style="width:50px;" />
+            <nav id="tabs"></nav>
+            <div id="app-buttons">
+                <button onclick="setEditing();" id="edit-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M9 1h-8v14h14v-8h-1v7h-12v-12h7v-1" fill="#fff" fill-opacity="1" stroke="#fff" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.969 11.938c0 0 0 0 1-4 0 0 0 0 7-7 0 0 0 0 3 3 0 0 0 0-7 7 0 0 0 0-4 1" fill="#fff" fill-opacity="1" stroke="#fff" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <img src="img/options.svg" style="width:50px;" id="settings-button" />
+            </div>
         </header>
         <section id="playground"></section>
         <footer>
