@@ -9,8 +9,8 @@
 }
 
 #app {
-    font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    font-size:16px;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 16px;
 }
 
 header {
@@ -30,9 +30,35 @@ header nav {
     height: inherit;
 }
 
+#edit-button {
+    background-color:transparent;
+    border:none;
+    display:flex;
+    cursor:pointer;
+    height:50px;
+}
+
+#edit-button svg {
+    width: 45px;
+    margin: 0 2.5px;
+}
+
+#edit-button svg path {
+    transition: 0.4s;
+}
+
+#edit-button:hover svg path {
+    fill:#1964d8;
+}
+
+#edit-button.active svg path {
+    fill:#1964d8;
+    stroke:#1964d8;
+}
+
 #favs {
     width: 100px;
-    text-align:center;
+    text-align: center;
 }
 
 #playground {
@@ -53,38 +79,38 @@ footer {
 footer>div {
     width: 100%;
     margin: 0 10px;
-    display:flex;
-    flex-direction:column;
+    display: flex;
+    flex-direction: column;
 }
 
 footer>div>button {
-    background:none;
-    border:none;
-    font-size:16px;
+    background: none;
+    border: none;
+    font-size: 16px;
 }
 
 footer>div>a {
-    text-align:center;
-    color:#000;
-    text-decoration:none;
+    text-align: center;
+    color: #000;
+    text-decoration: none;
 }
 
 .center {
-    display:flex;
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
 #popup {
-    top:0;
-    position:fixed;
+    top: 0;
+    position: fixed;
     background-color: rgb(125, 91, 125);
     border: 3px solid rgb(117, 66, 117);
     border-radius: 5px;
     min-width: 300px;
     min-height: 300px;
-    z-index:9999;
-    padding:10px;
+    z-index: 9999;
+    padding: 10px;
 }
 
 #popup button.close {
@@ -94,31 +120,31 @@ footer>div>a {
     background: none;
     color: white;
     border: none;
-    transition:var(--transition-time);
+    transition: var(--transition-time);
 }
 
 #popup>button.close:hover {
-    color:gray;
-    cursor:pointer;
+    color: gray;
+    cursor: pointer;
 }
 
 #popup>.content ul>li {
-    margin-left:10px;
+    margin-left: 10px;
 }
 
 #edit-menu {
-    background-color:white;
-    position:absolute;
+    background-color: white;
+    position: absolute;
     top: 0px;
-    z-index:99999;
+    z-index: 99999;
 }
 
 #edit-menu-pool {
-    background-color:white;
-    position:absolute;
-    top:0px;
+    background-color: white;
+    position: absolute;
+    top: 0px;
     right: 0px;
-    z-index:99999;
+    z-index: 99999;
 }
 
 .hide {
@@ -126,7 +152,7 @@ footer>div>a {
 }
 
 .bold {
-    font-weight:bold;
+    font-weight: bold;
 }
 
 /* header.side {

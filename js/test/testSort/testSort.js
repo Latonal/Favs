@@ -3,8 +3,8 @@ async function testSort() {
 
     return new Promise(async (resolve, reject) => {
         try {
-            const transactionsRead = db.transaction("elements", "readonly");
-            const elementsStore = transactionsRead.objectStore("elements");
+            const transactionsRead = db.transaction(StoreName.ELEMENTS, "readonly");
+            const elementsStore = transactionsRead.objectStore(StoreName.ELEMENTS);
 
             const data = await getElementsData(elementsStore, 0);
             const dataResult = orderObjectsByParent(data);
