@@ -29,8 +29,8 @@ my-tab {
     cursor: pointer;
 
     justify-content: center;
-    align-items:center;
-    padding:5px;
+    align-items: center;
+    padding: 5px;
 }
 
 my-album {
@@ -98,6 +98,7 @@ my-group:empty {
 my-sticker img {
     pointer-events: none;
 }
+
 /* #endregion base logic */
 
 /* #region default stickers */
@@ -110,36 +111,39 @@ my-sticker img:not([src="null"])+p {
 }
 
 my-sticker p:empty {
-    display:none;
+    display: none;
 }
 
 my-sticker img[src="null"] {
-    display:none;
+    display: none;
 }
+
 /* #endregion default stickers */
 
 /* #region LIST */
 my-group[data-type="list"] {
-    flex-direction:column;
+    flex-direction: column;
 }
 
 my-group[data-type="list"]>my-sticker,
 my-album my-group>my-sticker[data-type="list"] {
-    display:flex;
-    flex-direction:row;
+    display: flex;
+    flex-direction: row;
 }
+
 /* #endregion LIST */
 
 /* #region ICON */
 my-group[data-type="icon"] {
-    flex-direction:row;
+    flex-direction: row;
 }
 
 my-group[data-type="icon"]>my-sticker,
 my-album my-group>my-sticker[data-type="icon"] {
-    display:flex;
-    flex-direction:column;
+    display: flex;
+    flex-direction: column;
 }
+
 /* #endregion ICON */
 
 #app[edit=true] my-sticker,

@@ -33,9 +33,9 @@ async function generateTabs() {
 
     return new Promise(async (resolve, reject) => {
         try {
-            const transactionsRead = db.transaction(["elements", "icons"], "readonly");
-            const elementsStore = transactionsRead.objectStore("elements");
-            const iconsStore = transactionsRead.objectStore("icons");
+            const transactionsRead = db.transaction([StoreName.ELEMENTS, StoreName.ICONS], "readonly");
+            const elementsStore = transactionsRead.objectStore(StoreName.ELEMENTS);
+            const iconsStore = transactionsRead.objectStore(StoreName.ICONS);
 
             const data = orderObjectsByParent(await getTabsData(elementsStore));
 
@@ -87,9 +87,9 @@ async function generateAlbum(page = 0) {
 
     return new Promise(async (resolve, reject) => {
         try {
-            const transactionsRead = db.transaction(["elements", "icons"], "readonly");
-            const elementsStore = transactionsRead.objectStore("elements");
-            const iconsStore = transactionsRead.objectStore("icons");
+            const transactionsRead = db.transaction([StoreName.ELEMENTS, StoreName.ICONS], "readonly");
+            const elementsStore = transactionsRead.objectStore(StoreName.ELEMENTS);
+            const iconsStore = transactionsRead.objectStore(StoreName.ICONS);
 
             const data = orderObjectsByParent(await getElementsData(elementsStore, page), page);
 

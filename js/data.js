@@ -1,7 +1,8 @@
 const DB_NAME = "playground-ltnl";
 const DB_VERSION = 1;
 
-var highestId = 0;
+var highestElementId = 0;
+var highestIconId = 0;
 
 function openDatabase() {
     return new Promise((resolve, reject) => {
@@ -35,7 +36,6 @@ function instantiateDB() {
                 iconsStore.createIndex("by_uuid", "uuid", { unique: true });
                 iconsStore.createIndex("by_name", "name", { unique: false });
 
-
                 generateDb(elementsStore, iconsStore);
 
                 StartTutorial();
@@ -46,31 +46,15 @@ function instantiateDB() {
             // reject("ERROR Database-2:\nAn error occured while opening the database: \n" + openRequest.error);
             reject(false);
         };
-        openRequest.onsuccess = function () {
+        openRequest.onsuccess = async function () {
             const db = openRequest.result;
-            console.log("Database has been opened: ", db);
-            // continue using the db object
-            const transactionRead = db.transaction("elements", "readonly");
-            const elementsStore = transactionRead.objectStore("elements");
 
-            // get by index
-            let parent = elementsStore.index("by_parent");
-            console.log("get elements with parent 1:", parent.getAll(1));
+            const transactionRead = db.transaction([StoreName.ELEMENTS, StoreName.ICONS], "readonly");
+            const elementsStore = transactionRead.objectStore(StoreName.ELEMENTS);
+            const iconsStore = transactionRead.objectStore(StoreName.ICONS);
 
-            // empty index is not possible, we use a dummy data
-            console.log("by empty index: ", parent.getAll(IDBKeyRange.only(0)));
-
-            // get by key
-            let withKey = elementsStore.get(1);
-            console.log("with key:", withKey);
-
-            // get only data related to key
-            withKey.onsuccess = function () {
-                const matching = withKey.result;
-                console.log("parent:", matching.parent, " id:", matching.uuid);
-            }
-
-            getElementsHighestId(elementsStore);
+            highestElementId = await getStoreHighestId(elementsStore);
+            highestIconId = await getStoreHighestId(iconsStore);
 
             db.close();
             resolve(true);
@@ -104,48 +88,65 @@ function generateDb(elementsStore, iconsStore) {
 
 /** Utility */
 
-async function getElementsHighestId(elementsStore = null) {
-    if (elementsStore == null) {
-        const db = await openDatabase();
-        const transactionsRead = db.transaction("elements", "readonly");
-        elementsStore = transactionsRead.objectStore("elements");
-    }
+async function getStoreHighestId(store = null) {
+    return new Promise((resolve, reject) => {
+        if (store == null || !(store instanceof IDBObjectStore)) {
+            console.error("ERROR Database-6:\nAttempting to get the highest id of a non-referenced or badly referenced store.", store);
+            reject(); 
+        }
+    
+        const index = store.index("by_uuid");
+        let elementsCursor = index.openCursor(null, "prev");
+        elementsCursor.onsuccess = function (event) {
+            resolve(event.target.result.primaryKey);
+        }
+    
+        elementsCursor.onerror = function () {
+            reject(null);
+        }
+    });
+}
 
-    const index = elementsStore.index("by_uuid");
-    let elementsCursor = index.openCursor(null, "prev");
-    elementsCursor.onsuccess = function (event) {
-        highestId = event.target.result.primaryKey;
-        return highestId;
-    }
+async function updateStoreEntries(storeId) {
+    if (!isTruthy(storeId))
+        console.warn("WARN Database-6:\nYou must reference a storeId to update its elements.");
 
-    elementsCursor.onerror = function () {
-        return null;
+    switch (storeId) {
+        case 1:
+            updateElementsInDb(StoreName.ELEMENTS, elementLogTracking, getUpdatedElement)
+            break;
+        case 2:
+            // TODO: update icons store
+            break;
+        default:
+            console.error("ERROR Database-7:\nAttempting to update a store with an id that is not supported:", storeId);
+            break;
     }
 }
 
-async function updateElementsInDb() {
-    if (elementLogTracking.length <= 0) return;
-    console.log(elementLogTracking);
+async function updateElementsInDb(storeName, elementsToUpdate, updateGetFunction) {
+    if (elementsToUpdate.length <= 0) return;
+    console.log(elementsToUpdate);
     const db = await openDatabase();
-    const transactionsWrite = db.transaction(["elements"], "readwrite");
-    const elementsStore = transactionsWrite.objectStore("elements");
+    const transactionsWrite = db.transaction(storeName, "readwrite");
+    const store = transactionsWrite.objectStore(storeName);
 
-    elementLogTracking.forEach(async e => {
+    elementsToUpdate.forEach(async e => {
         id = parseInt(e.id, 10);
         if (!isTruthy(id)) return;
         switch (e.status) {
             case Status.DELETE:
-                elementsStore.delete(id);
+                store.delete(id);
                 break;
             case Status.CREATE:
-                const newElement = await getUpdatedElement({ uuid: id }, ...e.propertiesName);
-                elementsStore.put(newElement);
+                const newElement = await updateGetFunction({ uuid: id }, ...e.propertiesName);
+                store.put(newElement);
                 break;
             case Status.UPDATE:
-                const elementToUpdate = elementsStore.index("by_uuid").get(id);
+                const elementToUpdate = store.index("by_uuid").get(id);
                 elementToUpdate.onsuccess = async () => {
-                    const updatedElement = await getUpdatedElement(elementToUpdate.result, ...e.propertiesName);
-                    elementsStore.put(updatedElement);
+                    const updatedElement = await updateGetFunction(elementToUpdate.result, ...e.propertiesName);
+                    store.put(updatedElement);
                 }
 
                 elementToUpdate.onerror = () => {
@@ -178,4 +179,8 @@ async function getUpdatedElement(dbElement, ...newData) {
             reject();
         }
     });
+}
+
+async function getUpdatedIcons(dbElement, ...newData) {
+    // TODO: update icons store
 }

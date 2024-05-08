@@ -1,7 +1,14 @@
 var editing = false;
-function setEditing(canEdit) {
-    if (typeof (canEdit) != "boolean") return console.error("Tried to set editing with a non-boolean");
-    editing = !canEdit;
+function setEditing(canEdit = null) {
+    if (typeof (canEdit) != "boolean") editing = !editing;
+    else editing = canEdit;
+
+    const editButton = document.getElementById("edit-button");
+    if (editing)
+        editButton.classList.add("active");
+    else
+        editButton.classList.remove("active");
+
     setEditAttribute();
 }
 
@@ -101,7 +108,7 @@ class Menu {
     }
 
     saveChanges() {
-        updateElementsInDb();
+        updateStoreEntries(1);
     }
 }
 const menu = new Menu(document.getElementById("edit-menu"), document.getElementById("edit-menu-pool"));

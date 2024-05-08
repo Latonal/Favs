@@ -1,8 +1,7 @@
 //#region "ENUMS"
-const SecurityLevel = {
-    NONE: 0,
-    LOW: 1,
-    MEDIUM: 2,
+const StoreName = {
+    ELEMENTS: "elements",
+    ICONS: "icons"
 }
 
 const FavsCustomElementsName = {
@@ -304,7 +303,7 @@ function handleTabDrop(event) {
     if (nextNewSiblingId !== 0)
         keepTrackOfChanges(new ElementLog(nextNewSiblingId, Status.UPDATE, "previous"));
 
-    updateElementsInDb();
+    updateStoreEntries(1);
     clearDraggedElement();
 }
 
@@ -361,7 +360,7 @@ function handleAlbumDrop(event) {
         checkOldParentIfEmpty();
 
     keepTrackDragging();
-    updateElementsInDb();
+    updateStoreEntries(1);
     clearDraggedElement();
 }
 
@@ -446,7 +445,7 @@ function handleGroupDrop(event) {
         checkOldParentIfEmpty();
 
     keepTrackDragging();
-    updateElementsInDb();
+    updateStoreEntries(1);
     clearDraggedElement();
 }
 
@@ -585,7 +584,7 @@ function handleStickerDrop(event) {
     checkOldParentIfEmpty();
 
     keepTrackDragging();
-    updateElementsInDb();
+    updateStoreEntries(1);
     clearDraggedElement();
 }
 
