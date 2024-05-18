@@ -26,7 +26,6 @@ async function loadMoreIcons() {
             const numberToGenerate = getNumberToPut(document.getElementById("icons-list"), 100 + 10, 100 + 10);
             const numberOfChildsAlreadyExisting = document.querySelector("#icons-list .all-icons").childElementCount;
             const data = await getIconsData(iconsStore, numberOfChildsAlreadyExisting, numberToGenerate);
-            // console.log(data);
             createIcons(data);
             resolve();
         } catch (error) {
@@ -56,23 +55,23 @@ async function getIconsData(iconsStore, numberOfChildsAlreadyExisting, numberToG
         try {
             let iconCursor = iconsStore.index("by_uuid").openCursor();
             let data = [];
+            let i = 0;
 
             iconCursor.onsuccess = async function () {
                 const cursor = iconCursor.result;
-                let i = 0;
                 if (cursor) {
-                    if (i >= numberOfChildsAlreadyExisting)
+                    if (i > numberOfChildsAlreadyExisting)
                         data.push(cursor.value);
                     i++;
                     if (i > numberOfChildsAlreadyExisting + numberToGenerate)
                         resolve(data);
                     cursor.continue();
                 } else {
-                    console.error("ERROR Icons-2:\nAn error occured while getting the icon data: ", error);
                     resolve(data);
                 }
             }
         } catch (error) {
+            console.error("ERROR Icons-2:\nAn error occured while getting the icon data: ", error);
             reject();
         }
     });
@@ -86,7 +85,6 @@ function createIcons(data) {
 }
 
 function createIcon(url, uuid, alt, ...moreStuff) {
-    console.log(uuid, url, alt)
     const newDiv = document.createElement("div");
     newDiv.classList.add("icon");
     newDiv.setAttribute("data-img", uuid);
