@@ -13,6 +13,28 @@
     font-size: 16px;
 }
 
+/* #region simple classes */
+.hide {
+    display: none !important;
+}
+
+.bold {
+    font-weight: bold !important;
+}
+
+.center {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.scrollable {
+    overflow-y: auto !important;
+}
+
+/* #endregion simple classes */
+
+/* #region header */
 header {
     height: 50px;
     background-color: gray;
@@ -22,7 +44,7 @@ header {
     justify-content: space-between;
     position: sticky;
     top: 0;
-    z-index: 9999;
+    z-index: 10;
 }
 
 header nav {
@@ -74,12 +96,21 @@ header nav {
     text-align: center;
 }
 
+/* #endregion header */
+
+/* header.side {
+
+}
+
+header.side~footer {} */
+
 #playground {
     min-height: calc(100vh - 100px);
     /* background-color: azure; */
     background-color: rgb(88, 95, 95);
 }
 
+/* #region footer */
 footer {
     min-height: 50px;
     background-color: brown;
@@ -108,12 +139,6 @@ footer>div>a {
     text-decoration: none;
 }
 
-.center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
 #popup {
     top: 0;
     position: fixed;
@@ -122,7 +147,7 @@ footer>div>a {
     border-radius: 5px;
     min-width: 300px;
     min-height: 300px;
-    z-index: 9999;
+    z-index: 11;
     padding: 10px;
 }
 
@@ -145,11 +170,14 @@ footer>div>a {
     margin-left: 10px;
 }
 
+/* #endregion footer */
+
+/* #region edit menu */
 #edit-menu {
     background-color: white;
     position: absolute;
     top: 0px;
-    z-index: 99999;
+    z-index: 11;
 }
 
 #edit-menu-pool {
@@ -157,29 +185,97 @@ footer>div>a {
     position: absolute;
     top: 0px;
     right: 0px;
-    z-index: 99999;
+    z-index: -1;
 }
 
-.hide {
-    display: none;
+/* #endregion edit menu */
+
+/* #region context menu */
+
+
+
+
+
+
+/* #endregion context menu */
+
+/* #region icons menu */
+#icons {
+    width: 90vw;
+    height: 90vh;
+    position: absolute;
+    top: 5vh;
+    left: 5vw;
+    display: flex;
+    flex-direction: row;
+    background-color: #4d3355;
+    border: 1px solid #1a161c;
+    border-radius: 10px;
+    z-index: 11;
 }
 
-.bold {
-    font-weight: bold;
+#icons .icon-infos {
+    min-width: 200px;
+    border-right: 1px solid #1a161c;
 }
 
-/* header.side {
-
+#icons-list {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
 }
 
-header.side~footer {} */
+#icons .icons-display {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#icons-list .all-icons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#icons-list .icon {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+#icons-list .icon img {
+    color: red;
+    width: 59px;
+    height: 59px;
+}
+
+#icons-list .icon p {
+    color: red;
+}
+
+#icons-list .load-more {
+    margin: 30px auto auto auto;
+}
+
+.load-more {
+    padding: 10px 30px;
+    font-size: 21px;
+}
+
+
+/* #endregion icons menu */
 
 
 
 
 
-
-/** Dev **/
+/* #region dev */
 .admin-tools {
     position: absolute;
     z-index: 30;
@@ -191,3 +287,5 @@ header.side~footer {} */
     width: 50px;
     height: 35px;
 }
+
+/* #endregion dev */
