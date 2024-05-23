@@ -227,6 +227,14 @@ function isHoverCornerCalc(closest, positions, values, thresholdValue = 30, thre
 //     currentDraggedElementData.element.classList.remove("dragged");
 //     clearDraggedElement();
 // }
+
+document.addEventListener('keyup', function (event) {
+    if (event.key === "Escape") {
+        menu.closeMenu();
+        setIconWindow(false);
+        // close contextmenu
+    }
+});
 //#endregion Document
 
 //#region Tab
@@ -331,11 +339,21 @@ async function tabsChangeCurrentPage(event) {
 class Album extends HTMLElement {
     constructor() {
         super();
+        this.addEventListener('contextmenu', setMenuAlbum);
         this.addEventListener('dragover', handleAlbumDragOver);
         this.addEventListener('drop', handleAlbumDrop);
     }
 }
 customElements.define(FavsCustomElementsName.tags.ALBUM, Album);
+
+function setMenuAlbum(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // create new group
+
+    console.log("set menu album");
+}
 
 function handleAlbumDragOver(event) {
     const elementToMove = currentDraggedElementData.element;
@@ -370,6 +388,7 @@ function handleAlbumDrop(event) {
 class Group extends HTMLElement {
     constructor() {
         super();
+        this.addEventListener('contextmenu', setMenuGroup);
         this.addEventListener('click', handleGroupClick);
         this.addEventListener('dragstart', handleGroupDragStart);
         this.addEventListener('dragover', handleGroupDragOver);
@@ -382,6 +401,19 @@ class Group extends HTMLElement {
     }
 }
 customElements.define(FavsCustomElementsName.tags.GROUP, Group);
+
+function setMenuGroup(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // edit group
+    // create group before
+    // create group after
+    // create sub-group (insert after)
+    // create new sticker at end
+
+    console.log("custom menu group");
+}
 
 function handleGroupClick(event) {
     if (editing) {
@@ -514,6 +546,7 @@ function replaceParentByChild(element) {
 class Sticker extends HTMLElement {
     constructor() {
         super();
+        this.addEventListener('contextmenu', setMenuSticker);
         this.addEventListener('click', handleStickerClick);
         this.addEventListener('dragstart', handleStickerDragStart);
         this.addEventListener('dragover', handleStickerDragOver);
@@ -526,6 +559,17 @@ class Sticker extends HTMLElement {
     }
 }
 customElements.define(FavsCustomElementsName.tags.STICKER, Sticker);
+
+function setMenuSticker(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // edit sticker
+    // create sticker before
+    // create sticker after
+
+    console.log("set menu sticker");
+}
 
 function handleStickerClick(event) {
     if (!editing) {

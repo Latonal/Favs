@@ -18,6 +18,7 @@ function setEditAttribute() {
     closeEditMenu();
 }
 
+// #region edit menu
 function openEditMenu(element) {
     const elementType = elementTypeFormatCommon.getElementType(element, false, true);
     menu.setMenu(element, elementType);
@@ -212,24 +213,44 @@ const menuFormat = {
     img: {
         createField: function () {
             const field = document.createElement("div");
+            field.id = "icon-button";
             field.setAttribute("data-field", "img");
             const newP = document.createElement("p");
             newP.innerText = "Image";
             field.append(newP);
-            const input = document.createElement("input");
-            input.type = "text";
-            field.append(input);
+            const button = document.createElement("button");
+            button.classList.add("icon");
+            const img = document.createElement("img");
+            button.append(img);
+            field.addEventListener("keyup", this.updateData);
+            field.append(button);
+            button.onclick = () => setIconWindow(true);
             return field;
         },
         getInput: function (field) {
-
+            return field.querySelector("img");
         },
         setInputContent: function (element, field, elementType) {
-            let input = this.getInput(field);
-
+            const input = this.getInput(field);
+            if (typeof elementTypeFormatCommon.getImg === "function") {
+                imgValues = elementTypeFormatCommon.getImg(element, elementType);
+                input.src = imgValues[0];
+                input.setAttribute("img-id", imgValues[1]);
+                if (imgValues[2]) input.alt = imgValues[2];
+            }
         },
-        updateData: function () {
+        changeInputContent: function (src, uuid, alt) {
+            const input = document.querySelector("#edit-menu #icon-button button img");
+            input.src = src;
+            input.setAttribute("img-id", uuid);
+            input.alt = alt;
+            this.updateData(input);
+        },
+        updateData: function (input) {
+            if (typeof elementTypeFormatCommon.updateImg === "function")
+                elementTypeFormatCommon.updateImg(menu.currentElement, menu.elementType, input.src, input.getAttribute("img-id"), input.alt);
 
+            keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "img"));
         }
     },
     customcss: {
@@ -317,3 +338,12 @@ const menuFormat = {
     //     updateData: function (event) { },
     // }
 }
+// #endregion edit menu
+
+// #region context menu
+
+
+
+
+
+// #endregion context menu

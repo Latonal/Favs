@@ -15,6 +15,10 @@ const elementTypeFormatCommon = {
                 break;
             case "text":
                 object.text = this.getText(element, elementType);
+                break;
+            case "img":
+                object.img_uuid = this.getImg(element, elementType);
+                break;
             default:
                 elementTypeFormat[elementType].getData(element, object, dataToUpdate);
                 break;
@@ -108,6 +112,34 @@ const elementTypeFormatCommon = {
     },
     //#endregion text
 
+    //#region img
+    getImg: function (element, elementType) {
+        if (typeof elementTypeFormat[elementType].findImg === "function") {
+            const img = elementTypeFormat[elementType].findImg(element);
+            return parseInt(img.getAttribute("img-id"), 10);
+        }
+
+        console.warn("WARNING Playground-13a img:\nThe content of the element could not be found because it seems the type '" + elementType + "' does not support it.");
+        const img = element.querySelector("img").src;
+        return parseInt(img.getAttribute("img-id"), 10);
+    },
+    updateImg: function (element, elementType, src, id, alt) {
+        if (typeof elementTypeFormat[elementType].findImg === "function") {
+            const img = elementTypeFormat[elementType].findImg(element);
+            img.src = src;
+            img.setAttribute("img-id", id);
+            img.alt = alt;
+            return;
+        }
+        console.warn("WARNING Playground-13b img:\nThe content of the element could not be found because it seems the type '" + elementType + "' does not support it.");
+        const img = element.querySelector("img").src = value;
+        img.src = src;
+        img.setAttribute("img-id", id);
+        img.alt = alt;
+        return;
+    },
+    //#endregion img
+
     //#region others
     encrypt: function (element) {
         // return encryptMessage(element);
@@ -148,6 +180,7 @@ const elementTypeFormatDefault = {
     setMenu: function () {
         return new MenuItemsToDisplay("text", "img", "customcss", "type");
     },
+
     findText: function (element) {
         return element.querySelector("p");
     },
@@ -157,16 +190,18 @@ const elementTypeFormatDefault = {
         newP.innerText = elementTypeFormatCommon.decrypt(text);
         return newP;
     },
-    findImg: function (element) { },
-    getImg: function (element) { },
-    updateImg: function (element) { },
+
+    findImg: function (element) {
+        return element.querySelector("img");
+    },
     setImg: function (imgUri, imgUuid) {
         // if (!imgUri) return null;
         const newImg = document.createElement("img");
         newImg.setAttribute("src", imgUri);
-        newImg.setAttribute("img-uuid", imgUuid);
+        newImg.setAttribute("img-id", imgUuid);
         return newImg;
     },
+
     getHref: function (element) { },
     setHref: function (element, href) {
         if (href) element.setAttribute("href", href);

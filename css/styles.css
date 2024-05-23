@@ -237,9 +237,11 @@ footer>div>a {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 10px;
+    justify-content: center;
 }
 
-#icons-list .icon {
+#icons-list .icon,
+#icon-button .icon {
     width: 100px;
     height: 100px;
     display: flex;
@@ -247,6 +249,17 @@ footer>div>a {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
+    cursor: pointer;
+    transition: var(--transition-time);
+}
+
+#icons-list .icon {
+    border: 1px solid rgb(138, 138, 138);
+    border-radius: 10px;
+}
+
+#icons-list .icon:hover {
+    background-color: #3a2641;
 }
 
 #icons-list .icon img {

@@ -38,7 +38,7 @@
             <div id="edit-menu" class="hide"></div>
             <div id="edit-menu-pool" class="hide"></div>
         </div>
-        <div id="icons">
+        <div id="icons" class="hide">
             <div class="icon-infos">
                 <div>icon</div>
                 <div>url</div>
@@ -53,12 +53,12 @@
                 <div class="icons-tools">
                     <button>create new icon</button>
                     <div>search</div>
-                    <button>close</button>
+                    <button onclick="setIconWindow(false);">close</button>
                 </div>
                 <div id="icons-list">
                     <div class="scrollable">
                         <div class="all-icons"></div>
-                        <button class="load-more">- Load more icons -</div>
+                        <button onclick="loadMoreIcons();" class="load-more">- Load more icons -</div>
                     </div>
                 </div>
             </div>
