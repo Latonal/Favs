@@ -126,7 +126,7 @@ const elementTypeFormatCommon = {
     updateImg: function (element, elementType, src, id, alt) {
         if (typeof elementTypeFormat[elementType].findImg === "function") {
             const img = elementTypeFormat[elementType].findImg(element);
-            img.src = src;
+            id == 0 ? img.src = 'null' : img.src = src;
             img.setAttribute("img-id", id);
             img.alt = alt;
             return;
