@@ -5,7 +5,7 @@ const elementTypeFormatCommon = {
                 object.parent = this.getParent(element);
                 break;
             case "previous":
-                object.previous = this.getPrevious(element, elementType);
+                object.previous = this.checkFunctionExists("getPrevious", elementType, element);
                 break;
             case "customcss":
                 object.customcss = this.getCustomCss(element);
@@ -14,15 +14,28 @@ const elementTypeFormatCommon = {
                 object.type = parseInt(this.getType(element, true), 10);
                 break;
             case "text":
-                object.text = this.getText(element, elementType);
+                object.text = this.checkFunctionExists("getText", elementType, element);
                 break;
             case "img":
-                object.img_uuid = this.getImg(element, elementType);
+                object.img_uuid = this.checkFunctionExists("getImg", elementType, elementType, element)[1];
                 break;
             default:
                 elementTypeFormat[elementType].getData(element, object, dataToUpdate);
                 break;
         }
+    },
+    checkFunctionExists: function (callback, elementType, ...params) {
+        if (typeof elementTypeFormat[elementType] === "object") {
+            if (typeof elementTypeFormat[elementType][callback] === "function")
+                return elementTypeFormat[elementType][callback](...params);
+        }
+
+        // console.warn("WARNING Playground-14:\nThe function \"" + callback + "\" is not handled by the type formatter \"" + elementType + "\" of elements.");
+
+        if (typeof this[callback] === "function")
+            return this[callback](...params);
+
+        console.error("WARNING Playground-15:\nThe function \"" + callback + "\" is not handled by both the main and type formatter of elements.");
     },
     getElement: function (id) {
         return document.getElementById(id) || document.querySelector("my-tab[data-album='" + id + "']");
@@ -81,10 +94,7 @@ const elementTypeFormatCommon = {
         }
     },
     //#endregion element type
-    getPrevious: function (element, elementType) {
-        if (typeof elementTypeFormat[elementType].getPrevious === "function")
-            return elementTypeFormat[elementType].getPrevious(element);
-
+    getPrevious: function (element) {
         return element.previousSibling ? parseInt(element.previousSibling.id, 10) : 0;
     },
     getParent: function (element) {
@@ -92,51 +102,34 @@ const elementTypeFormatCommon = {
     },
 
     //#region text
-    getText: function (element, elementType) {
-        if (typeof elementTypeFormat[elementType].findText === "function")
-            return elementTypeFormat[elementType].findText(element).innerText;
-
-        console.warn("WARNING Playground-13a text:\nThe content of the element could not be found because it seems the type '" + elementType + "' does not support it.");
-        // default
+    getText: function (element) {
         return element.querySelector("p").innerText;
     },
-    updateText: function (element, elementType, value) {
-        if (typeof elementTypeFormat[elementType].findText === "function") {
-            elementTypeFormat[elementType].findText(element).innerText = value;
-            return;
-        }
-
-        console.warn("WARNING Playground-13b text:\nThe content of the element could not be found because it seems the type '" + elementType + "' does not support it.");
-        // default
+    updateText: function (element, value) {
         return element.querySelector("p").innerText = value;
     },
     //#endregion text
 
     //#region img
-    getImg: function (element, elementType) {
-        if (typeof elementTypeFormat[elementType].findImg === "function") {
-            const img = elementTypeFormat[elementType].findImg(element);
-            return parseInt(img.getAttribute("img-id"), 10);
-        }
-
-        console.warn("WARNING Playground-13a img:\nThe content of the element could not be found because it seems the type '" + elementType + "' does not support it.");
-        const img = element.querySelector("img").src;
-        return parseInt(img.getAttribute("img-id"), 10);
+    getImg: function (elementType, element) {
+        const img = this.checkFunctionExists("findImg", elementType, element);
+        if (!img) return;
+        
+        const src = img.src;
+        const id = parseInt(img.getAttribute("img-id"), 10);
+        const alt = img.alt;
+        return [src, id, alt];
     },
-    updateImg: function (element, elementType, src, id, alt) {
-        if (typeof elementTypeFormat[elementType].findImg === "function") {
-            const img = elementTypeFormat[elementType].findImg(element);
-            id == 0 ? img.src = 'null' : img.src = src;
-            img.setAttribute("img-id", id);
-            img.alt = alt;
-            return;
-        }
-        console.warn("WARNING Playground-13b img:\nThe content of the element could not be found because it seems the type '" + elementType + "' does not support it.");
-        const img = element.querySelector("img").src = value;
-        img.src = src;
+    findImg: function (element) {
+        return element.querySelector("img");
+    },
+    updateImg: function (elementType, element, src, id, alt) {
+        const img = this.checkFunctionExists("findImg", elementType, element);
+        if (!img) return;
+
+        id == 0 ? img.src = 'null' : img.src = src;
         img.setAttribute("img-id", id);
         img.alt = alt;
-        return;
     },
     //#endregion img
 
