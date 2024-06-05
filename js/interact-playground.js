@@ -230,7 +230,7 @@ const menuFormat = {
         },
         setInputContent: function (element, field, elementType) {
             const input = this.getInput(field);
-            const imgValues = elementTypeFormatCommon.checkFunctionExists("getImg", elementType, elementType, element, elementType);
+            const imgValues = elementTypeFormatCommon.getImg(elementType, element);
 
             if (!imgValues) return;
 
