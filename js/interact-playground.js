@@ -200,12 +200,10 @@ const menuFormat = {
         },
         setInputContent: function (element, field, elementType) {
             const input = this.getInput(field);
-            if (typeof elementTypeFormatCommon.getText === "function")
-                input.value = elementTypeFormatCommon.getText(element, elementType);
+            input.value = elementTypeFormatCommon.checkFunctionExists("getText", elementType, element);
         },
         updateData: function (event) {
-            if (typeof elementTypeFormatCommon.updateText === "function")
-                elementTypeFormatCommon.updateText(menu.currentElement, menu.elementType, event.target.value);
+            elementTypeFormatCommon.checkFunctionExists("updateText", menu.elementType, menu.currentElement, event.target.value);
 
             keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "text"));
         }
@@ -232,12 +230,13 @@ const menuFormat = {
         },
         setInputContent: function (element, field, elementType) {
             const input = this.getInput(field);
-            if (typeof elementTypeFormatCommon.getImg === "function") {
-                imgValues = elementTypeFormatCommon.getImg(element, elementType);
-                input.src = imgValues[0];
-                input.setAttribute("img-id", imgValues[1]);
-                if (imgValues[2]) input.alt = imgValues[2];
-            }
+            const imgValues = elementTypeFormatCommon.checkFunctionExists("getImg", elementType, elementType, element, elementType);
+
+            if (!imgValues) return;
+
+            input.src = imgValues[0];
+            input.setAttribute("img-id", imgValues[1]);
+            input.alt = imgValues[2];
         },
         changeInputContent: function (src, uuid, alt) {
             const input = document.querySelector("#edit-menu #icon-button button img");
@@ -247,8 +246,7 @@ const menuFormat = {
             this.updateData(input);
         },
         updateData: function (input) {
-            if (typeof elementTypeFormatCommon.updateImg === "function")
-                elementTypeFormatCommon.updateImg(menu.currentElement, menu.elementType, input.src, input.getAttribute("img-id"), input.alt);
+            elementTypeFormatCommon.checkFunctionExists("updateImg", menu.elementType, menu.elementType, menu.currentElement, input.src, input.getAttribute("img-id"), input.alt);
 
             keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "img"));
         }
