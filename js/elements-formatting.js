@@ -17,7 +17,7 @@ const elementTypeFormatCommon = {
                 object.text = this.checkFunctionExists("getText", elementType, element);
                 break;
             case "img":
-                object.img_uuid = this.getImg(elementType, element);
+                object.img_uuid = this.getImg(elementType, element)[1];
                 break;
             default:
                 elementTypeFormat[elementType].getData(element, object, dataToUpdate);
