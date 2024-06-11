@@ -31,7 +31,7 @@ async function loadMoreIcons() {
             const numberToGenerate = getNumberToPut(document.getElementById("icons-list"), 100 + 10, 100 + 10);
             const numberOfChildsAlreadyExisting = document.querySelector("#icons-list .all-icons").childElementCount;
             const data = await getIconsData(iconsStore, numberOfChildsAlreadyExisting, numberToGenerate);
-            createIcons(data);
+            createSelectIcons(data);
             resolve();
         } catch (error) {
             console.error("ERROR Icons-1:\nAn error occured while loading more icons: ", error);
@@ -83,14 +83,14 @@ async function getIconsData(iconsStore, numberOfChildsAlreadyExisting, numberToG
     });
 }
 
-function createIcons(data) {
+function createSelectIcons(data) {
     putIcons = document.querySelector("#icons-list .all-icons");
     data.forEach(element => {
-        putIcons.appendChild(createIcon(element.link, element.uuid, element.alt, element.name));
+        putIcons.appendChild(createNewSelectIcon(element.link, element.uuid, element.alt, element.name));
     });
 }
 
-function createIcon(src, uuid, alt, name) {
+function createNewSelectIcon(src, uuid, alt, name) {
     const newDiv = document.createElement("div");
     newDiv.classList.add("icon");
     newDiv.setAttribute("img-id", uuid);
@@ -111,4 +111,8 @@ function setIcon(event) {
     img = event.currentTarget.querySelector("img");
     menuFormat.img.changeInputContent(img.src, event.currentTarget.getAttribute("img-id"), img.alt);
     setIconWindow(false);
+}
+
+function setCreateNewIcon() {
+
 }
