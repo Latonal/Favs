@@ -60,7 +60,7 @@ header nav {
     gap: 10px;
 }
 
-#edit-button {
+.header-button {
     background-color: transparent;
     border: none;
     display: flex;
@@ -68,20 +68,20 @@ header nav {
     height: 50px;
 }
 
-#edit-button svg {
+.header-button svg {
     width: 45px;
     margin: 0 2.5px;
 }
 
-#edit-button svg path {
+.header-button svg path {
     transition: 0.4s;
 }
 
-#edit-button:hover svg path {
+.header-button:hover svg path {
     fill: #1964d8;
 }
 
-#edit-button.active svg path {
+.header-button.active svg path {
     fill: #1964d8;
     stroke: #1964d8;
 }

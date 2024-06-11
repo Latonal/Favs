@@ -255,13 +255,15 @@ class Tab extends HTMLElement {
 customElements.define(FavsCustomElementsName.tags.TAB, Tab);
 
 async function handleTabsClick(event) {
-    if (!editing)
+    if (!getAppState())
         await tabsChangeCurrentPage(event);
-    else {
+    else if (editing) {
         // TODO: Open edit menu
 
         // const compStyle = getComputedStyle(prevElement);
         // prevOrder = compStyle.getPropertyValue("--value");
+    } else if (creating) {
+
     }
 }
 
@@ -416,13 +418,15 @@ function setMenuGroup(event) {
 }
 
 function handleGroupClick(event) {
+    event.stopPropagation();
     if (editing) {
-        event.stopPropagation();
         openEditMenu(event.currentTarget);
         // TODO: Open edit menu
 
         // const compStyle = getComputedStyle(prevElement);
         // prevOrder = compStyle.getPropertyValue("--value");
+    } else if (creating) {
+        console.log("creating new sticker in group");
     }
 }
 
@@ -572,20 +576,22 @@ function setMenuSticker(event) {
 }
 
 function handleStickerClick(event) {
-    if (!editing) {
+    event.stopPropagation();
+    if (!getAppState()) {
         const href = event.currentTarget.getAttribute("href");
         const target = event.currentTarget.getAttribute("target");
 
         if (href) {
             window.open(href, target || '_self');
         }
-    } else {
-        event.stopPropagation();
+    } else if (editing) {
         openEditMenu(event.currentTarget);
         // TODO: Open edit menu
 
         // const compStyle = getComputedStyle(prevElement);
         // prevOrder = compStyle.getPropertyValue("--value");
+    } else if (creating) {
+        createNewElement(event, FavsCustomElementsName.tags.STICKER, event.currentTarget);
     }
 }
 
@@ -643,6 +649,30 @@ function checkOldParentIfEmpty() {
         keepTrackOfChanges(new ElementLog(currentDraggedElementData.previousParentId, Status.UPDATE, "setAsGroup"));
 }
 //#endregion Sticker
+
+function createNewElement(event, newElement, elementBefore = null) {
+    try {
+        newElem = document.createElement(newElement);
+        newElem.id = ++highestElementId;
+
+        elementTypeFormat[getElementObjectType(event.currentTarget, event.currentTarget.parent)].setData(newElem, new Object({ text: "New sticker!" })); 
+        //TODO: no text for groups
+
+        if (elementBefore)
+            elementBefore.after(newElem);
+        else
+            event.currentTarget.parent.prepend(newElem);
+        
+        keepTrackOfChanges(new ElementLog(newElem.id, Status.CREATE, "parent", "previous", "text"));
+        
+        if (newElem.nextElementSibling)
+            keepTrackOfChanges(new ElementLog(newElem.nextElementSibling.id, Status.UPDATE, "previous"));
+
+        updateStoreEntries(1);
+    } catch (error) {
+        console.error("ERROR Utility-9:\nAn error happened at the creation of a new element: ", error);
+    }
+}
 
 var currentDraggedElementData = new Object();
 

@@ -1,6 +1,22 @@
-var editing = false;
+let editing = false;
+let creating = false;
+
+/**
+ * @returns if there is an active state in the app (editing, creating...)
+ */
+function getAppState() {
+    return editing || creating;
+}
+
+function setAppState(stateToChange) {
+    if (stateToChange !== "editing" && editing) setEditing(false);
+    if (stateToChange !== "creating" && creating) setCreating(false);
+}
+
+// TODO: simplify setEditing, setCreating, etc.
 function setEditing(canEdit = null) {
-    if (typeof (canEdit) != "boolean") editing = !editing;
+    setAppState("editing");
+    if (typeof canEdit != "boolean") editing = !editing;
     else editing = canEdit;
 
     const editButton = document.getElementById("edit-button");
@@ -10,6 +26,18 @@ function setEditing(canEdit = null) {
         editButton.classList.remove("active");
 
     setEditAttribute();
+}
+
+function setCreating(canCreate = null) {
+    setAppState("creating");
+    if (typeof canCreate != "boolean") creating = !creating;
+    else creating = canCreate;
+
+    const createButton = document.getElementById("create-button");
+    if (creating)
+        createButton.classList.add("active");
+    else
+        createButton.classList.remove("active");
 }
 
 function setEditAttribute() {
