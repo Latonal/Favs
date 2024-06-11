@@ -275,7 +275,9 @@ async function setImgUri() {
 
 }
 
-async function getImgUri(img_uuid, iconsStore) {
+async function getImgUri(img_uuid, iconsStore = null) {
+    if (!iconsStore) return;
+
     return new Promise((resolve, reject) => {
         try {
             const iconByUuid = iconsStore.get(img_uuid);
