@@ -173,7 +173,7 @@ async function getUpdatedElement(dbElement, ...newData) {
                 elementTypeFormatCommon.getData(element, elementType, dbElement, e);
             });
 
-            resolve(objectRemoveEmptyExcept(dbElement, "previous"));
+            resolve(objectRemoveEmptyExcept(dbElement, "previous", "parent"));
         } catch (error) {
             console.log("ERROR Database-5:\nAn unsuspected error happened: ", error);
             reject();

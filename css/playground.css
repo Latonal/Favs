@@ -38,6 +38,8 @@ my-album {
     border: 3px solid var(--album-border-color);
     padding: 3px;
     min-height: calc(100vh - var(--header-height) - var(--footer-height));
+    /* TODO: temp to allow to create new group */
+    padding-bottom: 10px;
 }
 
 my-group {

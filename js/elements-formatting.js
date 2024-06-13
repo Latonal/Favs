@@ -114,7 +114,7 @@ const elementTypeFormatCommon = {
     getImg: function (elementType, element) {
         const img = this.checkFunctionExists("findImg", elementType, element);
         if (!img) return;
-        
+
         const src = img.src;
         const id = parseInt(img.getAttribute("img-id"), 10);
         const alt = img.alt;
@@ -240,7 +240,14 @@ const elementTypeFormat = {
     },
     album: {
         getData: function (element, object, dataToUpdate) {
-
+            switch (dataToUpdate) {
+                case "setAsAlbum":
+                    object.parent = 0;
+                    break;
+                default:
+                    console.error("ERROR Playground-10tab:\n" + dataToUpdate + " is not yet implemented for saving.");
+                    break;
+            }
         },
         setData: function (element, dataElement) {
             elementTypeFormatCommon.setTheme(element, dataElement.theme);
@@ -260,7 +267,7 @@ const elementTypeFormat = {
                     object.isGroup = true;
                     break;
                 default:
-                    console.error("ERROR Playground-10a:\n" + dataToUpdate + " is not yet implemented for saving.");
+                    console.error("ERROR Playground-10group:\n" + dataToUpdate + " is not yet implemented for saving.");
                     break;
             }
         },
