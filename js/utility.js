@@ -263,7 +263,7 @@ async function handleTabsClick(event) {
         // const compStyle = getComputedStyle(prevElement);
         // prevOrder = compStyle.getPropertyValue("--value");
     } else if (creating) {
-
+        createNewElement(event, FavsCustomElementsName.tags.TAB, 1, "setAsAlbum");
     }
 }
 
@@ -342,6 +342,7 @@ class Album extends HTMLElement {
     constructor() {
         super();
         this.addEventListener('contextmenu', setMenuAlbum);
+        this.addEventListener('click', handleAlbumClick);
         this.addEventListener('dragover', handleAlbumDragOver);
         this.addEventListener('drop', handleAlbumDrop);
     }
@@ -354,7 +355,13 @@ function setMenuAlbum(event) {
 
     // create new group
 
-    console.log("set menu album");
+    console.log("custom menu album");
+}
+
+function handleAlbumClick(event) {
+    if (creating) {
+        createNewElement(event, FavsCustomElementsName.tags.GROUP, 5, "setAsGroup");
+    }
 }
 
 function handleAlbumDragOver(event) {
@@ -426,7 +433,7 @@ function handleGroupClick(event) {
         // const compStyle = getComputedStyle(prevElement);
         // prevOrder = compStyle.getPropertyValue("--value");
     } else if (creating) {
-        console.log("creating new sticker in group");
+        createNewElement(event, FavsCustomElementsName.tags.STICKER, 5, "text");
     }
 }
 
@@ -591,7 +598,7 @@ function handleStickerClick(event) {
         // const compStyle = getComputedStyle(prevElement);
         // prevOrder = compStyle.getPropertyValue("--value");
     } else if (creating) {
-        createNewElement(event, FavsCustomElementsName.tags.STICKER, event.currentTarget);
+        createNewElement(event, FavsCustomElementsName.tags.STICKER, 1, "text");
     }
 }
 
@@ -650,25 +657,51 @@ function checkOldParentIfEmpty() {
 }
 //#endregion Sticker
 
-function createNewElement(event, newElement, elementBefore = null) {
+/**
+ * 
+ * @param {Event} event 
+ * @param {FavsCustomElementsName.tags} newElement 
+ * @param {Number} howToInsert 1 = after (in parent), 2 = before (in parent), 3 = after (parent), before (parent), 5 = in
+ * @param {Boolean} isAlbum 
+ * @param  {...string} changesToSave 
+ */
+function createNewElement(event, newElement, howToInsert = 1, ...changesToSave) {
     try {
-        newElem = document.createElement(newElement);
+        const newElem = document.createElement(newElement);
         newElem.id = ++highestElementId;
 
-        elementTypeFormat[getElementObjectType(event.currentTarget, event.currentTarget.parent)].setData(newElem, new Object({ text: "New sticker!" })); 
-        //TODO: no text for groups
+        const elementType = getElementObjectType(event.currentTarget, event.currentTarget.parent);
+        if (howToInsert !== 5) {
+            console.log(elementType);
+            if (elementType === "album")
+                elementTypeFormat["tab"].setData(newElem, new Object({ uuid: newElem.id }));
+            else
+                elementTypeFormat[elementType].setData(newElem, new Object({ text: "New sticker!" }));
+        } else {
+            elementTypeFormat[getElementObjectType(newElem, event.currentTarget)].setData(newElem, new Object({ text: "New Sticker!" }));
+        }
 
-        if (elementBefore)
-            elementBefore.after(newElem);
-        else
-            event.currentTarget.parent.prepend(newElem);
-        
-        keepTrackOfChanges(new ElementLog(newElem.id, Status.CREATE, "parent", "previous", "text"));
-        
+        // TODO: Refactoring
+        if (howToInsert === 1)
+            event.currentTarget.after(newElem);
+        else if (howToInsert === 2)
+            event.currentTarget.before(newElem);
+        else if (howToInsert === 3)
+            event.currentTarget.parent.after(newElem);
+        else if (howToInsert === 4)
+            event.currentTarget.parent.before(newElem);
+        else if (howToInsert === 5)
+            event.currentTarget.append(newElem);
+
+        keepTrackOfChanges(new ElementLog(newElem.id, Status.CREATE, "parent", "previous", ...changesToSave));
+
         if (newElem.nextElementSibling)
             keepTrackOfChanges(new ElementLog(newElem.nextElementSibling.id, Status.UPDATE, "previous"));
 
         updateStoreEntries(1);
+
+        if (howToInsert !== 5 && elementType === "album")
+            newElem.removeAttribute("id");
     } catch (error) {
         console.error("ERROR Utility-9:\nAn error happened at the creation of a new element: ", error);
     }
