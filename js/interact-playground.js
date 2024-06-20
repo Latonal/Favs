@@ -1,4 +1,5 @@
 let editing = false;
+let deleting = false;
 let creating = false;
 
 /**
@@ -10,6 +11,7 @@ function getAppState() {
 
 function setAppState(stateToChange) {
     if (stateToChange !== "editing" && editing) setEditing(false);
+    if (stateToChange !== "deleting" && deleting) setDeleting(false);
     if (stateToChange !== "creating" && creating) setCreating(false);
 }
 
@@ -25,7 +27,22 @@ function setEditing(canEdit = null) {
     else
         editButton.classList.remove("active");
 
-    setEditAttribute();
+    setAppAttribute("edit", editing);
+    closeEditMenu();
+}
+
+function setDeleting(canDelete = null) {
+    setAppState("deleting");
+    if (typeof canDelete != "boolean") deleting = !deleting;
+    else deleting = canDelete;
+
+    const editButton = document.getElementById("delete-button");
+    if (deleting)
+        editButton.classList.add("active");
+    else
+        editButton.classList.remove("active");
+
+    setAppAttribute("delete", deleting);
 }
 
 function setCreating(canCreate = null) {
@@ -38,12 +55,16 @@ function setCreating(canCreate = null) {
         createButton.classList.add("active");
     else
         createButton.classList.remove("active");
+
+    setAppAttribute("create", creating);
 }
 
-function setEditAttribute() {
+function setAppAttribute(attr, val) {
     const app = document.getElementById("app");
-    app.setAttribute("edit", editing);
-    closeEditMenu();
+    if (val)
+        app.setAttribute(attr, val);
+    else
+        app.removeAttribute(attr);
 }
 
 // #region edit menu

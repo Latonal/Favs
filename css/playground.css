@@ -155,6 +155,16 @@ my-album my-group>my-sticker[data-type="icon"] {
     user-select: none;
 }
 
+#app[create=true] my-sticker,
+#app[create=true] my-group {
+    cursor: copy;
+}
+
+#app[delete=true] my-sticker,
+#app[delete=true] my-group {
+    cursor: alias;
+}
+
 /* DEBUGGING */
 my-group my-sticker:last-child {
     background-color: darkblue;
