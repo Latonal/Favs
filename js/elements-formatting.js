@@ -206,7 +206,7 @@ const elementTypeFormatDefault = {
 }
 
 const elementTypeFormat = {
-    //#endregion Stickers
+    //#region Stickers
     default: {
         ...elementTypeFormatDefault,
     },
@@ -216,10 +216,12 @@ const elementTypeFormat = {
     icon: {
         ...elementTypeFormatDefault,
     },
-    //#region Stickers
+    //#endregion Stickers
     //#region Not stickers    
     tab: {
-        getData: function (element, object, dataToUpdate) { },
+        getData: function (element, object, dataToUpdate) {
+            /* use through getData of album */
+        },
         setData: function (element, dataElement) {
             this.setAlbumId(element, dataElement.uuid);
             this.setTabContent(element, dataElement);
