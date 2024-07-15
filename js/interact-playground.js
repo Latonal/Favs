@@ -67,7 +67,7 @@ function setAppAttribute(attr, val) {
         app.removeAttribute(attr);
 }
 
-// #region edit menu
+// #region menu class
 function openEditMenu(element) {
     const elementType = elementTypeFormatCommon.getElementType(element, false, true);
     menu.setMenu(element, elementType);
@@ -77,38 +77,19 @@ function closeEditMenu() {
     menu.closeMenu();
 }
 
-class MenuItemsToDisplay {
-    constructor(...itemsName) {
-        this.items = {
-            close: true,
-            text: false,
-            img: false,
-            customcss: false,
-            type: false,
-            save: true,
-        };
-        itemsName.forEach(element => {
-            if (this.items.hasOwnProperty(element))
-                this.items[element] = true;
-            else
-                console.warn("WARNING Interact-Playground-1:\nThe menu to display seems to not be supported: " + element);
-        });
-    }
-}
-
 class Menu {
-    constructor(element, itemPool) {
-        this.menu = element;
+    constructor(callbackCommon, menu, itemPool) {
+        this.callbackCommon = callbackCommon;
+        this.menu = menu;
         this.itemPool = itemPool;
     }
 
     elementType;
     elementId;
-    currentElement;
 
     setMenu(element, newElementType) {
         this.setFields(newElementType);
-        this.setInputs(element);
+        this.moreSetMenu(element);
 
         this.openMenu();
     }
@@ -119,12 +100,12 @@ class Menu {
             const itemsToDisplay = elementTypeFormatCommon.setMenu(newElementType).items;
             let lastElement;
             for (const [key, value] of Object.entries(itemsToDisplay)) {
-                let field = menuFormatCommon.checkFieldAlreadyInMenu(key, this.menu)
+                let field = this.callbackCommon.checkFieldAlreadyInMenu(key, this.menu)
                 if (isTruthy(field) !== value) {
                     if (field)
-                        menuFormatCommon.poolField(field, this.itemPool);
+                        this.callbackCommon.poolField(field, this.itemPool);
                     else
-                        field = menuFormatCommon.createOrMoveField(key, field, lastElement, this.menu, this.itemPool);
+                        field = this.callbackCommon.createOrMoveField(key, field, lastElement, this.menu, this.itemPool);
                 }
                 if (value) lastElement = field;
             }
@@ -133,20 +114,7 @@ class Menu {
         }
     }
 
-    setInputs(element) {
-        if (element.id !== this.elementId) {
-            this.menu.childNodes.forEach(field => {
-                const fieldType = field.getAttribute("data-field");
-                if (isTruthy(fieldType))
-                    if (typeof menuFormat[fieldType].setInputContent === "function")
-                        menuFormat[fieldType].setInputContent(element, field, this.elementType);
-            });
-
-            this.currentElement = element;
-            if (isTruthy(this.elementId)) this.saveChanges();
-            this.elementId = element.id;
-        }
-    }
+    moreSetMenu() { }
 
     openMenu() {
         this.menu.classList.remove("hide");
@@ -161,7 +129,60 @@ class Menu {
         updateStoreEntries(1);
     }
 }
-const menu = new Menu(document.getElementById("edit-menu"), document.getElementById("edit-menu-pool"));
+
+class ItemsList {
+    constructor(items, ...itemsName) {
+        this.items = structuredClone(items);
+        itemsName.forEach(element => {
+            if (this.items.hasOwnProperty(element))
+                this.items[element] = true;
+            else
+                console.warn("WARNING Interact-Playground-4:\nThe menu option to display seems to not be supported: " + element);
+        });
+    }
+}
+// #endregion menu class
+
+// #region edit menu
+class EditMenu extends Menu {
+    constructor(element, itemPool) {
+        super(menuFormatCommon, element, itemPool);
+    }
+
+    moreSetMenu(element) {
+        this.setInputs(element);
+    }
+
+    setInputs(element) {
+        if (element.id !== this.elementId) {
+            this.menu.childNodes.forEach(field => {
+                const fieldType = field.getAttribute("data-field");
+                if (isTruthy(fieldType))
+                    if (typeof menuFormat[fieldType].setInputContent === "function")
+                        menuFormat[fieldType].setInputContent(element, field, this.elementType);
+            });
+
+            // this.currentElement = element;
+            if (isTruthy(this.elementId)) this.saveChanges();
+            this.elementId = element.id;
+        }
+    }
+}
+
+var editItems = {
+    close: true,
+    text: false,
+    img: false,
+    customcss: false,
+    type: false,
+    save: true,
+};
+
+class MenuItemsToDisplay extends ItemsList {
+    constructor(...itemsName) {
+        super(editItems, ...itemsName);
+    }
+}
 
 const menuFormatCommon = {
     checkFieldAlreadyInMenu: function (item, menu) {
@@ -385,12 +406,40 @@ const menuFormat = {
     //     updateData: function (event) { },
     // }
 }
+
+const menu = new EditMenu(document.getElementById("edit-menu"), document.getElementById("edit-menu-pool"));
 // #endregion edit menu
 
 // #region context menu
+class ElementsContextMenu extends Menu {
+    constructor(element, itemPool) {
+        super(contextMenuFormatCommon, element, itemPool);
+    }
+
+    moreSetMenu(element) {
+        // MUST SET THE POSITION OF THIS WINDOW RELATIVE TO THE MOUSE
+    }
+}
+
+var contextMenuItems = {
+    createNewStickers: false,
+    createNewGroup: false,
+}
+
+class ElementsContextMenuToDisplay extends ItemsList {
+    constructor(...itemsName) {
+        super(editItems, ...itemsName);
+    }
+}
 
 
+const contextMenuFormatCommon = {
 
+}
 
+const contextMenuFormat = {
 
+}
+
+const contextMenu = new ElementsContextMenu(document.getElementById("context-menu"), document.getElementById("context-menu-pool"));
 // #endregion context menu
