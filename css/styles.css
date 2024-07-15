@@ -187,11 +187,23 @@ footer>div>a {
     right: 0px;
     z-index: -1;
 }
-
 /* #endregion edit menu */
 
 /* #region context menu */
+#context-menu {
+    background-color: white;
+    position: absolute;
+    top: 0px;
+    z-index: 12;
+}
 
+#context-menu-pool {
+    background-color: white;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    z-index: -1;
+}
 
 
 
