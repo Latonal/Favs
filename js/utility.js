@@ -230,9 +230,9 @@ function isHoverCornerCalc(closest, positions, values, thresholdValue = 30, thre
 
 document.addEventListener('keyup', function (event) {
     if (event.key === "Escape") {
-        menu.closeMenu();
+        editMenu.closeMenu();
+        contextMenu.closeMenu();
         setIconWindow(false);
-        // close contextmenu
     }
 });
 //#endregion Document
@@ -350,6 +350,8 @@ class Album extends HTMLElement {
 customElements.define(FavsCustomElementsName.tags.ALBUM, Album);
 
 function setMenuAlbum(event) {
+    if (!getAppState()) return;
+
     event.preventDefault();
     event.stopPropagation();
 
@@ -412,6 +414,8 @@ class Group extends HTMLElement {
 customElements.define(FavsCustomElementsName.tags.GROUP, Group);
 
 function setMenuGroup(event) {
+    if (!getAppState()) return;
+
     event.preventDefault();
     event.stopPropagation();
 
@@ -420,6 +424,8 @@ function setMenuGroup(event) {
     // create group after
     // create sub-group (insert after)
     // create new sticker at end
+
+    contextMenu.setMenu(event, "group");
 
     console.log("custom menu group");
 }
@@ -572,12 +578,16 @@ class Sticker extends HTMLElement {
 customElements.define(FavsCustomElementsName.tags.STICKER, Sticker);
 
 function setMenuSticker(event) {
+    if (!getAppState()) return;
+
     event.preventDefault();
     event.stopPropagation();
 
     // edit sticker
     // create sticker before
     // create sticker after
+
+    contextMenu.setMenu(event, "sticker");
 
     console.log("set menu sticker");
 }

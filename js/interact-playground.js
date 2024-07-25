@@ -70,22 +70,23 @@ function setAppAttribute(attr, val) {
 // #region menu class
 function openEditMenu(element) {
     const elementType = elementTypeFormatCommon.getElementType(element, false, true);
-    menu.setMenu(element, elementType);
+    editMenu.setMenu(element, elementType);
 }
 
 function closeEditMenu() {
-    menu.closeMenu();
+    editMenu.closeMenu();
 }
 
 class Menu {
-    constructor(callbackCommon, menu, itemPool) {
-        this.callbackCommon = callbackCommon;
+    constructor(menuFormatting, menu, itemPool) {
+        this.menuFormatting = menuFormatting;
         this.menu = menu;
         this.itemPool = itemPool;
     }
 
     elementType;
     elementId;
+    currentElement;
 
     setMenu(element, newElementType) {
         this.setFields(newElementType);
@@ -97,15 +98,15 @@ class Menu {
     setFields(newElementType) {
         if (newElementType !== this.elementType) {
             if (!newElementType) return;
-            const itemsToDisplay = elementTypeFormatCommon.setMenu(newElementType).items;
+            const itemsToDisplay = this.getItems(newElementType);
             let lastElement;
             for (const [key, value] of Object.entries(itemsToDisplay)) {
-                let field = this.callbackCommon.checkFieldAlreadyInMenu(key, this.menu)
+                let field = this.checkFieldAlreadyInMenu(key, this.menu)
                 if (isTruthy(field) !== value) {
                     if (field)
-                        this.callbackCommon.poolField(field, this.itemPool);
+                        this.poolField(field, this.itemPool);
                     else
-                        field = this.callbackCommon.createOrMoveField(key, field, lastElement, this.menu, this.itemPool);
+                        field = this.createOrMoveField(key, field, lastElement);
                 }
                 if (value) lastElement = field;
             }
@@ -114,7 +115,45 @@ class Menu {
         }
     }
 
+    checkFieldAlreadyInMenu(item, menu) {
+        const element = menu.querySelector("[data-field='" + item + "']");
+        if (element)
+            return element;
+
+        return false;
+    }
+
+    createOrMoveField(item, field, lastElement) {
+        if (!field)
+            field = this.checkFieldAlreadyInMenu(item, this.itemPool);
+        if (!field) {
+            if (typeof this.menuFormatting[item].createField === "function")
+                field = this.menuFormatting[item].createField();
+            else {
+                console.warn("WARNING Interact-Playground-2:\nThe following type of field seems to not be handled for creation: " + item);
+                return;
+            }
+        }
+
+        if (!isTruthy(field)) return;
+
+        if (isTruthy(lastElement))
+            lastElement.after(field);
+        else
+            this.menu.prepend(field);
+
+        return field;
+    }
+
+    poolField(element) {
+        this.itemPool.append(element);
+    }
+
     moreSetMenu() { }
+
+    getItems(elementType) {
+        return elementTypeFormatCommon.setMenu(elementType).items;
+    }
 
     openMenu() {
         this.menu.classList.remove("hide");
@@ -145,8 +184,8 @@ class ItemsList {
 
 // #region edit menu
 class EditMenu extends Menu {
-    constructor(element, itemPool) {
-        super(menuFormatCommon, element, itemPool);
+    constructor(menu, itemPool) {
+        super(menuFormat, menu, itemPool);
     }
 
     moreSetMenu(element) {
@@ -162,7 +201,7 @@ class EditMenu extends Menu {
                         menuFormat[fieldType].setInputContent(element, field, this.elementType);
             });
 
-            // this.currentElement = element;
+            this.currentElement = element;
             if (isTruthy(this.elementId)) this.saveChanges();
             this.elementId = element.id;
         }
@@ -184,41 +223,6 @@ class MenuItemsToDisplay extends ItemsList {
     }
 }
 
-const menuFormatCommon = {
-    checkFieldAlreadyInMenu: function (item, menu) {
-        // return element instead of true or false
-        const element = menu.querySelector("[data-field='" + item + "']");
-        if (element)
-            return element;
-
-        return false;
-    },
-    createOrMoveField: function (item, field, lastElement, menu, itemPool) {
-        if (!field)
-            field = this.checkFieldAlreadyInMenu(item, itemPool);
-        if (!field) {
-            if (typeof menuFormat[item].createField === "function")
-                field = menuFormat[item].createField();
-            else {
-                console.warn("WARNING Interact-Playground-2:\nThe following type of field seems to not be handled for creation: " + item);
-                return;
-            }
-        }
-
-        if (!isTruthy(field)) return;
-
-        if (isTruthy(lastElement))
-            lastElement.after(field);
-        else
-            menu.prepend(field);
-
-        return field;
-    },
-    poolField: function (element, itemPool) {
-        itemPool.append(element);
-    }
-}
-
 const menuFormat = {
     close: {
         createField: function () {
@@ -233,7 +237,7 @@ const menuFormat = {
         getInput: function (field) { },
         setInputContent: function (element, field, elementType) { },
         updateData: function (event) {
-            menu.closeMenu();
+            editMenu.closeMenu();
         },
     },
     save: {
@@ -249,7 +253,7 @@ const menuFormat = {
         getInput: function (field) { },
         setInputContent: function (element, field, elementType) { },
         updateData: function (event) {
-            menu.saveChanges();
+            editMenu.saveChanges();
         },
     },
     text: {
@@ -273,9 +277,9 @@ const menuFormat = {
             input.value = elementTypeFormatCommon.checkFunctionExists("getText", elementType, element);
         },
         updateData: function (event) {
-            elementTypeFormatCommon.checkFunctionExists("updateText", menu.elementType, menu.currentElement, event.target.value);
+            elementTypeFormatCommon.checkFunctionExists("updateText", editMenu.elementType, editMenu.currentElement, event.target.value);
 
-            keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "text"));
+            keepTrackOfChanges(new ElementLog(editMenu.elementId, Status.UPDATE, "text"));
         }
     },
     img: {
@@ -316,9 +320,9 @@ const menuFormat = {
             this.updateData(input);
         },
         updateData: function (input) {
-            elementTypeFormatCommon.checkFunctionExists("updateImg", menu.elementType, menu.elementType, menu.currentElement, input.src, input.getAttribute("img-id"), input.alt);
+            elementTypeFormatCommon.checkFunctionExists("updateImg", editMenu.elementType, editMenu.elementType, editMenu.currentElement, input.src, input.getAttribute("img-id"), input.alt);
 
-            keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "img"));
+            keepTrackOfChanges(new ElementLog(editMenu.elementId, Status.UPDATE, "img"));
         }
     },
     customcss: {
@@ -351,9 +355,9 @@ const menuFormat = {
         },
         updateData: function (event) {
             if (typeof elementTypeFormatCommon.updateCustomCss === "function")
-                elementTypeFormatCommon.updateCustomCss(menu.currentElement, event.target.value);
+                elementTypeFormatCommon.updateCustomCss(editMenu.currentElement, event.target.value);
 
-            keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "customcss"));
+            keepTrackOfChanges(new ElementLog(editMenu.elementId, Status.UPDATE, "customcss"));
         }
     },
     type: {
@@ -394,9 +398,9 @@ const menuFormat = {
         },
         updateData: function (event) {
             if (typeof elementTypeFormatCommon.setType === "function")
-                elementTypeFormatCommon.setType(menu.currentElement, event.target.value);
+                elementTypeFormatCommon.setType(editMenu.currentElement, event.target.value);
 
-            keepTrackOfChanges(new ElementLog(menu.elementId, Status.UPDATE, "type"));
+            keepTrackOfChanges(new ElementLog(editMenu.elementId, Status.UPDATE, "type"));
         },
     },
     // schema: {
@@ -407,38 +411,79 @@ const menuFormat = {
     // }
 }
 
-const menu = new EditMenu(document.getElementById("edit-menu"), document.getElementById("edit-menu-pool"));
+const editMenu = new EditMenu(document.getElementById("edit-menu"), document.getElementById("edit-menu-pool"));
 // #endregion edit menu
 
 // #region context menu
 class ElementsContextMenu extends Menu {
-    constructor(element, itemPool) {
-        super(contextMenuFormatCommon, element, itemPool);
+    constructor(menu, itemPool) {
+        super(contextMenuFormat, menu, itemPool);
     }
 
     moreSetMenu(element) {
-        // MUST SET THE POSITION OF THIS WINDOW RELATIVE TO THE MOUSE
+        this.currentElement = element.currentTarget;
+        this.elementId = element.currentTarget.id;
+        positionElementRelativeToMouse(element, this.menu);
+    }
+
+    getItems(elementType) {
+        return elementTypeFormatCommon.setContextMenu(elementType).items;
     }
 }
 
 var contextMenuItems = {
-    createNewStickers: false,
+    editSticker: false,
+    copySticker: false,
+    createNewSticker: false,
+    createNewStickerBefore: false,
+    createNewStickerAfter: false,
+    editGroup: false,
     createNewGroup: false,
+    createNewGroupBefore: false,
+    createNewGroupAfter: false,
 }
 
 class ElementsContextMenuToDisplay extends ItemsList {
     constructor(...itemsName) {
-        super(editItems, ...itemsName);
+        super(contextMenuItems, ...itemsName);
     }
 }
 
-
-const contextMenuFormatCommon = {
-
+const contextMenuFormat = {
+    editSticker: {
+        createField: function () {
+            newButton = createContextMenuElement("edit sticker");
+            newButton.addEventListener("click", this.onTrigger);
+            return newButton;
+        },
+        onTrigger: function () {
+            const elementType = elementTypeFormatCommon.getElementType(document.getElementById(contextMenu.elementId), false, true);
+            editMenu.setMenu(contextMenu.currentElement, elementType);
+        }
+    },
+    copySticker: {},
+    createNewSticker: {},
+    createNewStickerBefore: {},
+    createNewStickerAfter: {},
+    editGroup: {},
+    createNewGroup: {},
+    createNewGroupBefore: {},
+    createNewGroupAfter: {},
+    // schema: {
+    //     createField: function () { },
+    //     getInput: function (field) { },
+    //     setInputContent: function (element, field, elementType) { },
+    //     updateData: function (event) { },
+    // }
 }
 
-const contextMenuFormat = {
+function createContextMenuElement(title, ...imgs) {
+    const newButton = document.createElement("button");
+    const text = document.createElement("p");
+    text.innerText = text;
 
+    newButton.append("text");
+    return newButton;
 }
 
 const contextMenu = new ElementsContextMenu(document.getElementById("context-menu"), document.getElementById("context-menu-pool"));

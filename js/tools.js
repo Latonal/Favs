@@ -61,89 +61,41 @@ function getMessageEncoding(str) {
     return encoder.encode(str);
 }
 
-function encryptMessage(str) {
-    const encoded = getMessageEncoding(str);
-    return window.crypto.subtle.encrypt(
-        { name: "AES-GCM" },
-        localStorageData.key,
-        encoded,
-    );
+function getPosition(e) {
+    var posx = 0;
+    var posy = 0;
+
+    if (e.pageX || e.pageY) {
+        posx = e.pageX;
+        posy = e.pageY;
+    } else if (e.clientX || e.clientY) {
+        posx = e.clienX + document.body.scrollLeft + document.documentElement.scrollLeft;
+        posy = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    }
+
+    return { x: posx, y: posy };
 }
 
-function decryptMessage(str) {
-    return window.crypto.subtle.decrypt(
-        { name: "AES-GCM" },
-        localStorageData.key,
-        str,
-    );
-}
+function positionElementRelativeToMouse(elementMousePosition, elementToSetPosition) {
+    let clickCoords = getPosition(elementMousePosition);
+    let clickCoordsX = clickCoords.x;
+    let clickCoordsY = clickCoords.y;
 
-const cssVariablePrefix = "--";
-/**
- * Dissociate variables values from constants values in css
- * @param {HTMLElement} str
- */
-function dissociateCss(str) {
-    if (!isTruthy(str)) return;
-    const rules = str.split(';');
+    let menuWidth = elementToSetPosition.offsetWidth + 4;
+    let menuHeight = elementToSetPosition.offsetHeight + 4;
 
-    const values = {};
+    let windowWidth = window.innerWidth;
+    let windowHeight = window.innerHeight;
 
-    rules.forEach(rule => {
-        if (!isTruthy(rule)) return;
+    if (windowWidth - clickCoordsX < menuWidth) {
+        elementToSetPosition.style.left = windowWidth - menuWidth + "px";
+    } else {
+        elementToSetPosition.style.left = clickCoordsX + "px";
+    }
 
-        let [property, value] = rule.split(":");
-        property = property.trim();
-        value = value.trim();
-
-        if (property.startsWith('--')) {
-            property = property.replace("--", "");
-            values[property] = value;
-        } else {
-            val = property + ":" + value + ";";
-            if (isTruthy(values["customcss"])) values["customcss"] += val;
-            else values["customcss"] = val;
-        }
-    });
-
-    return values;
-}
-
-/**
- * Return a css string as an object
- * @param {String} str 
- */
-function cssStringAsObj(str) {
-    if (!isTruthy(str)) return;
-    const rules = str.split(';');
-
-    const values = [];
-
-    rules.forEach(rule => {
-        if (!isTruthy(rule)) return;
-        let [property, value] = rule.split(":");
-
-        values.push({ [property]: value });
-    });
-
-    return values;
-}
-
-/**
- * Associate css rules to fit in the style attribute
- * @param  {...any} args 
- * @returns 
- */
-function associateCss(...args) {
-    args = cleanArrayOfObjects(args);
-    if (!isTruthy(args)) return;
-    var css = "";
-    args.forEach(element => {
-        if (typeof (element) === "object") {
-            let property = Object.getOwnPropertyNames(element);
-            if (property == "customcss") css += element[property];
-            else css += "--" + property + ":" + element[property] + ";";
-        }
-    });
-    return css;
+    if (windowHeight - clickCoordsY < menuHeight) {
+        elementToSetPosition.style.top = windowHeight - menuHeight + "px";
+    } else {
+        elementToSetPosition.style.top = clickCoordsY + "px";
+    }
 }

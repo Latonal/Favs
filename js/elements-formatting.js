@@ -46,6 +46,12 @@ const elementTypeFormatCommon = {
 
         return new MenuItemsToDisplay();
     },
+    setContextMenu: function (elementType) {
+        if (typeof elementTypeFormat[elementType].setContextMenu === "function")
+            return elementTypeFormat[elementType].setContextMenu();
+
+        // return new ElementsContextMenuToDisplay();
+    },
     getTheme: function (element) { },
     setTheme: function (element, theme) {
         if (theme) element.setAttribute("data-theme", theme);
@@ -62,7 +68,7 @@ const elementTypeFormatCommon = {
     },
     //#endregion customcss
     //#region element type
-    getElementType: function (element, byId = false) {
+    getElementType: function (element, byId = false, throughParent = false) {
         const tagName = element.tagName.toLowerCase();
 
         switch (tagName) {
@@ -72,7 +78,7 @@ const elementTypeFormatCommon = {
             case FavsCustomElementsName.tags.GROUP:
                 return 'group';
             case FavsCustomElementsName.tags.STICKER:
-                return this.getType(element, byId) || 'default';
+                return this.getType(element, byId, throughParent) || 'default';
             default:
                 return 'default';
         }
@@ -132,17 +138,6 @@ const elementTypeFormatCommon = {
         img.alt = alt;
     },
     //#endregion img
-
-    //#region others
-    encrypt: function (element) {
-        // return encryptMessage(element);
-        return element;
-    },
-    decrypt: function (element) {
-        // return decryptMessage(element);
-        return element;
-    },
-    //#endregion others
 }
 
 const elementTypeFormatDefault = {
@@ -180,7 +175,7 @@ const elementTypeFormatDefault = {
     setText: function (text) {
         // if (!text) return null;
         const newP = document.createElement("p");
-        newP.innerText = elementTypeFormatCommon.decrypt(text);
+        newP.innerText = text;
         return newP;
     },
 
@@ -215,6 +210,12 @@ const elementTypeFormat = {
     },
     icon: {
         ...elementTypeFormatDefault,
+    },
+
+    sticker: {
+        setContextMenu: function() {
+            return new ElementsContextMenuToDisplay("editSticker", "copySticker", "createNewStickerBefore", "createNewStickerAfter");
+        }
     },
     //#endregion Stickers
     //#region Not stickers    
@@ -281,6 +282,9 @@ const elementTypeFormat = {
         setMenu: function () {
             return new MenuItemsToDisplay("customcss", "type");
         },
+        setContextMenu: function () {
+            return new ElementsContextMenuToDisplay("createNewSticker", "editGroup", "createNewGroupBefore", "createNewGroupAfter");
+        }
     }
-    //#endregion Not stickers    
+    //#endregion Not stickers
 }
