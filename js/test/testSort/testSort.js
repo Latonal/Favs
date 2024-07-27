@@ -3,38 +3,47 @@ async function testSort() {
 
     return new Promise(async (resolve, reject) => {
         try {
+            console.group("%cTests related to the sort of elements:", test_title);
             const transactionsRead = db.transaction(StoreName.ELEMENTS, "readonly");
             const elementsStore = transactionsRead.objectStore(StoreName.ELEMENTS);
 
             const data = await getElementsData(elementsStore, 0);
             const dataResult = orderObjectsByParent(data);
             
-            testSortOutput(dataResult, "Test sort");
+            testSortOutput(dataResult);
+            console.groupEnd();
             
             resolve();
         } catch (error) {
-            console.error("ERROR Test Sort:\nAn error occured while debugging the sort of the playground: ", error)
-            reject();
+            reject(error);
         }
     });
 }
 
-function testSortOutput(arr, text) {
-    let output;
+function testSortOutput(arr) {
+    let outputParentCondition;
+    let outputSiblingCondition;
     arr.forEach(e => {
-        let currentOutput;
-        currentOutput = appendStringConsole(currentOutput, testSortCheckParentCondition(arr, e))
-        currentOutput = appendStringConsole(currentOutput, testSortCheckSiblingCondition(arr, e))
-
-        if (currentOutput) {
-            output = appendStringConsole(output, currentOutput)
-        }
+        outputParentCondition = appendStringConsole(outputParentCondition, testSortCheckParentCondition(arr, e));
+        outputSiblingCondition = appendStringConsole(outputSiblingCondition, testSortCheckSiblingCondition(arr, e));
     });
 
-    if (output) {
-        console.log("%cERROR with " + text + ":\n" + output, "color:#e68181;");
+    let err;
+    if (outputParentCondition) {
+        err = appendStringConsole(err, "\n- Test sort could not fulfill the parent condition requirement: " + outputParentCondition);
     } else {
-        console.log("%c" + text + " passed the tests", "color:green;");
+        console.log("%c- Test sort fulfilled the parent condition requirement", test_success_color);
+    }
+    if (outputSiblingCondition) {
+        err = appendStringConsole(err, "\n- Test sort could not fulfill the sibling condition requirement: " + outputSiblingCondition);
+    } else {
+        console.log("%c- Test sort fulfilled the sibling condition requirement", test_success_color);
+    }
+    
+    if (err) {
+        throw new Error(err);
+    } else {
+        console.log("%cTest sort passed the tests", test_success_color);
     }
 }
 
@@ -47,6 +56,7 @@ function testSortCheckParentCondition(arr, currentElement) {
     if (indexParent > currentIndex) {
         return "Uuid (" + currentElement.uuid + ") appear before its parent (" + currentElement.parent + ")\n";
     }
+
     return;
 }
 

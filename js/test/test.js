@@ -1,8 +1,16 @@
-function test() {
-    start = performance.now();
-    testSort();
-    end = performance.now();
-    console.log("Tests executed in", end - start ,"ms");
+const test_success_color = "color:green;";
+const test_title = "font-weight: bold;";
+
+async function test() {
+    const start = performance.now();
+    try {
+        await testSort();
+        testEditMenu();
+    } catch (error) {
+        console.error(error);
+        console.groupEnd();
+    }
+    console.log("Tests executed in", performance.now() - start ,"ms");
 }
 
 function appendStringConsole(originalString, stringToAdd) {
