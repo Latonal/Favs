@@ -24,40 +24,47 @@ function instantiateDB() {
 
     return new Promise((resolve, reject) => {
         openRequest.onupgradeneeded = function (event) {
-            const db = openRequest.result;
-
-            if (event.oldVersion < 1) { // Initialize db
-                const elementsStore = db.createObjectStore("elements", { keyPath: "uuid" })
-                elementsStore.createIndex("by_uuid", "uuid", { unique: true });
-                elementsStore.createIndex("by_parent", "parent", { unique: false });
-                elementsStore.createIndex("by_previous", "previous", { unique: false });
-
-                const iconsStore = db.createObjectStore("icons", { keyPath: "uuid" });
-                iconsStore.createIndex("by_uuid", "uuid", { unique: true });
-                iconsStore.createIndex("by_name", "name", { unique: false });
-
-                generateDb(elementsStore, iconsStore);
-
-                StartTutorial();
+            try {
+                const db = openRequest.result;
+    
+                if (event.oldVersion < 1) { // Initialize db
+                    const elementsStore = db.createObjectStore("elements", { keyPath: "uuid" })
+                    elementsStore.createIndex("by_uuid", "uuid", { unique: true });
+                    elementsStore.createIndex("by_parent", "parent", { unique: false });
+                    elementsStore.createIndex("by_previous", "previous", { unique: false });
+    
+                    const iconsStore = db.createObjectStore("icons", { keyPath: "uuid" });
+                    iconsStore.createIndex("by_uuid", "uuid", { unique: true });
+                    iconsStore.createIndex("by_name", "name", { unique: false });
+    
+                    generateDb(elementsStore, iconsStore);
+    
+                    StartTutorial();
+                }
+            } catch (error) {
+                console.error("ERROR Database-9:\nAn error occured while upgrading the database:\n" + error);
             }
         };
         openRequest.onerror = function () {
             console.error("ERROR Database-2:\nAn error occured while opening the database: ", openRequest.error);
-            // reject("ERROR Database-2:\nAn error occured while opening the database: \n" + openRequest.error);
             reject(false);
         };
         openRequest.onsuccess = async function () {
-            const db = openRequest.result;
-
-            const transactionRead = db.transaction([StoreName.ELEMENTS, StoreName.ICONS], "readonly");
-            const elementsStore = transactionRead.objectStore(StoreName.ELEMENTS);
-            const iconsStore = transactionRead.objectStore(StoreName.ICONS);
-
-            highestElementId = await getStoreHighestId(elementsStore);
-            highestIconId = await getStoreHighestId(iconsStore);
-
-            db.close();
-            resolve(true);
+            try {
+                const db = openRequest.result;
+    
+                const transactionRead = db.transaction([StoreName.ELEMENTS, StoreName.ICONS], "readonly");
+                const elementsStore = transactionRead.objectStore(StoreName.ELEMENTS);
+                const iconsStore = transactionRead.objectStore(StoreName.ICONS);
+    
+                highestElementId = await getStoreHighestId(elementsStore);
+                highestIconId = await getStoreHighestId(iconsStore);
+    
+                db.close();
+                resolve(true);
+            } catch (error) {
+                console.error("ERROR Database-8:\nAn error occured after opening the database:\n" + error);
+            }
         };
     });
 }

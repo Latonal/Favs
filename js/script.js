@@ -21,7 +21,7 @@ async function Start() {
             })
         }
     } catch (error) {
-        console.error("ERROR Script-1:\nAn undetermined error occured: ", error);
+        console.error(error);
     }
     end = performance.now();
     console.log("App executed in", end - start ,"ms");
