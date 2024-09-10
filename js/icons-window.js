@@ -13,6 +13,7 @@ async function observeToGenerateNewIcons() {
 function setIconWindow(show = false) {
     const elem = document.getElementById("icons");
     show ? elem.classList.remove("hide") : elem.classList.add("hide");
+    if (!show) setIconInfoState();
 }
 
 function getNumberToPut(wrapper, widthOfChilds, heightOfChilds) {
@@ -21,16 +22,13 @@ function getNumberToPut(wrapper, widthOfChilds, heightOfChilds) {
 }
 
 async function loadMoreIcons() {
-    const db = await openDatabase();
-
     return new Promise(async (resolve, reject) => {
         try {
-            const transactionsRead = db.transaction(StoreName.ICONS, "readonly");
-            const iconsStore = transactionsRead.objectStore(StoreName.ICONS);
+            const stores = await getStoreData(StoreName.ICONS);
 
             const numberToGenerate = getNumberToPut(document.getElementById("icons-list"), 100 + 10, 100 + 10);
             const numberOfChildsAlreadyExisting = document.querySelector("#icons-list .all-icons").childElementCount;
-            const data = await getIconsData(iconsStore, numberOfChildsAlreadyExisting, numberToGenerate);
+            const data = await getIconsData(stores[0], numberOfChildsAlreadyExisting, numberToGenerate);
             createSelectIcons(data);
             resolve();
         } catch (error) {
@@ -104,6 +102,7 @@ function createNewSelectIcon(src, uuid, alt, name) {
         newDiv.appendChild(newP);
     }
     newDiv.addEventListener("click", setIcon);
+    newDiv.addEventListener("contextmenu", updateIcon);
     return newDiv;
 }
 
@@ -113,6 +112,76 @@ function setIcon(event) {
     setIconWindow(false);
 }
 
+async function updateIcon(event) {
+    console.log("update icon infos");
+    event.preventDefault();
+    event.stopPropagation();
+
+    setIconInfoState("edit");
+    // get infos of icon to put in inputs -> through database
+
+    const currentId = event.currentTarget.getAttribute("img-id");
+    // Check if new id is the id already in the inputs
+    const stores = await getStoreData(StoreName.ICONS);
+    
+    const currentIcon = stores[0].index("by_uuid").get(parseInt(currentId, 10));
+    currentIcon.onsuccess = async () => {
+        setIconInfo(currentIcon.result);
+    }
+}
+
+var iconLogTracking = new Array();
+
+function setIconInfoState(c) {
+    infos = document.getElementById("icons").querySelector(".icon-infos");
+    infos.classList.remove("edit");
+    if (!c) document.getElementById("icons").querySelector(".edit [data-info='uuid']").value = "";
+    if (c) infos.classList.add(c);
+}
+
+function setIconInfo(infosData) {
+    e = document.getElementById("icons").getElementsByClassName("edit")[0];
+    e.querySelector("[data-info='uuid']").value = infosData.uuid;
+    e.querySelector("[data-info='name']").value = infosData.name;
+    e.querySelector("[data-info='url']").value = infosData.link;
+    e.querySelector("[data-info='img']>img").setAttribute("src", infosData.link);
+}
+
 function setCreateNewIcon() {
+    // change the inner of .icon-infos
+}
+
+function iconInfosChanged(infoName) {
+    currentId = document.getElementById("icons").querySelector(".edit [data-info='uuid']").value;
+    keepTrackOfChanges(new ElementLog(currentId ? currentId : 0, Status.UPDATE, infoName), iconLogTracking);
+}
+
+function saveIconInfos() {
+    if (iconLogTracking[0].id == 0) {
+        newId = ++highestIconId;
+        document.getElementById("icons").querySelector(".edit [data-info='uuid']").value = newId;
+        iconLogTracking[0].id = newId;
+    }
+    updateStoreEntries(2);
+}
+
+const iconFormatting = {
+    getData: function (object, dataToUpdate) {
+        switch (dataToUpdate) {
+            case "name":
+                // object.parent = this.getParent(element);
+                object.name = this.getIconInfoWindow().querySelector("[data-info='name']").value;
+                break;
+            case "link":
+                object.link = this.getIconInfoWindow().querySelector("[data-info='url']").value;
+                break;
+            default:
+                console.warn("ERROR Icons-3:\n", dataToUpdate, " is not a correct command to update the data of the icon.");
+                break;
+        }
+    },
+    getIconInfoWindow: function() {
+        return document.getElementById("icons").getElementsByClassName("edit")[0];
+    },
 
 }

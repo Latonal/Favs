@@ -187,6 +187,7 @@ footer>div>a {
     right: 0px;
     z-index: -1;
 }
+
 /* #endregion edit menu */
 
 /* #region context menu */
@@ -211,7 +212,7 @@ footer>div>a {
 
 /* #endregion context menu */
 
-/* #region icons menu */
+/* #region icon infos */
 #icons {
     width: 90vw;
     height: 90vh;
@@ -227,10 +228,41 @@ footer>div>a {
 }
 
 #icons .icon-infos {
-    min-width: 200px;
+    width: 400px;
     border-right: 1px solid #1a161c;
+    padding: 20px;
 }
 
+#icons .icon-infos .edit {
+    display: none;
+    pointer-events: none;
+}
+
+#icons .icon-infos.edit .edit {
+    display: block;
+    pointer-events: initial;
+}
+
+#icons .icon-infos.edit .msg {
+    display: none;
+}
+
+#icons .icon-infos .edit [data-info="uuid"] {
+    pointer-events: none;
+}
+
+#icons .icon-infos .edit [data-info="img"] {
+    width: 250px;
+    height: 250px;
+    padding: 15px;
+    border: 3px solid white;
+    border-radius: 15px;
+    display: flex;
+}
+
+/* #endregion icon infos */
+
+/* #region icons list */
 #icons-list {
     display: flex;
     flex-direction: column;
@@ -255,7 +287,6 @@ footer>div>a {
 #icons-list .icon,
 #icon-button .icon {
     width: 100px;
-    height: 100px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -263,6 +294,24 @@ footer>div>a {
     padding: 10px;
     cursor: pointer;
     transition: var(--transition-time);
+    word-break: break-all;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#icons-list .icon {
+    min-height: 100px;
+    text-align: center;
+}
+
+#icon-button .icon {
+    height: 100px;
+}
+
+#icon-button .icon img {
+    width: 80px;
+    height: 80px;
 }
 
 #icons-list .icon {
@@ -293,8 +342,7 @@ footer>div>a {
     font-size: 21px;
 }
 
-
-/* #endregion icons menu */
+/* #endregion icons list */
 
 
 
