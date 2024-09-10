@@ -29,6 +29,8 @@ function setEditing(canEdit = null) {
 
     setAppAttribute("edit", editing);
     closeEditMenu();
+    setIconInfoState();
+    setIconWindow();
 }
 
 function setDeleting(canDelete = null) {

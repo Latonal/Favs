@@ -1,13 +1,11 @@
 async function testSort() {
-    const db = await openDatabase();
-
     return new Promise(async (resolve, reject) => {
         try {
             console.group("%cTests related to the sort of elements:", test_title);
-            const transactionsRead = db.transaction(StoreName.ELEMENTS, "readonly");
-            const elementsStore = transactionsRead.objectStore(StoreName.ELEMENTS);
 
-            const data = await getElementsData(elementsStore, 0);
+            const stores = await getStoreData(StoreName.ELEMENTS);
+
+            const data = await getElementsData(stores[0], 0);
             const dataResult = orderObjectsByParent(data);
             
             testSortOutput(dataResult);

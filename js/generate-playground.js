@@ -29,17 +29,12 @@ async function generatePlayground() {
 
 // #region Tabs
 async function generateTabs() {
-    const db = await openDatabase();
-
     return new Promise(async (resolve, reject) => {
         try {
-            const transactionsRead = db.transaction([StoreName.ELEMENTS, StoreName.ICONS], "readonly");
-            const elementsStore = transactionsRead.objectStore(StoreName.ELEMENTS);
-            const iconsStore = transactionsRead.objectStore(StoreName.ICONS);
+            const stores = await getStoreData(StoreName.ELEMENTS, StoreName.ICONS);
+            const data = orderObjectsByParent(await getTabsData(stores[0]));
 
-            const data = orderObjectsByParent(await getTabsData(elementsStore));
-
-            await createTabs(iconsStore, data);
+            await createTabs(stores[1], data);
 
             resolve();
         } catch (error) {
@@ -83,17 +78,13 @@ async function createTabs(iconsStore, data) {
 // #endregion Tabs
 
 async function generateAlbum(page = 0) {
-    const db = await openDatabase();
-
     return new Promise(async (resolve, reject) => {
         try {
-            const transactionsRead = db.transaction([StoreName.ELEMENTS, StoreName.ICONS], "readonly");
-            const elementsStore = transactionsRead.objectStore(StoreName.ELEMENTS);
-            const iconsStore = transactionsRead.objectStore(StoreName.ICONS);
+            const stores = await getStoreData(StoreName.ELEMENTS, StoreName.ICONS);
 
-            const data = orderObjectsByParent(await getElementsData(elementsStore, page), page);
+            const data = orderObjectsByParent(await getElementsData(stores[0], page), page);
 
-            await createElements(iconsStore, data, page);
+            await createElements(stores[1], data, page);
             resolve();
         } catch (error) {
             console.error("ERROR Playground-8:\nAn error occured while creating the playground: ", error)

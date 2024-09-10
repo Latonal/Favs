@@ -48,13 +48,29 @@
         </div>
         <div id="icons" class="hide">
             <div class="icon-infos">
-                <div>icon</div>
-                <div>url</div>
-                <div>filter</div>
-                <div>tag</div>
-                <div>
-                    <button>Save</button>
-                    <button>Cancel</button>
+                <div class="edit">
+                    <input type="number" data-info="uuid" hidden>
+                    <p>Name</p>
+                    <input type="text" data-info="name" onchange="iconInfosChanged('name');">
+                    <p>icon</p>
+                    <div data-info="img">
+                        <img src="" onchange="iconInfosChanged('name');">
+                    </div>
+                    <p>url</p>
+                    <input type="url" data-info="url" onchange="iconInfosChanged('link');">
+                    <!-- <div>filter</div> -->
+                    <!-- custom css filter, todo later -->
+                    <!-- <div>tag</div> -->
+                    <!-- tags, pending if todo -->
+                    <div>
+                        <button onclick="">Use icon</button>
+                        <button onclick="saveIconInfos();">Save</button>
+                        <button onclick="setIconInfoState();">Cancel</button>
+                        <!-- must close the edit menu, and remove current id -->
+                    </div>
+                </div>
+                <div class="msg">
+                    <p>Right click on an icon, or create a new one.</p>
                 </div>
             </div>
             <div class="icons-display">

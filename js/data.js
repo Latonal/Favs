@@ -6,16 +6,47 @@ var highestIconId = 0;
 
 function openDatabase() {
     return new Promise((resolve, reject) => {
-        const openRequest = indexedDB.open(DB_NAME, DB_VERSION);
+        try {
+            const openRequest = indexedDB.open(DB_NAME, DB_VERSION);
+    
+            openRequest.onerror = function () {
+                console.error("ERROR Database-1:\nAn error occured while opening the database: ", openRequest.error);
+                reject(false);
+            };
+    
+            openRequest.onsuccess = function () {
+                resolve(openRequest.result);
+            };
+        } catch (error) {
+            console.error("ERROR Database-11:\nCould not open the connection to the database : ", error)
+            reject();
+        }
+    });
+}
 
-        openRequest.onerror = function () {
-            console.error("ERROR Database-1:\nAn error occured while opening the database: ", openRequest.error);
-            reject(false);
-        };
+/**
+ * Return the object store(s)
+ * @param {...string} store name of the store(s) you want to open
+ * @returns object store(s)
+ */
+async function getStoreData(...store) {
+    if (!store) return new Error("Did not provide a store name.");
 
-        openRequest.onsuccess = function () {
-            resolve(openRequest.result);
-        };
+    const db = await openDatabase();
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            const transactionsRead = db.transaction(store, "readonly");
+            let result = new Array();
+            store.forEach(s => {
+                result.push(transactionsRead.objectStore(s));
+            });
+
+            resolve(result);
+        } catch (error) {
+            console.error("ERROR Database-10:\nAn error occured while opening the store(s) : ", error)
+            reject();
+        }
     });
 }
 
@@ -124,6 +155,7 @@ async function updateStoreEntries(storeId) {
             break;
         case 2:
             // TODO: update icons store
+            updateElementsInDb(StoreName.ICONS, iconLogTracking, getUpdatedIcons)
             break;
         default:
             console.error("ERROR Database-7:\nAttempting to update a store with an id that is not supported:", storeId);
@@ -182,7 +214,7 @@ async function getUpdatedElement(dbElement, ...newData) {
 
             resolve(objectRemoveEmptyExcept(dbElement, "previous", "parent"));
         } catch (error) {
-            console.log("ERROR Database-5:\nAn unsuspected error happened: ", error);
+            console.log("ERROR Database-5:\nAn unsuspected error happened while saving elements: ", error);
             reject();
         }
     });
@@ -190,4 +222,15 @@ async function getUpdatedElement(dbElement, ...newData) {
 
 async function getUpdatedIcons(dbElement, ...newData) {
     // TODO: update icons store
+    return new Promise(async (resolve, reject) => {
+        try {
+            newData.forEach(e => {
+                iconFormatting.getData(dbElement, e);
+            });
+            resolve(dbElement);
+        } catch (error) {
+            console.log("ERROR Database-12:\nAn unsuspected error happened while saving the icon: ", error);
+            reject();
+        }
+    });
 }

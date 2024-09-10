@@ -1,4 +1,4 @@
-const test_success_color = "color:green;";
+const test_success_color = "color: green;";
 const test_title = "font-weight: bold;";
 
 async function test() {

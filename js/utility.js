@@ -760,17 +760,17 @@ var elementLogTracking = new Array();
  * 
  * @param {ElementLog} obj 
  */
-function keepTrackOfChanges(obj) {
+function keepTrackOfChanges(obj, logCollection = elementLogTracking) {
     if (!(obj instanceof ElementLog)) {
         return console.error("ERROR Utility-8:\nAn object of an incorrect type has been passed down to the list of element to update in the database. Object is: ", obj);
     }
 
-    const elementChanged = elementLogTracking.find(({ id }) => id == obj.id);
+    const elementChanged = logCollection.find(({ id }) => id == obj.id);
     if (isTruthy(elementChanged)) { // update already existing element to save
         if (obj.status == Status.DELETE) {
             if (elementChanged.status == Status.CREATE) {
-                let index = elementLogTracking.indexOf(elementChanged);
-                elementLogTracking.splice(index, 1);
+                let index = logCollection.indexOf(elementChanged);
+                logCollection.splice(index, 1);
                 return;
             }
             // if is update or delete
@@ -785,7 +785,7 @@ function keepTrackOfChanges(obj) {
         elementChanged.propertiesName = [...new Set([...elementChanged.propertiesName, ...obj.propertiesName])];
     } else { // create new element to save
         if (obj.propertiesName.length > 0 || obj.status == Status.DELETE)
-            elementLogTracking.push(obj);
+            logCollection.push(obj);
     }
 }
 
@@ -796,9 +796,9 @@ function updatePendingChanges(elements) {
     });
 }
 
-function showElementLogTracking() {
+function showElementLogTracking(logCollection = elementLogTracking) {
     console.log("___________Element Log Tracking___________");
-    elementLogTracking.forEach(e => {
+    logCollection.forEach(e => {
         console.log(e);
     });
     console.log("___________End of Element Log Tracking___________");
