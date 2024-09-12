@@ -36,21 +36,6 @@ async function loadMoreIcons() {
             reject();
         }
     });
-
-
-    // putIcons = document.querySelector("#icons-list .all-icons");
-    // const number = getNumberToPut(document.getElementById("icons-list"), 100 + 10, 100 + 10);
-    // for (i = 0; i < number; i++) {
-    //     const newDiv = document.createElement("div");
-    //     newDiv.classList.add("icon");
-    //     const newImg = document.createElement("img");
-    //     newImg.alt = "icon " + i;
-    //     const newP = document.createElement("p");
-    //     newP.innerText = "icon " + i;
-    //     newDiv.appendChild(newImg);
-    //     newDiv.appendChild(newP);
-    //     putIcons.appendChild(newDiv);
-    // }
 }
 
 async function getIconsData(iconsStore, numberOfChildsAlreadyExisting, numberToGenerate = 20) {
@@ -91,10 +76,10 @@ function createSelectIcons(data) {
 function createNewSelectIcon(src, uuid, alt, name) {
     const newDiv = document.createElement("div");
     newDiv.classList.add("icon");
-    newDiv.setAttribute("img-id", uuid);
     const newImg = document.createElement("img");
     if (src) newImg.src = src;
     if (alt) newImg.alt = alt;
+    newImg.setAttribute("img-id", uuid);
     newDiv.appendChild(newImg);
     if (name) {
         const newP = document.createElement("p");
@@ -108,34 +93,36 @@ function createNewSelectIcon(src, uuid, alt, name) {
 
 function setIcon(event) {
     img = event.currentTarget.querySelector("img");
-    menuFormat.img.changeInputContent(img.src, event.currentTarget.getAttribute("img-id"), img.alt);
+    menuFormat.img.changeInputContent(img.src, img.getAttribute("img-id"), img.alt);
     setIconWindow(false);
 }
 
+var iconLogTracking = new Array();
+
 async function updateIcon(event) {
-    console.log("update icon infos");
     event.preventDefault();
     event.stopPropagation();
 
     setIconInfoState("edit");
-    // get infos of icon to put in inputs -> through database
-
-    const currentId = event.currentTarget.getAttribute("img-id");
-    // Check if new id is the id already in the inputs
-    const stores = await getStoreData(StoreName.ICONS);
     
+    const currentId = event.currentTarget.querySelector("img").getAttribute("img-id");
+    if (currentId === iconFormatting.getIconInfoWindow().querySelector("[data-info='uuid']").value) return;
+    iconLogTracking = new Array();
+    const stores = await getStoreData(StoreName.ICONS);
+
     const currentIcon = stores[0].index("by_uuid").get(parseInt(currentId, 10));
     currentIcon.onsuccess = async () => {
         setIconInfo(currentIcon.result);
     }
 }
 
-var iconLogTracking = new Array();
-
 function setIconInfoState(c) {
     infos = document.getElementById("icons").querySelector(".icon-infos");
     infos.classList.remove("edit");
-    if (!c) document.getElementById("icons").querySelector(".edit [data-info='uuid']").value = "";
+    if (!c) {
+        document.getElementById("icons").querySelector(".edit [data-info='uuid']").value = "";
+        iconLogTracking = new Array();
+    }
     if (c) infos.classList.add(c);
 }
 
@@ -156,32 +143,79 @@ function iconInfosChanged(infoName) {
     keepTrackOfChanges(new ElementLog(currentId ? currentId : 0, Status.UPDATE, infoName), iconLogTracking);
 }
 
+function iconUrlInfosChanged(urlValue) {
+    iconInfosChanged("link");
+    iconFormatting.getIconInfoWindow().querySelector("img").setAttribute("src", urlValue);
+}
+
 function saveIconInfos() {
-    if (iconLogTracking[0].id == 0) {
+    const iconLog = iconLogTracking[0];
+    if (iconLog.id == 0) {
         newId = ++highestIconId;
         document.getElementById("icons").querySelector(".edit [data-info='uuid']").value = newId;
         iconLogTracking[0].id = newId;
+        // create a new icon in the icon list -- or relaunch function to load new icons ?
     }
     updateStoreEntries(2);
+    // update all data using the same icon
+    if (iconLog.id !== 0) updateAllDOMIcons(iconLog);
+}
+
+async function updateAllDOMIcons(iconLog) {
+
+    if (!iconLog.id) return;
+    const store = await getStoreData(StoreName.ICONS);
+    const currentIcon = store[0].get(parseInt(iconLog.id, 10));
+    currentIcon.onsuccess = async () => {
+        const iconData = currentIcon.result;
+        var allTarget = document.getElementById("app").querySelectorAll("[img-id='" + iconLog.id + "']");
+        iconLog.propertiesName.forEach(p => {
+            allTarget.forEach(t => {
+                iconFormatting.setData(t, p, iconData);
+            });
+
+            iconFormatting.updateMenu(p, iconData);
+        });
+
+    }
 }
 
 const iconFormatting = {
     getData: function (object, dataToUpdate) {
         switch (dataToUpdate) {
             case "name":
-                // object.parent = this.getParent(element);
                 object.name = this.getIconInfoWindow().querySelector("[data-info='name']").value;
                 break;
             case "link":
                 object.link = this.getIconInfoWindow().querySelector("[data-info='url']").value;
                 break;
+            case "alt":
+                console.log("TODO ALT");
             default:
                 console.warn("ERROR Icons-3:\n", dataToUpdate, " is not a correct command to update the data of the icon.");
                 break;
         }
     },
-    getIconInfoWindow: function() {
+    setData: function (object, dataToUpdate, data) {
+        switch (dataToUpdate) {
+            case "link":
+                object.setAttribute("src", data.link);
+                break;
+            case "alt":
+                console.log("TODO ALT");
+            default:
+                break;
+        }
+    },
+    updateMenu: function (dataToUpdate, data) {
+        switch (dataToUpdate) {
+            case "name":
+                document.getElementById("icons-list").querySelector("[img-id='" + data.uuid + "']~p").innerText = data.name;
+            default:
+                break;
+        }
+    },
+    getIconInfoWindow: function () {
         return document.getElementById("icons").getElementsByClassName("edit")[0];
     },
-
 }
