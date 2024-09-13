@@ -151,11 +151,10 @@ async function updateStoreEntries(storeId) {
 
     switch (storeId) {
         case 1:
-            updateElementsInDb(StoreName.ELEMENTS, elementLogTracking, getUpdatedElement)
+            updateElementsInDb(StoreName.ELEMENTS, elementLogTracking, getUpdatedElement, clearElementsLog)
             break;
         case 2:
-            // TODO: update icons store
-            updateElementsInDb(StoreName.ICONS, iconLogTracking, getUpdatedIcons)
+            updateElementsInDb(StoreName.ICONS, iconLogTracking, getUpdatedIcons, clearIconLog)
             break;
         default:
             console.error("ERROR Database-7:\nAttempting to update a store with an id that is not supported:", storeId);
@@ -163,7 +162,7 @@ async function updateStoreEntries(storeId) {
     }
 }
 
-async function updateElementsInDb(storeName, elementsToUpdate, updateGetFunction) {
+async function updateElementsInDb(storeName, elementsToUpdate, updateGetFunction, clearFunction) {
     if (elementsToUpdate.length <= 0) return;
     console.log(elementsToUpdate);
     const db = await openDatabase();
@@ -197,8 +196,8 @@ async function updateElementsInDb(storeName, elementsToUpdate, updateGetFunction
                 break;
         }
     });
-    // TODO: make elementLogTracking a queue and remove them when the request has been fullfiled instead of clearing the whole array
-    elementLogTracking = new Array();
+
+    clearFunction();
 }
 
 async function getUpdatedElement(dbElement, ...newData) {
@@ -233,4 +232,16 @@ async function getUpdatedIcons(dbElement, ...newData) {
             reject();
         }
     });
+}
+
+// A temporary solution to clear elementsLog since
+// referencing through updateElementsInDb() does not work
+function clearElementsLog() {
+    elementLogTracking = new Array();
+}
+
+// A temporary solution to clear iconLog since
+// referencing through updateElementsInDb() does not work
+function clearIconLog() {
+    iconLogTracking = new Array();
 }
