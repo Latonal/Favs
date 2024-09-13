@@ -103,8 +103,6 @@ async function updateIcon(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    setIconInfoState("edit");
-    
     const currentId = event.currentTarget.querySelector("img").getAttribute("img-id");
     if (currentId === iconFormatting.getIconInfoWindow().querySelector("[data-info='uuid']").value) return;
     iconLogTracking = new Array();
@@ -112,6 +110,7 @@ async function updateIcon(event) {
 
     const currentIcon = stores[0].index("by_uuid").get(parseInt(currentId, 10));
     currentIcon.onsuccess = async () => {
+        setIconInfoState("edit");
         setIconInfo(currentIcon.result);
     }
 }
@@ -120,14 +119,15 @@ function setIconInfoState(c) {
     infos = document.getElementById("icons").querySelector(".icon-infos");
     infos.classList.remove("edit");
     if (!c) {
-        document.getElementById("icons").querySelector(".edit [data-info='uuid']").value = "";
+        iconFormatting.getIconInfoWindow().querySelector("[data-info='uuid']").value = "";
         iconLogTracking = new Array();
     }
     if (c) infos.classList.add(c);
 }
 
 function setIconInfo(infosData) {
-    e = document.getElementById("icons").getElementsByClassName("edit")[0];
+    console.log(infosData);
+    e = iconFormatting.getIconInfoWindow();
     e.querySelector("[data-info='uuid']").value = infosData.uuid;
     e.querySelector("[data-info='name']").value = infosData.name;
     e.querySelector("[data-info='url']").value = infosData.link;
@@ -136,11 +136,17 @@ function setIconInfo(infosData) {
 
 function setCreateNewIcon() {
     // change the inner of .icon-infos
+    setIconInfoState("edit");
+    setIconInfo(new Object({
+        uuid: 0,
+        name: "",
+        link: ""
+    }));
 }
 
 function iconInfosChanged(infoName) {
-    currentId = document.getElementById("icons").querySelector(".edit [data-info='uuid']").value;
-    keepTrackOfChanges(new ElementLog(currentId ? currentId : 0, Status.UPDATE, infoName), iconLogTracking);
+    const currentId = iconFormatting.getIconInfoWindow().querySelector("[data-info='uuid']").value;
+    keepTrackOfChanges(new ElementLog(currentId, currentId !== "0" ? Status.UPDATE : Status.CREATE, infoName), iconLogTracking);
 }
 
 function iconUrlInfosChanged(urlValue) {
@@ -152,9 +158,10 @@ function saveIconInfos() {
     const iconLog = iconLogTracking[0];
     if (iconLog.id == 0) {
         newId = ++highestIconId;
-        document.getElementById("icons").querySelector(".edit [data-info='uuid']").value = newId;
+        iconFormatting.getIconInfoWindow().querySelector("[data-info='uuid']").value = newId
         iconLogTracking[0].id = newId;
         // create a new icon in the icon list -- or relaunch function to load new icons ?
+        // or compare the current highestIconId to the number of childs in icon-list ?
     }
     updateStoreEntries(2);
     // update all data using the same icon
@@ -162,7 +169,6 @@ function saveIconInfos() {
 }
 
 async function updateAllDOMIcons(iconLog) {
-
     if (!iconLog.id) return;
     const store = await getStoreData(StoreName.ICONS);
     const currentIcon = store[0].get(parseInt(iconLog.id, 10));
@@ -176,7 +182,6 @@ async function updateAllDOMIcons(iconLog) {
 
             iconFormatting.updateMenu(p, iconData);
         });
-
     }
 }
 
@@ -210,7 +215,8 @@ const iconFormatting = {
     updateMenu: function (dataToUpdate, data) {
         switch (dataToUpdate) {
             case "name":
-                document.getElementById("icons-list").querySelector("[img-id='" + data.uuid + "']~p").innerText = data.name;
+                const e = document.getElementById("icons-list").querySelector("[img-id='" + data.uuid + "']~p");
+                if (e) e.innerText = data.name;
             default:
                 break;
         }
