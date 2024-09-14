@@ -340,6 +340,7 @@ footer>div>a {
 .load-more {
     padding: 10px 30px;
     font-size: 21px;
+    display:flex;
 }
 
 /* #endregion icons list */
