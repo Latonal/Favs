@@ -126,7 +126,6 @@ function setIconInfoState(c) {
 }
 
 function setIconInfo(infosData) {
-    console.log(infosData);
     e = iconFormatting.getIconInfoWindow();
     e.querySelector("[data-info='uuid']").value = infosData.uuid;
     e.querySelector("[data-info='name']").value = infosData.name;
@@ -156,16 +155,25 @@ function iconUrlInfosChanged(urlValue) {
 
 function saveIconInfos() {
     const iconLog = iconLogTracking[0];
+    let isNew = false;
+
     if (iconLog.id == 0) {
         newId = ++highestIconId;
         iconFormatting.getIconInfoWindow().querySelector("[data-info='uuid']").value = newId
         iconLogTracking[0].id = newId;
-        // create a new icon in the icon list -- or relaunch function to load new icons ?
-        // or compare the current highestIconId to the number of childs in icon-list ?
+        isNew = true;
     }
+
     updateStoreEntries(2);
-    // update all data using the same icon
-    if (iconLog.id !== 0) updateAllDOMIcons(iconLog);
+
+    if (!isNew) updateAllDOMIcons(iconLog);
+    else shouldDisplayNewLastIcon();
+}
+
+// Temporary fix
+function shouldDisplayNewLastIcon() {
+    const count = document.getElementById("icons-list").getElementsByClassName("all-icons")[0].childElementCount;
+    if (count === highestIconId) loadMoreIcons();
 }
 
 async function updateAllDOMIcons(iconLog) {
