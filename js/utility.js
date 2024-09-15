@@ -341,7 +341,7 @@ async function tabsChangeCurrentPage(event) {
 class Album extends HTMLElement {
     constructor() {
         super();
-        this.addEventListener('contextmenu', setMenuAlbum);
+        // this.addEventListener('contextmenu', setMenuAlbum);
         this.addEventListener('click', handleAlbumClick);
         this.addEventListener('dragover', handleAlbumDragOver);
         this.addEventListener('drop', handleAlbumDrop);
@@ -399,7 +399,7 @@ function handleAlbumDrop(event) {
 class Group extends HTMLElement {
     constructor() {
         super();
-        this.addEventListener('contextmenu', setMenuGroup);
+        // this.addEventListener('contextmenu', setMenuGroup);
         this.addEventListener('click', handleGroupClick);
         this.addEventListener('dragstart', handleGroupDragStart);
         this.addEventListener('dragover', handleGroupDragOver);
@@ -563,7 +563,7 @@ function replaceParentByChild(element) {
 class Sticker extends HTMLElement {
     constructor() {
         super();
-        this.addEventListener('contextmenu', setMenuSticker);
+        // this.addEventListener('contextmenu', setMenuSticker);
         this.addEventListener('click', handleStickerClick);
         this.addEventListener('dragstart', handleStickerDragStart);
         this.addEventListener('dragover', handleStickerDragOver);

@@ -222,14 +222,15 @@ footer>div>a {
     display: flex;
     flex-direction: row;
     background-color: #4d3355;
-    border: 1px solid #1a161c;
+    border: 1px solid #765082;
+    color: #f3edf4;
     border-radius: 10px;
     z-index: 11;
 }
 
 #icons .icon-infos {
     width: 400px;
-    border-right: 1px solid #1a161c;
+    border-right: 1px solid #765082;
     padding: 20px;
 }
 
@@ -255,9 +256,40 @@ footer>div>a {
     width: 250px;
     height: 250px;
     padding: 15px;
-    border: 3px solid white;
+    border: 3px solid #765082;
     border-radius: 15px;
     display: flex;
+}
+
+#icons .icon-infos.edit .edit .nochange {
+    display: none;
+}
+
+#icons .icon-infos.edit .edit[data-origin="app"] input {
+    pointer-events: none;
+}
+
+#icons .icon-infos.edit .edit[data-origin="app"] .buttons button {
+    display: none;
+}
+
+#icons .icon-infos.edit .edit[data-origin="app"] .nochange {
+    display: block;
+}
+
+#icons .icon-infos.edit .edit[data-origin="app"] [data-info="url"],
+#icons .icon-infos.edit .edit[data-origin="app"] .url {
+    display: none;
+}
+
+#icons .icon-infos .edit .buttons {
+    margin: 20px 0;
+    display: flex;
+    justify-content: space-around;
+}
+
+#icons .icon-infos.edit .edit[data-origin="app"] .buttons {
+    margin: 20px 0 0 0;
 }
 
 /* #endregion icon infos */
@@ -274,6 +306,39 @@ footer>div>a {
     width: 100%;
     display: flex;
     flex-direction: column;
+}
+
+#icons .icons-display .icons-tools {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #765082;
+}
+
+#icons .icons-display .icons-tools button,
+#icons .icon-infos .edit button {
+    height: 30px;
+    min-width: 30px;
+    color: #f3edf4;
+}
+
+#icons button:hover {
+    cursor: pointer;
+}
+
+#icons .icons-display .icons-tools button:nth-child(1),
+#icons .icon-infos .edit button {
+    border: none;
+    border-radius: 5px;
+    background-color: #765082;
+    padding: 0 10px;
+}
+
+#icons .icons-display .icons-tools button:nth-child(2) {
+    font-size: 20px;
+    font-weight: bold;
+    border: none;
+    background-color: transparent;
 }
 
 #icons-list .all-icons {
@@ -315,7 +380,7 @@ footer>div>a {
 }
 
 #icons-list .icon {
-    border: 1px solid rgb(138, 138, 138);
+    border: 1px solid #765082;
     border-radius: 10px;
 }
 
@@ -324,14 +389,14 @@ footer>div>a {
 }
 
 #icons-list .icon img {
-    color: red;
+    /* color: red; */
     width: 59px;
     height: 59px;
 }
 
-#icons-list .icon p {
+/* #icons-list .icon p {
     color: red;
-}
+} */
 
 #icons-list .load-more {
     margin: 30px auto auto auto;
@@ -340,7 +405,7 @@ footer>div>a {
 .load-more {
     padding: 10px 30px;
     font-size: 21px;
-    display:flex;
+    display: flex;
 }
 
 /* #endregion icons list */
