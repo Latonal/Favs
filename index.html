@@ -49,6 +49,7 @@
         <div id="icons" class="hide">
             <div class="icon-infos">
                 <div class="edit">
+                    <p class="nochange">This icon is not up for changes, try <button onclick="setCreateNewIcon();">creating</button> your own!</p>
                     <input type="number" data-info="uuid" hidden>
                     <p>Name</p>
                     <input type="text" data-info="name" onchange="iconInfosChanged('name');">
@@ -56,17 +57,21 @@
                     <div data-info="img">
                         <img src="" onchange="iconInfosChanged('name');">
                     </div>
-                    <p>url</p>
+                    <p class="url">url</p>
                     <input type="url" data-info="url" onchange="iconUrlInfosChanged(this.value);">
                     <!-- <div>filter</div> -->
                     <!-- custom css filter, todo later -->
                     <!-- <div>tag</div> -->
                     <!-- tags, pending if todo -->
-                    <div>
-                        <button onclick="">Use icon</button>
+                    <div class="buttons">
+                        <!-- <button onclick="">Use icon</button> -->
                         <button onclick="saveIconInfos();">Save</button>
                         <button onclick="setIconInfoState();">Cancel</button>
                         <!-- must close the edit menu, and remove current id -->
+                    </div>
+                    <div class="tootlip">
+                        <p>Left click on the icon on the right window to select it for your Sticker.</p>
+                        <p>Don't forget to save!</p>
                     </div>
                 </div>
                 <div class="msg">
@@ -75,9 +80,9 @@
             </div>
             <div class="icons-display">
                 <div class="icons-tools">
-                    <button onclick="setCreateNewIcon();">create new icon</button>
-                    <div>search</div>
-                    <button onclick="setIconWindow(false);">close</button>
+                    <button onclick="setCreateNewIcon();">Create a new icon</button>
+                    <!-- <div>search</div> -->
+                    <button onclick="setIconWindow(false);">X</button>
                 </div>
                 <div id="icons-list">
                     <div class="scrollable">

@@ -131,6 +131,14 @@ function setIconInfo(infosData) {
     e.querySelector("[data-info='name']").value = infosData.name;
     e.querySelector("[data-info='url']").value = infosData.link;
     e.querySelector("[data-info='img']>img").setAttribute("src", infosData.link);
+    setAccessibilityIfOrigin(infosData.origin);
+}
+
+function setAccessibilityIfOrigin(origin) {
+    e = iconFormatting.getIconInfoWindow();
+    if (isTruthy(origin)) e.setAttribute("data-origin", origin);
+    else e.removeAttribute("data-origin");
+
 }
 
 function setCreateNewIcon() {
@@ -230,6 +238,6 @@ const iconFormatting = {
         }
     },
     getIconInfoWindow: function () {
-        return document.getElementById("icons").getElementsByClassName("edit")[0];
+        return document.getElementById("icons").querySelector(".icon-infos .edit");
     },
 }
