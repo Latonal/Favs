@@ -12,10 +12,10 @@
 </head>
 
 <body>
-    <div class="admin-tools">
+    <!-- <div class="admin-tools">
         <button onclick="deleteData();">Reset db</button>
         <button onclick="setEditing(editing ? false : true);">Inverse editing</button>
-    </div>
+    </div> -->
     <div id="app">
         <header class="side">
             <div id="favs"><h1>Favs</h1></div>
@@ -33,6 +33,33 @@
                 <img src="img/options.svg" style="width:50px;" id="settings-button" />
             </div>
         </header>
+        <section id="special-popups">
+            <div data-popup-type="explaination">
+                <p>Favs is a website allowing you to create your own homepage.</p>
+                <p>Before using it, we need your permission. ^‿^</p>
+            </div>
+            <div data-popup-type="js-disabled">
+                <p>This website use Javascript work.</p>
+                <p>If you see this message, it means it is currently disabled, please <a href="https://support.google.com/adsense/answer/12654?hl=en" target="_blank">activate it</a> and <a href="./index.html">reload the page.</a></p>
+            </div>
+            <div data-popup-type="mobile-user" hidden>
+                <p>This website has not been tested for mobile browsers yet.</p>
+                <p>You can still use it, but many parts of it might not work as intended.</p>
+                <button onclick="CheckAccessibility(1)">Ok, I understand.</button>
+            </div>
+            <div data-popup-type="not-cookies" hidden>
+                <p>This website is using LocalStorage and IndexedDB to work.</p>
+                <!-- Check if one or both is deactivated ? -->
+                <p>This means any content is saved directly in your browser.</p>
+                <p>You can choose to delete any data saved at any moment by clicking on the corresponding button at the bottom of the page.</p>
+                <p class="localstorage-is-disabled" hidden>LocalStorage is currently disabled on your browser and the website might not work as intended.</p>
+                <p class="indexeddb-is-disabled" hidden>IndexedDB is currently disabled on your browser and the website can't work without it.</p>
+                <button onclick="CheckAccessibility(2)">Ok, I understand.</button>
+            </div>
+            <div data-popup-type="in-beta">
+                <p>The website is currently in beta!</p>
+            </div>
+        </section>
         <section id="playground"></section>
         <div class="tools">
             <div class="center">

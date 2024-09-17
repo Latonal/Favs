@@ -1,9 +1,36 @@
 let localStorageData = new Object();
 let start, end;
-Start();
+CheckAccessibility();
 
+function CheckAccessibility(state = 0) {
+    const sp = document.getElementById("special-popups");
+    sp.querySelector("[data-popup-type='js-disabled']").setAttribute("hidden", true);
 
-async function Start() {
+    if (state == 3) sp.querySelector("[data-popup-type='not-cookies']").setAttribute("hidden", true);
+
+    if (getAppAccessibility()) {
+        sp.setAttribute("hidden", true);
+        StartApp();
+        return;
+    }
+
+    if (checkMobile() && state == 0) {
+        sp.querySelector("[data-popup-type='mobile-user']").removeAttribute("hidden");
+        return;
+    } else
+        sp.querySelector("[data-popup-type='mobile-user']").setAttribute("hidden", true);
+
+    sp.querySelector("[data-popup-type='not-cookies']").removeAttribute("hidden");
+    
+    if (state == 2) {
+        getAppAccessibility(true);
+        if (!isLocalStorageAvailable()) sp.querySelector("[data-popup-type='localstorage-is-disabled']").removeAttribute("hidden");
+        if (!isIndexedDBAvailable()) sp.querySelector("[data-popup-type='indexeddb-is-disabled']").removeAttribute("hidden");
+        CheckAccessibility(3);
+    }
+}
+
+async function StartApp() {
     start = performance.now();
     if (!window.indexedDB) {
         console.error("ERROR Browser-1:\nYour browser does not support IndexedDB. Update your browser or download one supporting IndexedDB. Browser supporting IndexedDB are listed here: https://caniuse.com/indexeddb");
@@ -24,7 +51,7 @@ async function Start() {
         console.error(error);
     }
     end = performance.now();
-    console.log("App executed in", end - start ,"ms");
+    console.log("App executed in", end - start, "ms");
 }
 
 function deleteData() {
