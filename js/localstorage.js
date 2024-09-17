@@ -13,6 +13,15 @@ function setLocalStorageData() {
     return localStorageData;
 }
 
+function getAppAccessibility(setAccessibility = false) {
+    if (localStorage.getItem("accessibility"))
+        return localStorage.getItem("accessibility");
+
+    if (setAccessibility)
+        localStorage.setItem("accessibility", true);
+    return false;
+}
+
 function getLocalStorageDefaultPage() {
     if (localStorage.getItem("default_page"))
         return parseInt(localStorage.getItem("default_page"), 10);

@@ -139,6 +139,55 @@ footer>div>a {
     text-decoration: none;
 }
 
+#special-popups {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    background-color: #8e6999;
+}
+
+#special-popups[hidden="true"] {
+    display: none;
+}
+
+#special-popups>div {
+    max-width: 500px;
+    color: #f3edf4;
+    background-color: #4d3355;
+    border: 3px solid rgb(117, 66, 117);
+    height: fit-content;
+    padding: 20px;
+    text-align: center;
+}
+
+#special-popups button {
+    border: none;
+    border-radius: 5px;
+    background-color: #765082;
+    padding: 0 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#special-popups div a,
+#special-popups div button {
+    color: #f3edf4;
+}
+
+#special-popups div p:not(:last-child) {
+    margin-bottom: 15px;
+}
+
+
+
 #popup {
     top: 0;
     position: fixed;
