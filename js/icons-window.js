@@ -131,6 +131,7 @@ function setIconInfo(infosData) {
     e.querySelector("[data-info='name']").value = infosData.name;
     e.querySelector("[data-info='url']").value = infosData.link;
     e.querySelector("[data-info='img']>img").setAttribute("src", infosData.link);
+    e.querySelector("[data-info='source']").value = infosData.source;
     setAccessibilityIfOrigin(infosData.origin);
 }
 
@@ -210,10 +211,13 @@ const iconFormatting = {
             case "link":
                 object.link = this.getIconInfoWindow().querySelector("[data-info='url']").value;
                 break;
+            case "source":
+                object.source = this.getIconInfoWindow().querySelector("[data-info='source']").value;
+                break;
             case "alt":
                 console.log("TODO ALT");
             default:
-                console.warn("ERROR Icons-3:\n", dataToUpdate, " is not a correct command to update the data of the icon.");
+                console.warn("ERROR Icons-3:\n\"", dataToUpdate, "\" is not a correct command to update the data of the icon.");
                 break;
         }
     },
