@@ -131,6 +131,7 @@ footer>div>button {
     background: none;
     border: none;
     font-size: 16px;
+    cursor: pointer;
 }
 
 footer>div>a {
@@ -308,6 +309,13 @@ footer>div>a {
     border: 3px solid #765082;
     border-radius: 15px;
     display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#icons .icon-infos .edit [data-info="img"] img {
+    width: 214px;
+    height: fit-content;
 }
 
 #icons .icon-infos.edit .edit .nochange {
@@ -391,6 +399,7 @@ footer>div>a {
 }
 
 #icons-list .all-icons {
+    margin-top: 10px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -405,13 +414,25 @@ footer>div>a {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    padding: 0 10px 5px 10px;
     cursor: pointer;
     transition: var(--transition-time);
-    word-break: break-all;
+    word-break: break-word;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+#icons-list .icon .img-container {
+    width: 80px;
+    height: 80px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#icons-list .icon .img-container img {
+    height: auto;
 }
 
 #icons-list .icon {
@@ -425,7 +446,7 @@ footer>div>a {
 
 #icon-button .icon img {
     width: 80px;
-    height: 80px;
+    height: auto;
 }
 
 #icons-list .icon {
