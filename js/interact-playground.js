@@ -6,7 +6,7 @@ let creating = false;
  * @returns if there is an active state in the app (editing, creating...)
  */
 function getAppState() {
-    return editing || creating;
+    return editing || creating || deleting;
 }
 
 function setAppState(stateToChange) {
