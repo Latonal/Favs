@@ -264,6 +264,8 @@ async function handleTabsClick(event) {
         // prevOrder = compStyle.getPropertyValue("--value");
     } else if (creating) {
         createNewElement(event, FavsCustomElementsName.tags.TAB, 1, "setAsAlbum");
+    } else if (deleting) {
+        deleteElement(event, true, true);
     }
 }
 
@@ -440,6 +442,8 @@ function handleGroupClick(event) {
         // prevOrder = compStyle.getPropertyValue("--value");
     } else if (creating) {
         createNewElement(event, FavsCustomElementsName.tags.STICKER, 5, "text");
+    } else if (deleting) {
+        deleteElement(event, true);
     }
 }
 
@@ -609,6 +613,8 @@ function handleStickerClick(event) {
         // prevOrder = compStyle.getPropertyValue("--value");
     } else if (creating) {
         createNewElement(event, FavsCustomElementsName.tags.STICKER, 1, "text");
+    } else if (deleting) {
+        deleteElement(event, false);
     }
 }
 
@@ -667,6 +673,7 @@ function checkOldParentIfEmpty() {
 }
 //#endregion Sticker
 
+//#region Other
 /**
  * 
  * @param {Event} event 
@@ -715,6 +722,72 @@ function createNewElement(event, newElement, howToInsert = 1, ...changesToSave) 
     } catch (error) {
         console.error("ERROR Utility-9:\nAn error happened at the creation of a new element: ", error);
     }
+}
+
+async function deleteElement(event, isParent = false, isTab = false) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const e = event.currentTarget;
+
+    if (e.nextElementSibling) {
+        const nextId = isTab ? e.nextElementSibling.getAttribute("data-album") : e.nextElementSibling.id;
+        keepTrackOfChanges(new ElementLog(nextId, Status.UPDATE, "previous"));
+    }
+
+    if (isParent) {
+        const currentId = isTab ? e.getAttribute("data-album") : e.id;
+        const allChilds = await getAllChildsId(currentId);
+
+        allChilds.forEach(elem => {
+            keepTrackOfChanges(new ElementLog(elem.uuid, Status.DELETE));
+        });
+
+        // checkOldParentIfEmpty();
+        if (e.parent && e.parent.childElementCount <= 1 && !isTab)
+            keepTrackOfChanges(new ElementLog(e.parent.id, Status.UPDATE, "setAsGroup"));
+        document.getElementById(currentId)?.remove();
+        if (isTab) document.querySelector("[data-album='" + currentId + "']")?.remove();
+
+        showElementLogTracking();
+
+        updateStoreEntries(1);
+    } else {
+        keepTrackOfChanges(new ElementLog(e.id, Status.DELETE));
+        // checkOldParentIfEmpty();
+        if (e.parent && e.parent.childElementCount <= 1)
+            keepTrackOfChanges(new ElementLog(e.parent.id, Status.UPDATE, "setAsGroup"));
+        document.getElementById(e.id).remove();
+
+        updateStoreEntries(1);
+    }
+}
+
+// temp
+async function getAllChildsId(id) {
+    return new Promise(async (resolve, reject) => {
+        let allChilds = [];
+    
+        const stores = await getStoreData(StoreName.ELEMENTS);
+        const elementCursor = stores[0].index("by_uuid").openCursor(parseInt(id, 10));
+        elementCursor.onsuccess = async function() {
+            const cursor = elementCursor.result;
+            if (cursor) {
+                const childs = await retrieveElementChildrenRecursively(stores[0], parseInt(id, 10), [cursor.value]);
+    
+                allChilds.push(...childs);
+                cursor.continue();
+            } else {
+                console.log("finished finding childs");
+                resolve(allChilds);
+            }
+        }
+    
+        requestAnimationFrame.onerror = function(event) {
+            console.log("could not retrieve children");
+            reject(event);
+        }
+    });
 }
 
 var currentDraggedElementData = new Object();
@@ -803,3 +876,4 @@ function showElementLogTracking(logCollection = elementLogTracking) {
     });
     console.log("___________End of Element Log Tracking___________");
 }
+//#endregion Other
