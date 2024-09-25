@@ -109,7 +109,8 @@ my-sticker img {
     width: 25px;
 }
 
-my-sticker img:not([src="null"])+p {
+[data-type="list"] my-sticker img:not([src="null"])+p,
+my-sticker[data-type="list"] img:not([src="null"])+p {
     margin-left: 6px;
 }
 

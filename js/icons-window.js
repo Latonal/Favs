@@ -80,7 +80,10 @@ function createNewSelectIcon(src, uuid, alt, name) {
     if (src) newImg.src = src;
     if (alt) newImg.alt = alt;
     newImg.setAttribute("img-id", uuid);
-    newDiv.appendChild(newImg);
+    const newImgContainer = document.createElement("div");
+    newImgContainer.classList.add("img-container");
+    newImgContainer.appendChild(newImg);
+    newDiv.appendChild(newImgContainer);
     if (name) {
         const newP = document.createElement("p");
         newP.innerText = name;
@@ -128,18 +131,17 @@ function setIconInfoState(c) {
 function setIconInfo(infosData) {
     e = iconFormatting.getIconInfoWindow();
     e.querySelector("[data-info='uuid']").value = infosData.uuid;
-    e.querySelector("[data-info='name']").value = infosData.name;
-    e.querySelector("[data-info='url']").value = infosData.link;
-    e.querySelector("[data-info='img']>img").setAttribute("src", infosData.link);
-    e.querySelector("[data-info='source']").value = infosData.source;
-    setAccessibilityIfOrigin(infosData.origin);
+    e.querySelector("[data-info='name']").value = infosData.name ?? "";
+    e.querySelector("[data-info='url']").value = infosData.link ?? "";
+    e.querySelector("[data-info='img']>img").setAttribute("src", infosData.link ?? "");
+    e.querySelector("[data-info='source']").value = infosData.source ?? "";
+    setAccessibilityIfOrigin(infosData.appid);
 }
 
 function setAccessibilityIfOrigin(origin) {
     e = iconFormatting.getIconInfoWindow();
-    if (isTruthy(origin)) e.setAttribute("data-origin", origin);
+    if (isTruthy(origin) || origin == 0) e.setAttribute("data-origin", "app");
     else e.removeAttribute("data-origin");
-
 }
 
 function setCreateNewIcon() {
@@ -148,7 +150,7 @@ function setCreateNewIcon() {
     setIconInfo(new Object({
         uuid: 0,
         name: "",
-        link: ""
+        link: "",
     }));
 }
 
