@@ -224,10 +224,14 @@ footer>div>a {
 
 /* #region edit menu */
 #edit-menu {
-    background-color: white;
     position: absolute;
     top: 0px;
     z-index: 11;
+    border: 1px solid #765082;
+    background-color: #4d3355;
+    color: #f3edf4;
+    padding: 20px;
+    border-radius: 10px;
 }
 
 #edit-menu-pool {
@@ -237,6 +241,41 @@ footer>div>a {
     right: 0px;
     z-index: -1;
 }
+
+#edit-menu button {
+    border: none;
+    border-radius: 5px;
+    background-color: #765082;
+    padding: 0 10px;
+    color: inherit;
+    height: 30px;
+    cursor: pointer;
+}
+
+#edit-menu [data-field="close"] {
+    text-align: right;
+
+}
+
+#edit-menu [data-field="close"] button {
+    font-size: 20px;
+    font-weight: bold;
+    background-color: transparent;
+}
+
+#edit-menu [data-field="img"] button {
+    padding: 0 10px;
+    margin: 5px auto auto auto;
+}
+
+#edit-menu [data-field="save"] {
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* #edit-menu {
+
+} */
 
 /* #endregion edit menu */
 
@@ -414,7 +453,7 @@ footer>div>a {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    padding: 0 10px 5px 10px;
+    padding: 0 6px 5px 6px;
     cursor: pointer;
     transition: var(--transition-time);
     word-break: break-word;
@@ -426,7 +465,7 @@ footer>div>a {
 #icons-list .icon .img-container {
     width: 80px;
     height: 80px;
-    display:flex;
+    display: flex;
     justify-content: center;
     align-items: center;
 }

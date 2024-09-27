@@ -778,7 +778,6 @@ async function getAllChildsId(id) {
                 allChilds.push(...childs);
                 cursor.continue();
             } else {
-                console.log("finished finding childs");
                 resolve(allChilds);
             }
         }
