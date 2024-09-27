@@ -172,7 +172,7 @@ const playgroundFirst = [
     { uuid: 11, parent: 9, previous: 10, text: "Bing", img_uuid: 2, href: "https://www.bing.com/", appid: 11 },
     { uuid: 12, parent: 9, previous: 11, text: "DuckDuckGo", img_uuid: 3, href: "https://duckduckgo.com/", appid: 12 },
     { uuid: 13, parent: 9, previous: 12, text: "Ecosia", img_uuid: 4, href: "https://www.ecosia.org/", appid: 13 },
-    { uuid: 14, parent: 9, previous: 13, text: "A random Wikipédia page", img_uuid: 1, href: "https://en.wikipedia.org/wiki/Special:Random", appid: 14 },
+    { uuid: 14, parent: 9, previous: 13, text: "A random Wikipédia page", img_uuid: 5, href: "https://en.wikipedia.org/wiki/Special:Random", appid: 14 },
     { uuid: 15, parent: 9, previous: 14, text: "Reuters", img_uuid: 6, href: "https://www.reuters.com/", appid: 15 },
     { uuid: 16, parent: 9, previous: 15, text: "Calculator", img_uuid: 34, href: "Calculator:///", appid: 16 },
     // Mails
