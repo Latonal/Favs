@@ -8,4 +8,4 @@ Credits are always appreciated.
 
 # What's to expect
 
-Please read the README.md file to know the future of Favs.
+Please read [TODO.md](TODO.md) to know the future of Favs.
