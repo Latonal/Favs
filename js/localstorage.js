@@ -9,6 +9,7 @@ function setLocalStorageData() {
     }
     const localStorageData = new Object();
     localStorageData.defaultPage = getLocalStorageDefaultPage();
+    localStorageData.firstVersion = getFirstLocalStorageVersion();
     localStorageData.version = getLocalStorageVersion();
     return localStorageData;
 }
@@ -28,6 +29,15 @@ function getLocalStorageDefaultPage() {
     const page = 0;
     localStorage.setItem("default_page", page);
     return page;
+}
+
+// First version the user was meet with
+function getFirstLocalStorageVersion() {
+    if (localStorage.getItem("firstVersion")) 
+        return parseInt(localStorage.getItem("firstVersion"), 10);
+
+    localStorage.setItem("firstVersion", currentVersion);
+    return currentVersion;
 }
 
 function getLocalStorageVersion() {
