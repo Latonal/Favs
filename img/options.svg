@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 200 62" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="35" cy="31" r="30" stroke="rgb(61, 61, 61)" fill="rgb(216, 216, 216)" />
+  <circle cx="100" cy="31" r="30" stroke="rgb(61, 61, 61)" fill="rgb(216, 216, 216)" />
+  <circle cx="165" cy="31" r="30" stroke="rgb(61, 61, 61)" fill="rgb(216, 216, 216)" />
+</svg>

@@ -5,96 +5,153 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Favs</title>
-    <link rel="stylesheet" type="text/css" href="content/css/styles.css">
-    <link rel="stylesheet" type="text/css" href="content/css/themes.css">
-    <link rel="icon" href="content/img/icon/star.png">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link rel="stylesheet" type="text/css" href="css/playground.css">
+    <link rel="stylesheet" type="text/css" href="css/themes.css">
+    <link rel="stylesheet" type="text/css" href="css/temp.css">
+    <link rel="icon" href="img/icon/star.png">
 </head>
 
 <body>
-    <div id="template">
-        <!-- <div class="debug" onclick="SavePlaygroundData();">SavePlayground</div>
-        <div class="debug" onclick="DeleteDB();">DeleteDB</div>
-        <div class="debug" onclick="console.log(data);">ShowData</div>
-        <div class="debug" onclick="console.log(navigator.storage.estimate());">GetStorage <span class="special-character">&#57621;</span> &#xE115;</div> -->
-
-        <!-- Popup -->
-        <div id="popup"></div>
-
-        <!-- Toolbar -->
-        <div id="toolbar" class="special-character fade-in">
-            <div id="move-toolbar">&#57539;</div>
-            <div onclick="SetEdit();">&#57604;</div>
-        </div>
-
-        <!-- Edit menu -->
-        <div id="edit-menu">
-            <div class="depop-menu" onclick="CloseEditMenu();"></div>
-            <div id="edit-element">
-                <p class="save-infos">Changes are saved when this menu is closed</p>
-                <fieldset>
-                    <legend>Edit text</legend>
-                    <input type="text" placeholder="Text" id="edit-element-text" oninput="EditChangeText(this.value);" onchange="EditAddTextToJson(this.value);">
-                </fieldset>
-                <fieldset>
-                    <legend>Edit url</legend>
-                    <div>
-                        <input type="url" placeholder="Text" id="edit-element-url" oninput="EditChangeUrl(this.value);" onchange="EditAddUrlToJson(this.value);">
-                        <label>Open in new window <input type="checkbox" id="edit-element-target" onchange="EditAddTargetToJson(this.checked)"></label>
-                    </div>
-                </fieldset>
-                <fieldset>
-                    <legend>Edit image</legend>
-                    <div id="edit-element-image">
-                        <div class="icon">
-                            <img src="./content/img/logo/x.svg" alt="default icon - no image" onclick="OpenChooseImageMenu();">
-                        </div>
-                        <p>No image selected</p>
-                    </div>
-                </fieldset>
-                <fieldset>
-                    <legend>Type of category</legend>
-                    <select id="edit-element-category-type" onchange="ChangeCategoryType(this.value);">
-                        <option value="icon-list">Icon list</option>
-                        <option value="sub-list">Sub list</option>
-                    </select>
-                </fieldset>
-                <fieldset>
-                    <legend>Edit CSS</legend>
-                    <div id="edit-element-css">
-                        <textarea rows="4" cols="20" placeholder="Your css changes here" onchange="EditCSS(this.value);"></textarea>
-                    </div>
-                </fieldset>
+    <!-- <div class="admin-tools">
+        <button onclick="deleteData();">Reset db</button>
+        <button onclick="setEditing(editing ? false : true);">Inverse editing</button>
+    </div> -->
+    <div id="app">
+        <header class="side">
+            <div id="favs"><h1>Favs</h1></div>
+            <nav id="tabs"></nav>
+            <div id="app-buttons">
+                <button onclick="setCreating();" id="create-button" class="header-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="#fff" fill-opacity="1" stroke="#fff" stroke-width=".5" stroke-linecap="round" stroke-linejoin="round" d="M6 6h-4v4h4v4h4v-4h4v-4h-4v-4h-4v4"/></svg>
+                </button>
+                <button onclick="setDeleting();" id="delete-button" class="header-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="#fff" fill-opacity="1" stroke="#fff" stroke-width=".5" stroke-linecap="round" stroke-linejoin="round" d="M2 5q0 0 2 9 0 0 8 0 0 0 2-9 0 0-12 0m6-3v1h6v1h-12v-1h6"/></svg>
+                </button>
+                <button onclick="setEditing();" id="edit-button" class="header-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M9 1h-8v14h14v-8h-1v7h-12v-12h7v-1" fill="#fff" fill-opacity="1" stroke="#fff" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.969 11.938c0 0 0 0 1-4 0 0 0 0 7-7 0 0 0 0 3 3 0 0 0 0-7 7 0 0 0 0-4 1" fill="#fff" fill-opacity="1" stroke="#fff" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <img src="img/options.svg" style="width:50px;" id="settings-button" />
             </div>
-        </div>
-        <!-- Edit image -->
-        <div id="edit-image">
-            <div class="head">
-                <span class="special-character"  onclick="SetElement(false, 'edit-image');">&#57513;</span>
-                <input type="text" placeholder="Search..." class="todo">
-                <span class="special-character todo">&#57624;</span>
+        </header>
+        <section id="special-popups">
+            <div data-popup-type="explaination">
+                <p>Favs is a website allowing you to create your own homepage.</p>
+                <p>Before using it, we need your permission. ^‿^</p>
             </div>
-            <div class="separator"></div>
-            <div class="content">
-                <div class="item" data-image="" onclick="ChooseImage(this);">
-                    <div id="o-null" class="icon"><img src="./content/img/logo/x.svg" alt="default icon - no image"></div>
-                    <p>No image</p>
+            <div data-popup-type="js-disabled">
+                <p>This website use Javascript work.</p>
+                <p>If you see this message, it means it is currently disabled, please <a href="https://support.google.com/adsense/answer/12654?hl=en" target="_blank">activate it</a> and <a href="./index.html">reload the page.</a></p>
+            </div>
+            <div data-popup-type="mobile-user" hidden>
+                <p>This website has not been tested for mobile browsers yet.</p>
+                <p>You can still use it, but many parts of it might not work as intended.</p>
+                <button onclick="CheckAccessibility(1)">Ok, I understand.</button>
+            </div>
+            <div data-popup-type="not-cookies" hidden>
+                <p>This website is using LocalStorage and IndexedDB to work.</p>
+                <!-- Check if one or both is deactivated ? -->
+                <p>This means any content is saved directly in your browser.</p>
+                <p>You can choose to delete any data saved at any moment by clicking on the corresponding button at the bottom of the page.</p>
+                <p class="localstorage-is-disabled" hidden>LocalStorage is currently disabled on your browser and the website might not work as intended.</p>
+                <p class="indexeddb-is-disabled" hidden>IndexedDB is currently disabled on your browser and the website can't work without it.</p>
+                <button onclick="CheckAccessibility(2)">Ok, I understand.</button>
+            </div>
+            <div data-popup-type="in-beta">
+                <p>The website is currently in beta!</p>
+            </div>
+        </section>
+        <section id="playground"></section>
+        <div class="tools">
+            <div class="center">
+                <div id="popup" class="hide">
+                    <button class="close bold" onclick="closePopup();">X</button>
+                    <div class="content"></div>
+                </div>
+            </div>
+            <div id="edit-menu" class="hide"></div>
+            <div id="edit-menu-pool" class="hide"></div>
+            <div id="context-menu" class="hide"></div>
+            <div id="context-menu-pool" class="hide"></div>
+        </div>
+        <div id="icons" class="hide">
+            <div class="icon-infos">
+                <div class="edit">
+                    <p class="nochange">This icon is not up for changes, try <button onclick="setCreateNewIcon();">creating</button> your own!</p>
+                    <input type="number" data-info="uuid" hidden>
+                    <p>Name</p>
+                    <input type="text" data-info="name" onchange="iconInfosChanged('name');">
+                    <p>Icon</p>
+                    <div data-info="img">
+                        <img src="" onchange="iconInfosChanged('name');">
+                    </div>
+                    <p class="url">Url</p>
+                    <input type="url" data-info="url" onchange="iconUrlInfosChanged(this.value);">
+                    <p>Source</p>
+                    <input type="text" data-info="source" onchange="iconInfosChanged('source');">
+                    <!-- <div>filter</div> -->
+                    <!-- custom css filter, todo later -->
+                    <!-- <div>tag</div> -->
+                    <!-- tags, pending if todo -->
+                    <div class="buttons">
+                        <!-- <button onclick="">Use icon</button> -->
+                        <button onclick="saveIconInfos();">Save</button>
+                        <button onclick="setIconInfoState();">Cancel</button>
+                        <!-- must close the edit menu, and remove current id -->
+                    </div>
+                    <div class="tootlip">
+                        <p>Left click on the icon on the right window to select it for your Sticker.</p>
+                        <p>Don't forget to save!</p>
+                    </div>
+                </div>
+                <div class="msg">
+                    <p>Right click on an icon, or create a new one.</p>
+                </div>
+            </div>
+            <div class="icons-display">
+                <div class="icons-tools">
+                    <button onclick="setCreateNewIcon();">Create a new icon</button>
+                    <!-- <div>search</div> -->
+                    <button onclick="setIconWindow(false);">X</button>
+                </div>
+                <div id="icons-list">
+                    <div class="scrollable">
+                        <div class="all-icons"></div>
+                        <button onclick="loadMoreIcons();" class="load-more">- Load more icons -</div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- <main> ?-->
-        <!-- <nav> pages - utiliser flex pour changer la position -->
-        <section id="playground"></section>
-        <section id="create-category" class="special-character" onclick="CreateCategory();">&#57541;</section>
-        <section id="generating"></section>
-        <!-- <footer></footer> -->
-
+        <footer>
+            <div>
+                <!-- <button onclick="aboutFavs();">About Favs</button> -->
+                <!-- <button onclick="whatsNext();">What's next</button> -->
+            </div>
+            <div>
+                <!-- <a href="" target="_blank">Report a bug</a> -->
+            </div>
+            <div>
+                <button onclick="deleteData();">Clear my data</button>
+            </div>
+            <div>
+                <p>Version b.1.0</p>
+            </div>
+        </footer>
     </div>
-    <!-- Javascript -->
-    <script type="text/javascript" src="content/js/default-playground.js"></script>
-    <script type="text/javascript" src="content/js/icon.js"></script>
-    <script type="text/javascript" src="content/js/data.js"></script>
-    <script type="text/javascript" src="content/js/script.js"></script>
+    <script type="text/javascript" src="js/utility.js"></script>
+    <script type="text/javascript" src="js/tools.js"></script>
+    <script type="text/javascript" src="js/localstorage.js"></script>
+    <script type="text/javascript" src="js/data.js"></script>
+    <script type="text/javascript" src="js/default-playground.js"></script>
+    <script type="text/javascript" src="js/elements-formatting.js"></script>
+    <script type="text/javascript" src="js/generate-playground.js"></script>
+    <script type="text/javascript" src="js/interact-playground.js"></script>
+    <script type="text/javascript" src="js/script.js"></script>
+    <script type="text/javascript" src="js/icons-window.js"></script>
+    <!-- Tests -->
+    <script type="text/javascript" src="js/test/test.js"></script>
+    <script type="text/javascript" src="js/test/testSort/testSort.js"></script>
+    <script type="text/javascript" src="js/test/testMenu/testEditMenu.js"></script>
 </body>
 
 </html>
