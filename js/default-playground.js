@@ -159,7 +159,7 @@ const iconsDebugging = [
 const playgroundFirst = [
     // Tutorial
     { uuid: 1, parent: 0, previous: 0, theme: "light", text: "Homepage", appid: 1 },
-    { uuid: 2, parent: 1, previous: 0, type: 1, appid: 2, customcss: "gap:5px;" },
+    { uuid: 2, parent: 1, previous: 0, type: 1, appid: 2, customcss: "gap:5px; align-items:center;" },
     { uuid: 3, parent: 2, previous: 0, text: "Here's a quick tutorial on how to use the app!", appid: 3 },
     { uuid: 4, parent: 2, previous: 3, text: "<-- this icon allow you to edit a sticker/collection/page!", img_uuid: 31, appid: 4 },
     { uuid: 5, parent: 2, previous: 4, text: "<-- this icon let you create your own sticker/collection/page!", img_uuid: 33, appid: 5 },
@@ -172,14 +172,14 @@ const playgroundFirst = [
     { uuid: 11, parent: 9, previous: 10, text: "Bing", img_uuid: 2, href: "https://www.bing.com/", appid: 11 },
     { uuid: 12, parent: 9, previous: 11, text: "DuckDuckGo", img_uuid: 3, href: "https://duckduckgo.com/", appid: 12 },
     { uuid: 13, parent: 9, previous: 12, text: "Ecosia", img_uuid: 4, href: "https://www.ecosia.org/", appid: 13 },
-    { uuid: 14, parent: 9, previous: 13, text: "A random Wikipédia page", img_uuid: 5, href: "https://en.wikipedia.org/wiki/Special:Random", appid: 14 },
+    { uuid: 14, parent: 9, previous: 13, text: "A random Wikipedia page", img_uuid: 5, href: "https://en.wikipedia.org/wiki/Special:Random", appid: 14 },
     { uuid: 15, parent: 9, previous: 14, text: "Reuters", img_uuid: 6, href: "https://www.reuters.com/", appid: 15 },
     { uuid: 16, parent: 9, previous: 15, text: "Calculator", img_uuid: 34, href: "Calculator:///", appid: 16 },
     // Mails
     { uuid: 17, parent: 1, previous: 9, type: 2, appid: 17, customcss: "gap:5px;" },
     { uuid: 18, parent: 17, previous: 0, text: "Gmail", img_uuid: 7, href: "https://mail.google.com/", appid: 18 },
     { uuid: 19, parent: 17, previous: 18, text: "Outlook", img_uuid: 8, href: "https://www.outlook.com/", appid: 19 },
-    { uuid: 20, parent: 17, previous: 19, text: "Yahoo", img_uuid: 9, href: "https://mail.yahoo.com/", appid: 20 },
+    { uuid: 20, parent: 17, previous: 19, text: "Yahoo", img_uuid: 9, href: "https://mail.yahoo.com/", appid: 20, customcss: "background-color:#765082;" },
     { uuid: 21, parent: 17, previous: 21, text: "Proton Mail", img_uuid: 10, href: "https://mail.proton.me/", appid: 21 },
     // Videos
     { uuid: 22, parent: 1, previous: 17, type: 2, appid: 22, customcss: "gap:5px;" },

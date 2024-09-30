@@ -1,6 +1,6 @@
-my-album[theme=light],
-my-group[theme=light],
-my-sticker[theme=light] {
-    --group-bg-color: bisque;
+/* my-album[data-theme=light],
+my-group[data-theme=light],
+my-sticker[data-theme=light] {
+    --group-bg-color: rgb(122, 110, 95);
     --sticker-bg-color: chocolate;
-}
+} */
