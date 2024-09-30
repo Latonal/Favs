@@ -1,0 +1,50 @@
+header.side {
+    background-color: #765082;
+    color: #f3edf4;
+    border-bottom: 1px solid #765082;
+}
+
+my-tab {
+    background-color: #4d3355;
+    border: 1px solid #765082;
+    border-bottom: #765082;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+my-album {
+    background-color: #4d3355;
+    border: 3px solid #765082;
+}
+
+my-group {
+    border: 2px solid #765082;
+    color: #f3edf4;
+}
+
+my-sticker {
+    border-radius: 5px;
+    margin: initial;
+}
+
+my-group[data-type="list"] my-sticker img,
+my-sticker[data-type="list"] img {
+    height: 25px;
+    width: auto;
+}
+
+my-group[data-type="icon"] my-sticker img,
+my-sticker[data-type="icon"] img {
+    height: 25px;
+    width: auto;
+}
+
+footer {
+    background-color: #765082;
+    color: #f3edf4;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+footer button {
+    color: #f3edf4;
+}
