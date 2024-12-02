@@ -1,0 +1,8 @@
+:root {
+    --transition-time: 0.4s;
+    /* LAYOUT SIZE */
+    --header-min-height: 50px;
+    --footer-min-height: 50px;
+    --pg-min-height: calc(100vh - var(--header-min-height) - var(--footer-min-height));
+    /* COLORS */
+}
