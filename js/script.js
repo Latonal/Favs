@@ -3,7 +3,7 @@ let start, end;
 CheckAccessibility();
 
 function CheckAccessibility(state = 0) {
-    const sp = document.getElementById("special-popups");
+    const sp = document.getElementById("permissions-popups");
     sp.querySelector("[data-popup-type='js-disabled']").setAttribute("hidden", true);
 
     if (state == 3) sp.querySelector("[data-popup-type='not-cookies']").setAttribute("hidden", true);

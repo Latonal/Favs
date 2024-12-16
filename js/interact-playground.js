@@ -213,6 +213,7 @@ class EditMenu extends Menu {
 var editItems = {
     close: true,
     text: false,
+    url: false,
     img: false,
     customcss: false,
     type: false,
@@ -282,6 +283,33 @@ const menuFormat = {
             elementTypeFormatCommon.checkFunctionExists("updateText", editMenu.elementType, editMenu.currentElement, event.target.value);
 
             keepTrackOfChanges(new ElementLog(editMenu.elementId, Status.UPDATE, "text"));
+        }
+    },
+    url: {
+        createField: function() {
+            const field = document.createElement("div");
+            field.setAttribute("data-field", "url");
+            const newP = document.createElement("p");
+            newP.innerText = "Url";
+            field.append(newP);
+            const input = document.createElement("input");
+            input.type = "url";
+            field.addEventListener("keyup", this.updateData);
+            field.append(input);
+            // Todo: add the checkbox for target
+            return field;
+        },
+        getInput: function (field) {
+            return field.querySelector("input");
+        },
+        setInputContent: function (element, field, elementType) {
+            const input = this.getInput(field);
+            input.value = elementTypeFormatCommon.checkFunctionExists("getHref", elementType, element);
+        },
+        updateData: function (event) {
+            elementTypeFormatCommon.checkFunctionExists("setHref", editMenu.elementType, editMenu.currentElement, event.target.value);
+
+            keepTrackOfChanges(new ElementLog(editMenu.elementId, Status.UPDATE, "href"));
         }
     },
     img: {
