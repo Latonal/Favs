@@ -7,15 +7,11 @@
     --footer-height: 50px;
 }
 
-/* #region base logic */
+/* #region playground layout */
 my-album,
 my-group,
 my-sticker {
     position: relative;
-}
-
-.dragged {
-    opacity: .4 !important;
 }
 
 my-tab {
@@ -36,7 +32,6 @@ my-tab {
 my-album {
     display: block;
     border: 3px solid var(--album-border-color);
-    /* padding: 3px; */
     min-height: calc(100vh - var(--header-height) - var(--footer-height));
     /* TODO: temp to allow to create new group */
     padding-bottom: 10px;
@@ -54,28 +49,35 @@ my-group {
     border: 2px solid saddlebrown;
     padding: 2px;
     align-content: center;
-    /* TODO : delete? */
-}
 
-my-group:not(:has(>my-sticker)):not(:empty) {
-    border: none;
-    padding: 0;
-}
+    &:empty {
+        min-height: 20px;
+        min-width: 20px;
+    }
 
-my-group:has(>my-sticker) {
-    flex-wrap: wrap;
-}
+    &:not(:has(>my-sticker)):not(:empty) {
+        border: none;
+        padding: 0;
+    }
 
-my-group[layer-level=odd] {
-    flex-direction: row;
-}
+    &:has(>my-sticker) {
+        flex-wrap: wrap;
+    }
 
-my-group[layer-level=even] {
-    flex-direction: column;
+    &[layer-level=odd] {
+        flex-direction: row;
+    }
+
+    &[layer-level=even] {
+        flex-direction: column;
+
+        &>my-sticker+my-sticker {
+            margin-top: 2px;
+        }
+    }
 }
 
 my-sticker {
-    /* border: 1px solid green; */
     padding: 2px;
     display: flex;
     flex-direction: row;
@@ -83,26 +85,20 @@ my-sticker {
     margin: auto;
 
     background-color: var(--sticker-bg-color);
+
+    &[href]:not([href=""]) {
+        cursor: pointer;
+    }
+
+    img {
+        pointer-events: none;
+    }
 }
 
-my-sticker[href]:not([href=""]) {
-    cursor: pointer;
-}
+/* #endregion playground layout */
 
-my-group[layer-level=even]>my-sticker+my-sticker {
-    margin-top: 2px;
-}
-
-my-group:empty {
-    min-height: 20px;
-    min-width: 20px;
-}
-
-my-sticker img {
-    pointer-events: none;
-}
-
-/* #endregion base logic */
+/* #region playground others */
+/* #endregion playground others */
 
 /* #region default stickers */
 my-sticker img {

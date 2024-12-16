@@ -1,0 +1,23 @@
+:root {
+    color-scheme: light dark;
+
+    --transition-time: 0.4s;
+
+    /* LAYOUT SIZE */
+    --header-min-height: 50px;
+    --footer-min-height: 50px;
+    --pg-min-height: calc(100vh - var(--header-min-height) - var(--footer-min-height));
+
+    /* SIZES */
+    --4px: 0.25rem;
+    --8px: 0.5rem;
+    --16px: 1rem;
+    --24px: 1.5rem;
+    --32px: 2rem;
+
+    /* COLORS */
+
+    /* PG VARIABLES */
+    --album-bg-c: #4d3355; /* use light-dark for base */
+    --album-border: 3px solid #765082; /* use light-dark for base */
+}

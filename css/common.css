@@ -1,0 +1,26 @@
+.hide {
+    display: none !important;
+}
+
+.bold {
+    font-weight: bold !important;
+}
+
+.center {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.vertical-center {
+    display: block !important;
+    align-content: center !important;
+}
+
+.scrollable {
+    overflow-y: auto !important;
+}
+
+.dragged {
+    opacity: .4 !important;
+}
