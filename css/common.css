@@ -20,3 +20,7 @@
 .scrollable {
     overflow-y: auto !important;
 }
+
+.dragged {
+    opacity: .4 !important;
+}

@@ -143,6 +143,9 @@ const elementTypeFormatCommon = {
 const elementTypeFormatDefault = {
     getData: function (element, object, dataToUpdate) {
         switch (dataToUpdate) {
+            case "href":
+                object.href = this.getHref(element);
+                break;
             default:
                 break;
         }
@@ -166,7 +169,7 @@ const elementTypeFormatDefault = {
         if (elementObj.text) element.appendChild(elementObj.text);
     },
     setMenu: function () {
-        return new MenuItemsToDisplay("text", "img", "customcss", "type");
+        return new MenuItemsToDisplay("text", "url", "img", "customcss", "type");
     },
 
     findText: function (element) {
@@ -190,7 +193,9 @@ const elementTypeFormatDefault = {
         return newImg;
     },
 
-    getHref: function (element) { },
+    getHref: function (element) {
+        return element.getAttribute("href") ?? "";
+    },
     setHref: function (element, href) {
         if (href) element.setAttribute("href", href);
     },
